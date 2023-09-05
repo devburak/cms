@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense, lazy } from 'react';
+
+import Footer from './components/footer';
+import { LanguageProvider } from './context/LanguageContext';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
+
+const Login = lazy(() => import('./pages/login'));
+const Profile = lazy(() => import('./pages/profile'));
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <LanguageProvider>
+        <Suspense fallback={<div>Yükleniyor...</div>}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          </Routes>
+          <Footer />
+        </Suspense>
+      </LanguageProvider>
+    </BrowserRouter>
   );
 }
 
