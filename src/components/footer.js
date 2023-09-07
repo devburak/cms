@@ -29,12 +29,13 @@ const Footer = ({ appName =config.appName || "Uygulama Adı", appVersion=config.
 
 const styles = {
     footerContainer: {
+       maxHeight:"5vh",
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '10px 20px',
+      padding: '10px 10px',
       borderTop: '1px solid #ccc',
-      backgroundColor: '#f7f7f7'
+      backgroundColor: '#00b0ff'
     },
     leftContainer: {},
     rightContainer: {
@@ -42,7 +43,8 @@ const styles = {
       alignItems: 'center'
     },
     versionContainer: {
-      marginRight: '10px'
+      marginRight: '10px',
+      color:"White"
     },
     languageContainer: {}
   };

@@ -1,5 +1,9 @@
 {
     "login": "Giriş",
-    "loginPage" :"Giriş Sayfası"
+    "loginPage" :"Giriş Sayfası",
+    "username_or_email":"Kullanıcı adı veya E-posta",
+    "password":"Şifre",
+    "forget_password":"Parolamı unuttum?",
+    "signup":"Yeni Hesap"
   }
   

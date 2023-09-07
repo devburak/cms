@@ -4,23 +4,33 @@ import Footer from './components/footer';
 import { LanguageProvider } from './context/LanguageContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import { AuthProvider } from './context/AuthContext';
+import './App.css';
 const Login = lazy(() => import('./pages/login'));
 const Profile = lazy(() => import('./pages/profile'));
 
 function App() {
   return (
-    <BrowserRouter>
-      <LanguageProvider>
-        <Suspense fallback={<div>Yükleniyor...</div>}>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          </Routes>
-          <Footer />
-        </Suspense>
-      </LanguageProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <LanguageProvider>
+
+          <Suspense fallback={<div>Yükleniyor...</div>}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path='/' element={<ProtectedRoute />}>
+                <Route path='/' element={<Profile />} />
+                <Route path='/profile' element={<Profile />} />
+              </Route>
+            
+            </Routes>
+            <Footer />
+          </Suspense>
+
+        </LanguageProvider>
+
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
