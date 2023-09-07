@@ -1,5 +1,9 @@
 {
     "login": "Login",
-    "loginPage" :"Login Page"
+    "loginPage" :"Login Page",
+    "username_or_email":"Username or Email",
+    "password":"Password",
+    "forget_password":"Forgot password?",
+    "signup":"New Account"
   }
   
