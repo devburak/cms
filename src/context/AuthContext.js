@@ -6,7 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('accessToken'));
-
+    const [user, setUser] = useState(null);
     useEffect(() => {
         let isMounted = true; 
         const checkAuthentication = async () => {
@@ -18,17 +18,19 @@ export const AuthProvider = ({ children }) => {
                             'Authorization': `Bearer ${token}`
                         }
                     });
-                    console.log(response.data)
-                    if (isMounted) { // Sadece bileşen mount edildiyse state güncellemesi yap
+                    if (isMounted && response.data) { // Sadece bileşen mount edildiyse state güncellemesi yap
                         if (response.data.user.isAuthenticated) {
                             setIsLoggedIn(true);
+                            setUser(response.data.user)
                         } else {
                             setIsLoggedIn(false);
+                            setUser(null)
                         }
                     }
                 } catch (error) {
                     console.error("Authentication check failed:", error);
                     setIsLoggedIn(false);
+                    setUser(null)
                 }
             }
         };
@@ -39,10 +41,8 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    useEffect(()=>{ console.log("use effect on Provider :" , isLoggedIn)},[isLoggedIn])
-
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser}}>
             {children}
         </AuthContext.Provider>
     );

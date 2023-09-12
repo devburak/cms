@@ -43,3 +43,25 @@ export const login= async (identifier, password) => {
         throw error;
       }
 }
+
+export const getProfile = async (token)=>{
+    try {
+        // Eğer token değeri undefined veya null ise localStorage'dan al
+        token = token || localStorage.getItem('accessToken');
+        const response = await axios.get(`${config.baseURL}api/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.data && response.data.user) {
+            return response.data.user;
+        }
+        return new Error("Can't get user data")
+        
+    } catch (error) {
+        console.error("Get Profile error:", error);
+        throw error;
+    }
+
+}

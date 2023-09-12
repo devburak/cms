@@ -4,6 +4,17 @@
     "username_or_email":"Kullanıcı adı veya E-posta",
     "password":"Şifre",
     "forget_password":"Parolamı unuttum?",
-    "signup":"Yeni Hesap"
+    "signup":"Yeni Hesap",
+    "addressName": "Adres Adı",
+    "fullAddress":"Tam Adres",
+    "addressNameRequired": "Adres adı zorunludur",
+    "addressNameTooShort": "Adres adı çok kısa",
+    "submit": "Gönder",
+    "isUsed":"Varsayılan mı?",
+    "edit":"Düzenle",
+    "view":"Görüntüle",
+    "delete":"Sil",
+    "add":"Ekle",
+    "save":"Kaydet"
   }
   

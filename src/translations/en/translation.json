@@ -4,6 +4,17 @@
     "username_or_email":"Username or Email",
     "password":"Password",
     "forget_password":"Forgot password?",
-    "signup":"New Account"
+    "signup":"New Account",
+    "addressName": "Address Name",
+    "fullAddress":"Full Address",
+    "addressNameRequired": "Address name is required",
+    "addressNameTooShort": "Address name is too short",
+    "submit": "Submit",
+    "isUsed":"Is Default?",
+    "edit":"Edit",
+    "view":"View",
+    "delete":"Delete",
+    "add":"Add",
+    "save":"Save"
   }
   
