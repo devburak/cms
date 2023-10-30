@@ -1,6 +1,7 @@
 {
     "login": "Giriş",
     "loginPage" :"Giriş Sayfası",
+    "username":"Kullanıcı Adı",
     "username_or_email":"Kullanıcı adı veya E-posta",
     "password":"Şifre",
     "forget_password":"Parolamı unuttum?",
@@ -15,6 +16,17 @@
     "view":"Görüntüle",
     "delete":"Sil",
     "add":"Ekle",
-    "save":"Kaydet"
+    "save":"Kaydet",
+    "add_address":"Adres Ekle",
+    "profile":"Profil",
+    "preferredLanguage":"Tercih Edilen Dil",
+    "resetPassword":"Parolayı Sıfırla",
+    "confirmPassword":"Parolayı Onayla",
+    "addresses":"Adresler",
+    "settings":"Ayarlar",
+    "setting":"Ayar",
+    "system": "Sistem",
+    "storages": "Depolar",
+    "Dashboard":"Panel"
   }
   

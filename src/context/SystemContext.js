@@ -10,7 +10,7 @@ export const useSystem = () => {
 
 export const SystemProvider = ({ children }) => {
     const [systemInfo, setSystemInfo] = useState({
-        languageOptions: [],
+        languageList: [],
         imageSizes: [],
         userRoles: []
     });
@@ -20,7 +20,17 @@ export const SystemProvider = ({ children }) => {
         const fetchSystemInfo = async () => {
             try {
                 const response = await axios.get(`${config.baseURL}api/system/information`);
-                setSystemInfo(response.data);
+                const data = response.data;
+                // API'den dönen veriyi key değerlerine göre bir objede topla
+                let updatedSystemInfo = {};
+                data.forEach(item => {
+                    updatedSystemInfo[item.key] = item.value;
+                });
+
+                setSystemInfo(prevState => ({
+                    ...prevState,
+                    ...updatedSystemInfo
+                }));
             } catch (error) {
                 console.error("System information fetch failed:", error);
             }

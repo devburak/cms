@@ -42,11 +42,12 @@ instance.interceptors.request.use(
             // Yeni token ile orijinal isteği tekrar yapın.
             return instance(originalRequest);
           }
+          // Eğer yeni bir access token alınamazsa veya başka bir hata alınırsa, kullanıcıyı login sayfasına yönlendirin.
+          window.location = '/login';
         }
       }
   
-      // Eğer yeni bir access token alınamazsa veya başka bir hata alınırsa, kullanıcıyı login sayfasına yönlendirin.
-      window.location = '/login';
+     
       return Promise.reject(error);
     }
   );

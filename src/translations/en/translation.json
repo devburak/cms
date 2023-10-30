@@ -1,6 +1,7 @@
 {
     "login": "Login",
     "loginPage" :"Login Page",
+    "username":"User Name",
     "username_or_email":"Username or Email",
     "password":"Password",
     "forget_password":"Forgot password?",
@@ -15,6 +16,17 @@
     "view":"View",
     "delete":"Delete",
     "add":"Add",
-    "save":"Save"
+    "save":"Save",
+    "add_address":"Add Address",
+    "profile":"Profile",
+    "preferredLanguage":"Preferred Language",
+    "resetPassword":"Reset Password",
+    "confirmPassword":"Confirm Password",
+    "addresses":"Addresses",
+    "settings":"Settings",
+    "setting":"Setting",
+    "system":"System",
+    "storages":"Storages",
+    "Dashboard":"Dashboard"
   }
   

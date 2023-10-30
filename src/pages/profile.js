@@ -1,12 +1,14 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import AddressForm from '../components/addressForm';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import AddressCard from '../components/addressCard';
-import { Grid, Container, Box, Button } from '@mui/material';
+import { Grid, Container, Box, Button, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
+import ProfileForm from '../components/profileForm';
+import PasswordResetForm from '../components/passwordResetForm';
 
 function AddressList() {
     const { t } = useTranslation();
@@ -32,47 +34,70 @@ function AddressList() {
     const sampleAddress = {
         name: 'Ev Adresim',
         fullAddress: '1234 Elm Street, Springfield, IL, 12345',
-        isUsed:false
+        isUsed: false
     };
 
-    const addresses = [sampleAddress, sampleAddress, sampleAddress,sampleAddress, sampleAddress, sampleAddress,]; // Örnek olarak aynı adresi birkaç kez ekledim. Gerçekte kendi adreslerinizi ekleyin.
+    const addresses = [sampleAddress, sampleAddress, sampleAddress, sampleAddress, sampleAddress, sampleAddress,]; // Örnek olarak aynı adresi birkaç kez ekledim. Gerçekte kendi adreslerinizi ekleyin.
 
     return (
-        <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-            <Grid container spacing={2} wrap="nowrap">
-                <Grid item style={{ display: 'inline-flex', alignItems:"center" }}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        border="1px dashed gray"
-                        borderRadius="4px"
-                        sx={{ width: '200px', height: '130px' }} // Bu değerleri AddressCard bileşeninizin genişliği ve yüksekliği ile eşleştirmeniz gerekebilir.
-                    >
-                        <Button startIcon={<AddIcon />} variant="outlined"  onClick={handleOpen}>
-                            {t("add")}
-                        </Button>
-                    </Box>
+        <div style={{minHeight: '95vh'}} >
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <Typography variant="h4" gutterBottom>
+                        {t("profile")}
+                    </Typography>
                 </Grid>
-                {addresses.map((address, index) => (
-                    <Grid item key={index} style={{ display: 'inline-flex' }}>
-                        <AddressCard
-                            address={address}
-                            onIsUsed={()=>console.log(address.isUsed)}
-                            onEdit={() => console.log(index)}
-                            onView={() => console.log(address)}
-                            onDelete={() => console.log('Delete')}
-                        />
-                    </Grid>
-                ))}
+                <Grid item xs={12}>
+                    <PasswordResetForm />
+                </Grid>
+                <Grid item xs={12}>
+                    <ProfileForm />
+                </Grid>
 
             </Grid>
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{t("add_address")}</DialogTitle>
-                <DialogContent>
-                    <AddressForm onSubmit={handleFormSubmit} />
-                </DialogContent>
-            </Dialog>
+            <Grid container  ml={2}>
+                <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>
+                        {t("addresses")}
+                    </Typography>
+                </Grid>
+            </Grid>
+            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                <Grid container spacing={2} wrap="nowrap" m={2}>
+                    <Grid item style={{ display: 'inline-flex', alignItems: "center" }}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            border="1px dashed gray"
+                            borderRadius="4px"
+                            sx={{ width: '200px', height: '130px' }} // Bu değerleri AddressCard bileşeninizin genişliği ve yüksekliği ile eşleştirmeniz gerekebilir.
+                        >
+                            <Button startIcon={<AddIcon />} variant="outlined" onClick={handleOpen}>
+                                {t("add")}
+                            </Button>
+                        </Box>
+                    </Grid>
+                    {addresses.map((address, index) => (
+                        <Grid item key={index} style={{ display: 'inline-flex' }}>
+                            <AddressCard
+                                address={address}
+                                onIsUsed={() => console.log(address.isUsed)}
+                                onEdit={() => console.log(index)}
+                                onView={() => console.log(address)}
+                                onDelete={() => console.log('Delete')}
+                            />
+                        </Grid>
+                    ))}
+
+                </Grid>
+                <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>{t("add_address")}</DialogTitle>
+                    <DialogContent>
+                        <AddressForm onSubmit={handleFormSubmit} />
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
     );
 }
