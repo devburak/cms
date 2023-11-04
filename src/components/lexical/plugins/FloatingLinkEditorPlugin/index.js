@@ -46,7 +46,6 @@ function FloatingLinkEditor({
   const [editedLinkUrl, setEditedLinkUrl] = useState("https://")
   const [lastSelection, setLastSelection] = useState(null)
 
-  console.log(isLinkEditMode,anchorElem )
 
   const updateLinkEditor = useCallback(() => {
     const selection = $getSelection()

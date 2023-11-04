@@ -150,9 +150,7 @@ export default function Editor() {
         <KeywordsPlugin />
         <SpeechToTextPlugin />
         <AutoLinkPlugin />
-        <CommentPlugin
-          providerFactory={isCollab ? createWebsocketProvider : undefined}
-        />
+        
         {isRichText ? (
           <>
             {isCollab ? (
@@ -257,7 +255,7 @@ export default function Editor() {
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
         <ActionsPlugin isRichText={isRichText} />
         </div>
-      {showTreeView && <TreeViewPlugin />}
+      
     </>
   );
 }

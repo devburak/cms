@@ -17,10 +17,6 @@ export function setFloatingElemPositionForLinkEditor(
 ) {
   const scrollerElem = anchorElem.parentElement
 
-  console.log(anchorElem)
-  console.log(floatingElem)
-  
-
   if (targetRect === null || !scrollerElem) {
     floatingElem.style.opacity = "0"
     floatingElem.style.transform = "translate(-10000px, -10000px)"

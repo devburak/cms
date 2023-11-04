@@ -1,8 +1,8 @@
 import { $createLinkNode } from "@lexical/link"
 import { $createListItemNode, $createListNode } from "@lexical/list"
 import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text"
-import { $createParagraphNode, $createTextNode, $getRoot } from "lexical"
-import React from 'react';
+import { $createParagraphNode, $createTextNode, $getRoot , EditorState } from "lexical"
+import React , { useState, useRef, useEffect } from 'react';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { SharedHistoryContext } from "./context/SharedHistoryContext";
 import { TableContext } from "./plugins/TablePlugin";
@@ -11,6 +11,7 @@ import Editor from "./Editor";
 import logo from "./images/logo.svg";
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
+import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import Settings from "./Settings";
 import DocsPlugin from "./plugins/DocsPlugin";
 import PasteLogPlugin from "./plugins/PasteLogPlugin";
@@ -108,6 +109,9 @@ function Playground() {
         settings: { isCollab, emptyEditor, measureTypingPerf }
     } = useSettings();
 
+    const editorRef = useRef(null);
+    const [currentEditorState, setCurrentEditorState] = useState(null);
+
     const initialConfig = {
         editorState: isCollab
             ? null
@@ -122,24 +126,56 @@ function Playground() {
         theme: PlaygroundEditorTheme
     };
 
+    const handleButtonClick = () => {
+
+        if (editorRef.current) {
+            const editorContent = editorRef.current.read();
+            setCurrentEditorState(editorContent);
+            console.log(editorContent);
+        }
+    };
+
+    useEffect(() => {
+        if (editorRef.current) {
+            const editorState = editorRef.current.state;
+            setCurrentEditorState(editorState);
+        }
+    }, [editorRef.current]);
+
     return (
+        <>
         <LexicalComposer initialConfig={initialConfig}>
             <SharedHistoryContext>
                 <TableContext>
                     <SharedAutocompleteContext>
                         <div className="editor-shell">
-                            <Editor />
+                        <Editor ref={editorRef} />
                         </div>
-                        <Settings />
-                        {isDevPlayground ? <DocsPlugin /> : null}
+                  
                         {isDevPlayground ? <PasteLogPlugin /> : null}
                         {isDevPlayground ? <TestRecorderPlugin /> : null}
-
                         {measureTypingPerf ? <TypingPerfPlugin /> : null}
                     </SharedAutocompleteContext>
                 </TableContext>
             </SharedHistoryContext>
+                <OnChangePlugin
+                    onChange={editorState => {
+                        editorState.read(() => {
+                            // write to database, local storage, etc.
+                            console.log(editorState.toJSON())
+                            const value = JSON.stringify(editorState); // or JSON.stringify(editorState.toJSON())
+                            console.log(value);
+                        });
+                    }}
+                />
         </LexicalComposer>
+        
+            <div>
+                <button onClick={handleButtonClick}>Get Editor Content</button>
+                <pre>{JSON.stringify(currentEditorState, null, 2)}</pre>
+            </div>
+
+        </>
     );
 }
 

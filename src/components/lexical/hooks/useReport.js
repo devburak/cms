@@ -42,7 +42,6 @@ export default function useReport() {
 
   return useCallback(
     (content) => {
-      console.log(content);
       const element = getElement();
       clearTimeout(timer.current);
       element.innerHTML = content;

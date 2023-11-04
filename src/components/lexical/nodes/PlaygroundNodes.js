@@ -27,6 +27,7 @@ import { StickyNode } from "./StickyNode"
 import { TableNode as NewTableNode } from "./TableNode"
 import { TweetNode } from "./TweetNode"
 import { YouTubeNode } from "./YouTubeNode"
+import {FileInputNode} from './FileInputNode'
 
 const PlaygroundNodes = [
   HeadingNode,
@@ -56,14 +57,14 @@ const PlaygroundNodes = [
   HorizontalRuleNode,
   TweetNode,
   YouTubeNode,
-
   MarkNode,
   CollapsibleContainerNode,
   CollapsibleContentNode,
   CollapsibleTitleNode,
   PageBreakNode,
   LayoutContainerNode,
-  LayoutItemNode
+  LayoutItemNode,
+  FileInputNode
 ]
 
 export default PlaygroundNodes
