@@ -3,7 +3,7 @@ import config from '../config';
 
 export const getNewAccessToken = async (refreshToken) => {
   try {
-    const response = await axios.post(config.baseURL + 'api/user/refresh-token', {
+    const response = await axios.post(config.baseURL + 'api/users/refresh-token', {
       refreshToken
     });
     return response.data.accessToken;
@@ -28,10 +28,10 @@ export const isLoggedIn = () => {
     localStorage.removeItem('refreshToken');
   };
 
-export const login= async (identifier, password) => {
+export const login= async (email, password) => {
     try {
-        const response = await axios.post(`${config.baseURL}api/user/login`, {
-        identifier,
+        const response = await axios.post(`${config.baseURL}api/users/login`, {
+        email,
           password
         });
         if (response.data && response.data.accessToken && response.data.refreshToken) {
@@ -48,7 +48,7 @@ export const getProfile = async (token)=>{
     try {
         // Eğer token değeri undefined veya null ise localStorage'dan al
         token = token || localStorage.getItem('accessToken');
-        const response = await axios.get(`${config.baseURL}api/profile`, {
+        const response = await axios.get(`${config.baseURL}api/users/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

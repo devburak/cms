@@ -70,7 +70,7 @@ import Placeholder from './ui/Placeholder';
 const skipCollaborationInit =
   window.parent != null && window.parent.frames.right === window;
 
-export default function Editor() {
+const Editor = React.forwardRef((props, ref) => {
   const { historyState } = useSharedHistoryContext();
   const {
     settings: {
@@ -143,7 +143,6 @@ export default function Editor() {
         <ComponentPickerPlugin />
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
-
         <MentionsPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
@@ -173,7 +172,7 @@ export default function Editor() {
               placeholder={placeholder}
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <MarkdownShortcutPlugin />
+            {/* <MarkdownShortcutPlugin /> */}
             <CodeHighlightPlugin />
             <ListPlugin />
             <CheckListPlugin />
@@ -258,4 +257,6 @@ export default function Editor() {
       
     </>
   );
-}
+})
+
+export default Editor;

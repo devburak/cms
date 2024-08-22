@@ -106,12 +106,9 @@ function AddressList() {
 const Profile = () => {
 
 
-
-
-
     return (
         <Container maxWidth="lg">
-            <AddressList />
+            {/* <AddressList /> */}
         </Container>
     )
 };

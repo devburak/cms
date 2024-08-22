@@ -7,6 +7,7 @@ const Footer = ({ appName =config.appName || "Uygulama Adı", appVersion=config.
   const currentYear = new Date().getFullYear();
   const { language, setLanguage } = useLanguage();
   return (
+   <div style={{padding:10, paddingBottom: '60px'}}>
     <div style={styles.footerContainer}>
       <div style={styles.leftContainer}>
         {currentYear} - {appName}
@@ -24,19 +25,25 @@ const Footer = ({ appName =config.appName || "Uygulama Adı", appVersion=config.
         </div>
       </div>
     </div>
+    </div>
   );
 };
 
 const styles = {
-    footerContainer: {
-       maxHeight:"5vh",
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '10px 10px',
-      borderTop: '1px solid #ccc',
-      backgroundColor: '#00b0ff'
-    },
+  footerContainer: {
+    position: 'fixed', // Footer'ı sabitle
+    bottom: 0, // Altta sabitle
+    left: 0,
+    right: 0,
+    maxHeight: "5vh",
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 10px',
+    borderTop: '1px solid #ccc',
+    backgroundColor: '#00b0ff',
+    zIndex: 1000 
+  },
     leftContainer: {},
     rightContainer: {
       display: 'flex',

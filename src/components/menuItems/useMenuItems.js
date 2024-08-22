@@ -4,7 +4,10 @@ import ArticleIcon from '@mui/icons-material/Article';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import PeopleIcon from '@mui/icons-material/People';
 
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -22,33 +25,72 @@ const dashboard = {
         url: '/',
         icon: DashboardIcon,
         breadcrumbs: false
-      }
+      },
+      {
+        id: 'files',
+        title: t('Files'),
+        type: 'item',
+        url: '/files',
+        icon: AttachFileIcon,
+        breadcrumbs: false
+      },
+      {
+        id: 'newCategory',
+        title: t('Category'),
+        type: 'item',
+        url: '/category',
+        icon: CategoryIcon,
+        target: false
+      },
     ]
   };
 
-  const sample = {
-    id: 'sample',
-    title: t('Sample Page'),
+ 
+  const users ={
+    id: 'usersgruop',
+    title: t('Users'),
+    caption: t('user operations'),
     type: 'group',
-      children: [
+    children: [
+      {
+        id: 'usersop',
+        title: t('user operations'),
+        type: 'collapse',
+        icon: PeopleIcon,
+        children: [
           {
-              id: 'sample-page',
-              title: t('Sample Page'),
-              type: 'item',
-              url: '/sample-page',
-              icon: ExplicitIcon,
-              breadcrumbs: false
+            id: 'user',
+            title: t('New user'),
+            type: 'item',
+            url: '/user',
+            target: true
           },
           {
-              id: 'product',
-              title: t('Product Page'),
-              type: 'item',
-              url: '/product',
-              icon: ExplicitIcon,
-              breadcrumbs: false
+            id: 'users',
+            title: t('Users'),
+            type: 'item',
+            url: '/users',
+            target: true
+          },
+          {
+            id: 'roles',
+            title: t('Roles'),
+            type: 'item',
+            url: '/role',
+            target: true
+          },
+          {
+            id: 'logs',
+            title: t('Logs'),
+            type: 'item',
+            url: '/logs',
+            target: true
           }
-      ]
-  };
+        ]
+      }
+    ]
+
+  }
 
   const pages = {
     id: 'pages',
@@ -66,12 +108,12 @@ const dashboard = {
             id: 'newstaticpages',
             title: t('New'),
             type: 'item',
-            url: '/newpage',
+            url: '/content',
             target: true
           },
           {
             id: 'allstaticpages',
-            title: t('All Pages'),
+            title: t('Pages'),
             type: 'item',
             url: '/allpages',
             target: true
@@ -81,36 +123,6 @@ const dashboard = {
     ]
   };
 
-const categories = {
-    id: 'categories',
-    title: t('Categories'),
-    caption: t('Categories') +" "+t('Operation'),
-    type: 'group',
-    children: [
-      {
-        id: 'category',
-        title: t('Categories'),
-        type: 'collapse',
-        icon: CategoryIcon,
-        children: [
-          {
-            id: 'newCategory',
-            title: t('New Category'),
-            type: 'item',
-            url: '/category',
-            target: false
-          },
-          {
-            id: 'listCategory',
-            title: t('Categories'),
-            type: 'item',
-            url: '/categories',
-            target: false
-          }
-        ]
-      }
-    ]
-  };
 const products = {
   id: 'product',
   title: t('Products'),
@@ -146,9 +158,7 @@ const menuItems = {
   items: [
     dashboard,
     pages,
-    products,
-    categories,
-    sample
+    users
   ]
 }
   return menuItems;

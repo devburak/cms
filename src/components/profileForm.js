@@ -60,11 +60,14 @@ const ProfileForm = ({ onSubmit, initialValues }) => {
             onChange={formik.handleChange}
             label={t('preferredLanguage')}
           >
-            {languageList && languageList.map((option) => (
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="tr">Türkçe</MenuItem>
+
+            {/* {languageList && languageList.map((option) => (
               <MenuItem key={option.code} value={option.code}>
                 {option.name}
               </MenuItem>
-            ))}
+            ))} */}
           </Select>
         </FormControl>
       </Box>

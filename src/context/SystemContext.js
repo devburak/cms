@@ -1,6 +1,6 @@
 // SystemContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios'; // Eğer axios kullanıyorsanız
+import axios from 'axios'; 
 import config from '../config';
 const SystemContext = createContext();
 

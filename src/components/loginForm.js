@@ -19,7 +19,7 @@ function LoginForm({ handleLogin }) {
     const { t } = useTranslation();
 
     const [values, setValues] = useState({
-        identifier: '',
+        email: '',
         password: '',
         showPassword: false
     });
@@ -34,7 +34,7 @@ function LoginForm({ handleLogin }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        handleLogin(values.identifier, values.password);
+        handleLogin(values.email, values.password);
     };
 
     return (
@@ -52,12 +52,12 @@ function LoginForm({ handleLogin }) {
             />
             <form onSubmit={handleSubmit}>
                 <TextField
-                    label={t("username_or_email")}
+                    label={t("email")}
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    value={values.identifier}
-                    onChange={handleChange('identifier')}
+                    value={values.email}
+                    onChange={handleChange('email')}
                 />
                 <FormControl variant="outlined" fullWidth margin="normal">
                     <TextField

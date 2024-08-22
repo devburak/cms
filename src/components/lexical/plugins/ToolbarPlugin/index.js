@@ -90,11 +90,13 @@ import { INSERT_PAGE_BREAK } from "../PageBreakPlugin"
 import { InsertPollDialog } from "../PollPlugin"
 import { InsertNewTableDialog, InsertTableDialog } from "../TablePlugin"
 import FileInputPlugin from "../FileInputPlugin"
+import InsertFilePlugin from "../../../file/InsertFilePlugin"
+import { Button } from "@mui/material"
 
 const blockTypeToBlockName = {
   bullet: "Bulleted List",
-  check: "Check List",
-  code: "Code Block",
+  // check: "Check List",
+  // code: "Code Block",
   h1: "Heading 1",
   h2: "Heading 2",
   h3: "Heading 3",
@@ -330,13 +332,13 @@ function BlockFormatDropDown({
         <i className="icon numbered-list" />
         <span className="text">Numbered List</span>
       </DropDownItem>
-      <DropDownItem
+      {/* <DropDownItem
         className={"item " + dropDownActiveClass(blockType === "check")}
         onClick={formatCheckList}
       >
         <i className="icon check-list" />
         <span className="text">Check List</span>
-      </DropDownItem>
+      </DropDownItem> */}
       <DropDownItem
         className={"item " + dropDownActiveClass(blockType === "quote")}
         onClick={formatQuote}
@@ -344,13 +346,13 @@ function BlockFormatDropDown({
         <i className="icon quote" />
         <span className="text">Quote</span>
       </DropDownItem>
-      <DropDownItem
+      {/* <DropDownItem
         className={"item " + dropDownActiveClass(blockType === "code")}
         onClick={formatCode}
       >
         <i className="icon code" />
         <span className="text">Code Block</span>
-      </DropDownItem>
+      </DropDownItem> */}
     </DropDown>
   )
 }
@@ -852,12 +854,12 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
         </DropDown>
       ) : (
         <>
-          <FontDropDown
+          {/* <FontDropDown
             disabled={!isEditable}
             style={"font-family"}
             value={fontFamily}
             editor={editor}
-          />
+          /> */}
           <FontDropDown
             disabled={!isEditable}
             style={"font-size"}
@@ -1029,7 +1031,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             buttonAriaLabel="Insert specialized editor node"
             buttonIconClassName="icon plus"
           >
-            <DropDownItem
+            {/* <DropDownItem
               onClick={() => {
                 activeEditor.dispatchCommand(
                   INSERT_HORIZONTAL_RULE_COMMAND,
@@ -1040,8 +1042,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon horizontal-rule" />
               <span className="text">Horizontal Rule</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() => {
                 activeEditor.dispatchCommand(INSERT_PAGE_BREAK, undefined)
               }}
@@ -1049,8 +1051,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon page-break" />
               <span className="text">Page Break</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() => {
                 showModal("Insert Image", onClose => (
                   <InsertImageDialog
@@ -1063,8 +1065,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon image" />
               <span className="text">Image</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() => {
                 showModal("Insert Inline Image", onClose => (
                   <InsertInlineImageDialog
@@ -1077,8 +1079,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon image" />
               <span className="text">Inline Image</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() =>
                 insertGifOnClick({
                   altText: "Cat typing on a laptop",
@@ -1089,8 +1091,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon gif" />
               <span className="text">GIF</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() => {
                 activeEditor.dispatchCommand(
                   INSERT_EXCALIDRAW_COMMAND,
@@ -1101,7 +1103,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon diagram-2" />
               <span className="text">Excalidraw</span>
-            </DropDownItem>
+            </DropDownItem> */}
             <DropDownItem
               onClick={() => {
                 showModal("Insert Table", onClose => (
@@ -1116,7 +1118,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
               <i className="icon table" />
               <span className="text">Table</span>
             </DropDownItem>
-            <DropDownItem
+            {/* <DropDownItem
               onClick={() => {
                 showModal("Insert Table", onClose => (
                   <InsertNewTableDialog
@@ -1129,8 +1131,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon table" />
               <span className="text">Table (Experimental)</span>
-            </DropDownItem>
-            <DropDownItem
+            </DropDownItem> */}
+            {/* <DropDownItem
               onClick={() => {
                 showModal("Insert Poll", onClose => (
                   <InsertPollDialog
@@ -1143,17 +1145,18 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon poll" />
               <span className="text">Poll</span>
-            </DropDownItem>
+              </DropDownItem> */}
               <DropDownItem
                 onClick={() => {
+                  console.log("clicked DropDown")
                   showModal("Insert File", onClose => (
-                    <FileInputPlugin activeEditor={activeEditor} onClose={onClose} isOpen={true}  />
+                    <InsertFilePlugin onClose={onClose} />
                   ));
                 }}
                 className="item"
               >
-                <i className="icon file" />
-                <span className="text">Insert File</span>
+                <i className="icon image" />
+                <span className="text">Insert File Plugin</span>
               </DropDownItem>
             <DropDownItem
               onClick={() => {
@@ -1184,7 +1187,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
               <i className="icon equation" />
               <span className="text">Equation</span>
             </DropDownItem>
-            <DropDownItem
+            {/* <DropDownItem
               onClick={() => {
                 editor.update(() => {
                   const root = $getRoot()
@@ -1196,7 +1199,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon sticky" />
               <span className="text">Sticky Note</span>
-            </DropDownItem>
+            </DropDownItem> */}
             <DropDownItem
               onClick={() => {
                 editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined)

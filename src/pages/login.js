@@ -1,9 +1,11 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { Container, Box } from '@mui/material';
 import LoginForm from '../components/loginForm';
 import { login ,getProfile } from '../services/authService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Notification from '../components/informations/notification';
+
 const Login = () => {
     const { setIsLoggedIn ,setUser } = useAuth();
     const navigate = useNavigate();
@@ -11,9 +13,15 @@ const Login = () => {
     const { from } = location.state || { from: { pathname: "/" } };
     const redirectTo = from.pathname === "/login" ? "/" : from.pathname;
 
-    const loginSubmit = async (identifier, password) => {
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'error', // 'success' | 'error' | 'warning' | 'info'
+    });
+
+    const loginSubmit = async (email, password) => {
         try {
-            const data = await login(identifier, password);
+            const data = await login(email, password);
             if (data && data.accessToken && data.refreshToken) {
                 setIsLoggedIn(true);  // Bu satırı ekleyin
                 const user = await getProfile( data.accessToken)
@@ -23,6 +31,11 @@ const Login = () => {
         } catch (error) {
             console.error("Login failed:", error);
             // Hata mesajını kullanıcıya gösterebilirsiniz.
+            setNotification({
+                open: true,
+                message: 'Bir hata oluştu! tekrar deneyin.',
+                severity: 'error',
+            })
         }
     };
 
@@ -37,6 +50,12 @@ const Login = () => {
         >
             <Container maxWidth="sm">
                 <LoginForm  handleLogin={loginSubmit} />
+                <Notification
+                open={notification.open}
+                message={notification.message}
+                severity={notification.severity}
+                onClose={() => setNotification({ open: false, message: '', severity: 'error' })}
+            />
             </Container>
         </Box>
     );

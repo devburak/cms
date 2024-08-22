@@ -143,7 +143,7 @@ export default function ActionsPlugin({ isRichText }) {
 
   return (
     <div className="actions">
-      {SUPPORT_SPEECH_RECOGNITION && (
+      {/* {SUPPORT_SPEECH_RECOGNITION && (
         <button
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText)
@@ -158,8 +158,8 @@ export default function ActionsPlugin({ isRichText }) {
         >
           <i className="mic" />
         </button>
-      )}
-      <button
+      )} */}
+      {/* <button
         className="action-button import"
         onClick={() => importFile(editor)}
         title="Import"
@@ -179,7 +179,7 @@ export default function ActionsPlugin({ isRichText }) {
         aria-label="Export editor state to JSON"
       >
         <i className="export" />
-      </button>
+      </button> */}
       <button
         className="action-button clear"
         disabled={isEditorEmpty}
@@ -207,14 +207,14 @@ export default function ActionsPlugin({ isRichText }) {
       >
         <i className={!isEditable ? "unlock" : "lock"} />
       </button>
-      <button
+      {/* <button
         className="action-button"
         onClick={handleMarkdownToggle}
         title="Convert From Markdown"
         aria-label="Convert from markdown"
       >
         <i className="markdown" />
-      </button>
+      </button> */}
       {isCollabActive && (
         <button
           className="action-button connect"
@@ -239,7 +239,7 @@ export default function ActionsPlugin({ isRichText }) {
 function ShowClearDialog({ editor, onClose }) {
   return (
     <>
-      Are you sure you want to clear the editor?
+      Temizlemek istediğinizden eminmisiniz
       <div className="Modal__content">
         <Button
           onClick={() => {
@@ -248,7 +248,7 @@ function ShowClearDialog({ editor, onClose }) {
             onClose()
           }}
         >
-          Clear
+          Temizle
         </Button>{" "}
         <Button
           onClick={() => {
@@ -256,7 +256,7 @@ function ShowClearDialog({ editor, onClose }) {
             onClose()
           }}
         >
-          Cancel
+          Vazgeç
         </Button>
       </div>
     </>

@@ -11,6 +11,7 @@ export default function BAppBar({open, handleToggle }) {
   const location = useLocation();
   const { t } = useTranslation();
   const menuItems = useMenuItems();
+  
   // Geçerli yolu menuItems ile karşılaştır
   let currentTitle = t("İKONX Panel");
   for (let group of menuItems.items) {
@@ -32,7 +33,7 @@ export default function BAppBar({open, handleToggle }) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" style={{  width:open?`calc(100% - ${200}px)` :"100%", marginLeft: open ? 200 : 0, transition: 'margin 0.3s' }}>
+      <AppBar position="static" style={{   maxWidth: 'none',width:open? `calc(100vw - 200px)` : "100vw", marginLeft: open ? 200 : 0, transition: 'margin 0.3s' }}>
         <Toolbar>
           <IconButton
             size="large"
