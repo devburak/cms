@@ -107,21 +107,24 @@ const UserForm = ({ userId, onSave }) => {
             />
           </Grid>
         )}
-        <Grid item xs={12}>
-          <FormControl fullWidth required>
-            <InputLabel>Role</InputLabel>
-            <Select
-              name="role"
-              value={user.role || ''}
-              onChange={handleChange}
-            >
-              {roles.map((role) => (
-                <MenuItem key={role._id} value={role._id}>
-                  {role.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              <Grid item xs={12}>
+                  <FormControl fullWidth required>
+                      <InputLabel>Role</InputLabel>
+                      {roles.length > 0 && (
+                          <Select
+                              name="role"
+                              value={roles.some(role => role._id === user.role) ? user.role : ''}
+                              onChange={handleChange}
+                          >
+                              {roles.map((role) => (
+                                  <MenuItem key={role._id} value={role._id}>
+                                      {role.name}
+                                  </MenuItem>
+                              ))}
+                          </Select>
+                      )}
+
+                  </FormControl>
         </Grid>
         <Grid item xs={12}>
           <Button type="submit" variant="contained" color="primary" fullWidth>

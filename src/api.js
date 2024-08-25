@@ -470,7 +470,7 @@ export const createEventType = async (eventTypeData) => {
 // Etkinlik oluşturma
 export const createEvent = async (eventData) => {
   try {
-    const response = await instance.post('/api/events', {eventData});
+    const response = await instance.post('/api/events', eventData);
     return response.data;
   } catch (error) {
     console.error('Error creating event:', error);
@@ -496,6 +496,34 @@ export const getEventById = async (eventId) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching event by ID:', error);
+    throw error;
+  }
+};
+
+// Event List with Pagination, Filtering, and Sorting
+export const fetchEvents = async (filter = {}, page = 1, limit = 10) => {
+  try {
+    const response = await instance.get('/api/events/list', {
+      params: {
+        page,
+        limit,
+        ...filter, // filter: { eventType, startDate, endDate, title }
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    throw error;
+  }
+};
+
+// Delete an event
+export const deleteEvent = async (eventId) => {
+  try {
+    const response = await instance.delete(`/api/events/${eventId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting event:', error);
     throw error;
   }
 };

@@ -6,7 +6,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PeopleIcon from '@mui/icons-material/People';
-
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 export function useMenuItems() {
@@ -154,11 +154,43 @@ const products = {
   ]
 
 }
+
+const events = {
+  id: 'events',
+  title: t('Events'),
+  caption: t('Events Caption'),
+  type: 'group',
+  children: [
+    {
+      id: 'event_pages',
+      title: t('Events'),
+      type: 'collapse',
+      icon: CalendarMonthIcon,
+      children: [
+        {
+          id: 'newevent',
+          title: t('New'),
+          type: 'item',
+          url: '/event',
+          target: true
+        },
+        {
+          id: 'eventlist',
+          title: t('Events'),
+          type: 'item',
+          url: '/events',
+          target: true
+        }
+      ]
+    }
+  ]
+};
 const menuItems = {
   items: [
     dashboard,
     pages,
-    users
+    users,
+    events
   ]
 }
   return menuItems;

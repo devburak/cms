@@ -22,6 +22,7 @@ const RolePage = lazy(()=>import('./pages/rolePage'));
 const UsersPage = lazy(()=>import('./pages/usersPage'));
 const UserPage = lazy(()=>import('./pages/userPage'));
 const EventPage =lazy(()=>import('./pages/eventPage'));
+const EventsPage = lazy(()=>import('./pages/eventsPage'))
 const UnderConstructionPage = lazy(()=>import('./pages/underConstructionPage'))
 
 function App() {
@@ -48,7 +49,7 @@ function App() {
                 <Route path='/role' element={<RolePage />} />
                 <Route path='/users' element={<UsersPage />} />
                 <Route path='/user/:id?' element={<UserPage />} />
-                <Route path='/events' element={<UsersPage />} />
+                <Route path='/events' element={<EventsPage />} />
                 <Route path='/event/:id?' element={<EventPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>

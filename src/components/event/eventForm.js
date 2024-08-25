@@ -3,7 +3,7 @@ import { Grid, TextField, Button, MenuItem, FormControl, InputLabel, Select } fr
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
-import 'moment/locale/tr'; // Türkçe dil desteği için Moment.js dil ayarları
+import 'moment/locale/tr';
 import { getEventById, createEvent, updateEvent, getAllEventTypes, createEventType } from '../../api';
 
 const EventForm = ({ eventId, onSave }) => {
@@ -18,6 +18,7 @@ const EventForm = ({ eventId, onSave }) => {
     bodyHtml: '',
     bodyJson: ''
   });
+
   const [eventTypes, setEventTypes] = useState([]);
   const [newEventType, setNewEventType] = useState('');
 
@@ -52,13 +53,16 @@ const EventForm = ({ eventId, onSave }) => {
   const handleEventTypeChange = (e) => {
     const value = e.target.value;
     if (value === 'new') {
-      setNewEventType(''); // Yeni tür alanını temizle
+      setNewEventType('');
       setEvent((prev) => ({
         ...prev,
         eventType: 'new'
       }));
     } else {
-      setEvent((prev) => ({ ...prev, eventType: value }));
+      setEvent((prev) => ({
+        ...prev,
+        eventType: value
+      }));
     }
   };
 
@@ -70,7 +74,7 @@ const EventForm = ({ eventId, onSave }) => {
     e.preventDefault();
     try {
       let eventTypeId = event.eventType;
-      if (eventTypeId === 'new' && newEventType) {
+      if (event.eventType === 'new' && newEventType) {
         const createdType = await createEventType({ name: newEventType });
         eventTypeId = createdType._id;
       }
@@ -113,14 +117,14 @@ const EventForm = ({ eventId, onSave }) => {
           />
         </Grid>
         <Grid item xs={6}>
-          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr"> {/* Türkçe dil desteği */}
+          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr">
             <DateTimePicker
               label="Start Date"
               value={event.startDate}
               onChange={(date) => handleDateChange(date, 'startDate')}
-              renderInput={(params) => <TextField {...params} fullWidth required size="small" />}
-              ampm={false} // 24 saat formatı için
-              inputFormat="DD/MM/YYYY HH:mm" // Tarih ve saat formatı
+              slots={{ textField: (params) => <TextField {...params} fullWidth required size="small" /> }}
+              ampm={false}
+              inputFormat="DD/MM/YYYY HH:mm"
             />
           </LocalizationProvider>
         </Grid>
@@ -130,7 +134,7 @@ const EventForm = ({ eventId, onSave }) => {
               label="End Date"
               value={event.endDate}
               onChange={(date) => handleDateChange(date, 'endDate')}
-              renderInput={(params) => <TextField {...params} fullWidth required size="small" />}
+              slots={{ textField: (params) => <TextField {...params} fullWidth  size="small" /> }}
               ampm={false}
               inputFormat="DD/MM/YYYY HH:mm"
             />
@@ -154,8 +158,8 @@ const EventForm = ({ eventId, onSave }) => {
               value={event.eventType === 'new' ? 'new' : event.eventType}
               onChange={handleEventTypeChange}
             >
-              {eventTypes.map(type => (
-                <MenuItem key={type._id} value={type._id}>
+              {eventTypes.map((type) => (
+                <MenuItem key={type._id} value={type.name}>
                   {type.name}
                 </MenuItem>
               ))}
@@ -175,17 +179,6 @@ const EventForm = ({ eventId, onSave }) => {
             />
           </Grid>
         )}
-        <Grid item xs={12}>
-          <TextField
-            name="link"
-            label="Link"
-            value={event.link}
-            onChange={handleChange}
-            fullWidth
-            size="small"
-          />
-        </Grid>
-        {/* Body alanı burada olacak */}
         <Grid item xs={12}>
           <Button type="submit" variant="contained" color="primary">
             {eventId ? 'Update Event' : 'Create Event'}
