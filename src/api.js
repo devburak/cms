@@ -527,3 +527,39 @@ export const deleteEvent = async (eventId) => {
     throw error;
   }
 };
+
+
+// apptoken services
+
+// Uygulama Tokenı Oluşturma
+export const createAppToken = async (data) => {
+  try {
+    const response = await instance.post('/api/apptoken/create', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating app token:', error);
+    throw error;
+  }
+};
+
+// Uygulama Tokenlarını Listeleme
+export const listAppTokens = async () => {
+  try {
+    const response = await instance.get('/api/apptoken/list');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching app tokens:', error);
+    throw error;
+  }
+};
+
+// Uygulama Tokenı Silme
+export const deleteAppToken = async (tokenId) => {
+  try {
+    const response = await instance.delete(`/api/apptoken/delete/${tokenId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting app token:', error);
+    throw error;
+  }
+};

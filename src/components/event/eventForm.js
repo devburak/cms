@@ -5,6 +5,9 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
 import 'moment/locale/tr';
 import { getEventById, createEvent, updateEvent, getAllEventTypes, createEventType } from '../../api';
+import EditorWrapper from '../lexical/playground';
+import { $generateNodesFromDOM } from "@lexical/html";
+import { createEditor } from "lexical";
 
 const EventForm = ({ eventId, onSave }) => {
   const [event, setEvent] = useState({
@@ -21,6 +24,7 @@ const EventForm = ({ eventId, onSave }) => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [newEventType, setNewEventType] = useState('');
+  const [initialContent, setInitialContent] = useState('');
 
   useEffect(() => {
     if (eventId) {
@@ -28,8 +32,24 @@ const EventForm = ({ eventId, onSave }) => {
         setEvent({
           ...data,
           startDate: data.startDate ? moment(data.startDate) : null,
-          endDate: data.endDate ? moment(data.endDate) : null
+          endDate: data.endDate ? moment(data.endDate) : null,
+          bodyHtml: data.bodyHtml || '',
+          bodyJson: data.bodyJson || '',
         });
+
+          // İçeriği işleme: JSON varsa onu kullan, yoksa HTML'den dönüştür
+          if (data.bodyJson) {
+              setInitialContent(data.bodyJson);
+          } else if (data.bodyHtml) {
+              const editor = createEditor();
+              const parser = new DOMParser();
+              const dom = parser.parseFromString(data.bodyHtml, "text/html");
+              editor.update(() => {
+                  const nodes = $generateNodesFromDOM(editor, dom);
+                  const jsonContent = editor.getEditorState().toJSON();
+                  setInitialContent(JSON.stringify(jsonContent));
+              });
+          }
       });
     }
     getAllEventTypes().then(setEventTypes);
@@ -88,6 +108,15 @@ const EventForm = ({ eventId, onSave }) => {
     } catch (error) {
       console.error('Error saving event:', error);
     }
+  };
+
+
+  const handleEditorChange = (content) => {
+    setEvent((prev) => ({
+      ...prev,
+      bodyHtml: content.html, // HTML içerik
+      bodyJson: content.json, // JSON içerik
+    }));
   };
 
   return (
@@ -179,6 +208,12 @@ const EventForm = ({ eventId, onSave }) => {
             />
           </Grid>
         )}
+        <Grid item xs={12}>
+          <EditorWrapper
+            initialContent={initialContent} //
+            getContent={handleEditorChange} // İçerik değişimlerini yönet
+          />
+        </Grid>
         <Grid item xs={12}>
           <Button type="submit" variant="contained" color="primary">
             {eventId ? 'Update Event' : 'Create Event'}
