@@ -22,7 +22,8 @@ const RolePage = lazy(()=>import('./pages/rolePage'));
 const UsersPage = lazy(()=>import('./pages/usersPage'));
 const UserPage = lazy(()=>import('./pages/userPage'));
 const EventPage =lazy(()=>import('./pages/eventPage'));
-const EventsPage = lazy(()=>import('./pages/eventsPage'))
+const EventsPage = lazy(()=>import('./pages/eventsPage'));
+const AppTokensPage = lazy(()=>import('./pages/appTokensPage'))
 const UnderConstructionPage = lazy(()=>import('./pages/underConstructionPage'))
 
 function App() {
@@ -31,7 +32,6 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <LanguageProvider>
-
           <Suspense fallback={<div>Yükleniyor...</div>}>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -51,6 +51,7 @@ function App() {
                 <Route path='/user/:id?' element={<UserPage />} />
                 <Route path='/events' element={<EventsPage />} />
                 <Route path='/event/:id?' element={<EventPage />} />
+                <Route path='/apptoken' element={<AppTokensPage />} /> 
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>

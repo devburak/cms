@@ -8,6 +8,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PeopleIcon from '@mui/icons-material/People';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -185,12 +186,44 @@ const events = {
     }
   ]
 };
+
+const settings = {
+  id: 'setting',
+  title: t('Settings'),
+  caption: t('Settings Caption'),
+  type: 'group',
+  children: [
+    {
+      id: 'settingPage',
+      title: t('Settings'),
+      type: 'collapse',
+      icon: SettingsSuggestIcon,
+      children: [
+        {
+          id: 'apptoken',
+          title: t('App Token'),
+          type: 'item',
+          url: '/apptoken',
+          target: true
+        },
+        {
+          id: 'logs',
+          title: t('Logs'),
+          type: 'item',
+          url: '/logs',
+          target: true
+        }
+      ]
+    }
+  ]
+};
 const menuItems = {
   items: [
     dashboard,
     pages,
     users,
-    events
+    events,
+    settings
   ]
 }
   return menuItems;

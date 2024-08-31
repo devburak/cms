@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useMediaQuery, Pagination } from '@mui/material';  // Pagination eklendi
+import { useMediaQuery } from '@mui/material';
 import { Select, MenuItem, FormControl, InputLabel, Grid, ImageList, ImageListItem, ImageListItemBar, LinearProgress, Icon, Paper, IconButton, Drawer, TextField, Button } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { uploadFiles, renameFile, deleteFile } from '../../api';
@@ -23,15 +23,15 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
     const [fileTypeFilter, setFileTypeFilter] = useState(''); // Dosya türü filtresi
     const [searchTerm, setSearchTerm] = useState(''); // Arama terimi
     const [files, setFiles] = useState([]); // Yüklenen dosyalar
-    const [currentPage, setCurrentPage] = useState(1); // Mevcut sayfa
-    const [totalPages, setTotalPages] = useState(1); // Toplam sayfa sayısı
-    const [itemsPerPage, setItemsPerPage] = useState(24); // Sayfa başına gösterilecek öğe sayısı (örneğin 12)
+
 
     // Direkt CSS medya sorgusu ifadesi kullanılıyor
     const isLargeScreen = useMediaQuery('(min-width:600px)'); // 'md' breakpoint
+
     const cols = isLargeScreen ? 8 : 2;
 
     const isSelected = useCallback((file) => {
+        console.log(selectedFiles)
         return selectedFiles.some(selectedFile => selectedFile._id === file._id) ||
             initialSelectedFiles.some(initialFile => initialFile._id === file._id) || initialFile?._id === file._id;
 
@@ -58,8 +58,8 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
     };
 
     const handleInfoClick = (file) => {
-        setFileDetails({ fileName: file?.originalName || '', ...file });
-        setNewFileName(file?.originalName || ''); // Yeni ad için mevcut dosya adını başlangıç değeri olarak set et
+        setFileDetails({ fileName: file?.originalName||'', ...file });
+        setNewFileName(file?.originalName||''); // Yeni ad için mevcut dosya adını başlangıç değeri olarak set et
         setNewFilePath(file.bucketPath); // Yeni yol için mevcut dosya yolunu başlangıç değeri olarak set et
         setDrawerOpen(true);
     };
@@ -68,10 +68,13 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
         setDrawerOpen(false);
     };
 
+
     const handleFileSelect = (file) => {
         if (isSelected(file)) {
+            // Eğer dosya zaten seçiliyse, seçimini kaldır
             setSelectedFiles(selectedFiles.filter(selectedFile => selectedFile._id !== file._id));
         } else {
+            // Eğer dosya seçili değilse, seçim listesine ekle
             setSelectedFiles([...selectedFiles, file]);
         }
         onFileSelect(file);
@@ -82,31 +85,39 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
     };
 
     const handleUpdateClick = async () => {
-        if (!fileDetails || !newFileName) return;
+        if (!fileDetails || !newFileName) return; // Eğer detaylar yoksa veya yeni isim boşsa dön
 
         try {
             await renameFile(fileDetails.bucketPath, fileDetails.originalName, newFilePath, newFileName, fileDetails._id);
-            setIsRenaming(false);
-            onUpload(); // Dosya listesini yenile
-            fetchFiles(); // Yeni adlandırmadan sonra dosya listesini yenile
+            setIsRenaming(false); // Yeniden adlandırma modunu kapat
+            onUpload(); // Yeniden adlandırmadan sonra dosya listesini yenile (bu fonksiyon dışardan gelmeli)
+            // Başarılı işlem mesajı veya state güncellemesi
         } catch (error) {
             console.error('Error renaming file:', error);
+            // Hata mesajı veya işlemi
         }
 
         setIsRenaming(false);
     };
-
     const handleClickDelete = async () => {
+        // Yeniden adlandırma güncelleme işlevi burada
+        // if (!fileDetails || !newFileName) return; // Eğer detaylar yoksa veya yeni isim boşsa dön
         try {
+            // API'den gelen yeni dosya adı ile dosyayı yeniden adlandır
+            //(oldFilePath ,oldFileName, newFilePath,newFileName, fileId)
             await deleteFile(fileDetails._id);
-            handleCloseDrawer();
-            fetchFiles();
+            // onUpload(); // Yeniden adlandırmadan sonra dosya listesini yenile (bu fonksiyon dışardan gelmeli)
+            // Başarılı işlem mesajı veya state güncellemesi
+            handleCloseDrawer()
+            fetchFiles()
         } catch (error) {
-            console.error('Error deleting file:', error);
+            console.error('Error renaming file:', error);
+            // Hata mesajı veya işlemi
         }
     }
 
     const handleFileUpload = async (event) => {
+        // Logic to handle file upload
         const uploadedFiles = event.target.files;
         setIsUploading(true);
         try {
@@ -116,6 +127,7 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
             });
             setIsUploading(false);
             setUploadProgress(0);
+            // Callback fonksiyonunu çağırarak FilePages bileşeninde dosya listesini yenileyin
             onUpload();
             fetchFiles();
         } catch (error) {
@@ -129,50 +141,6 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
         if (fileDetails && fileDetails.url) {
             navigator.clipboard.writeText(fileDetails.url); // URL'yi panoya kopyalar
         }
-    };
-
-    const fetchFiles = async (search = '') => {
-        let excludeIds = [];
-        let combinedFiles = [];
-
-        if (initialFile?._id) {
-            excludeIds = [initialFile._id]
-            combinedFiles = [initialFile];
-        }
-
-        if (initialSelectedFiles && Array.isArray(initialSelectedFiles && initialSelectedFiles.length > 0)) {
-            excludeIds = initialSelectedFiles.map(file => file._id);
-            combinedFiles = [...initialSelectedFiles];
-        } else if (initialSelectedFiles && typeof initialSelectedFiles === 'object' && initialSelectedFiles._id) {
-            excludeIds.push(initialSelectedFiles._id);
-            combinedFiles = [initialSelectedFiles];
-        }
-
-        try {
-            const filesData = await getFiles(search, currentPage, itemsPerPage, excludeIds, fileTypeFilter);
-            combinedFiles = [...combinedFiles, ...filesData.files];
-            setFiles(combinedFiles);
-            setTotalPages(Math.ceil(filesData.totalFiles / itemsPerPage));  // Toplam sayfa sayısını ayarlayın
-        } catch (error) {
-            console.error("Dosyaları çekerken hata oluştu:", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchFiles();
-    }, [fileTypeFilter, currentPage]);  // `fileTypeFilter` ve `currentPage` değiştiğinde yenile
-
-    useEffect(() => {
-        const debouncedFetch = _.debounce(() => fetchFiles(searchTerm), 400);
-        debouncedFetch();
-
-        return () => {
-            debouncedFetch.cancel();
-        };
-    }, [searchTerm]);
-
-    const handlePageChange = (event, value) => {
-        setCurrentPage(value);  // Mevcut sayfayı güncelleyin
     };
 
     const renderFileItem = (file, index) => {
@@ -227,6 +195,78 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
         );
     };
 
+    // const fetchFiles = async (search = '') => {
+    //     // Başlangıçta seçili dosyaların ID'lerini çıkar
+
+    //     const excludeIds = initialSelectedFiles?.map(file => file._id) ;
+
+    //     try {
+    //         // API isteğini yapın, `search` ve `excludeIds`'ı parametre olarak geçirin
+    //         const filesData = await getFiles(search, excludeIds);
+    //         // `initialSelectedFiles` listesi ile API'den gelen dosya listesini birleştir
+    //         // Burada, API'nin zaten `excludeIds`'ı dikkate alarak sonuçları filtrelediğini varsayıyoruz
+    //         const combinedFiles = [...initialSelectedFiles, ...filesData.files];
+    //         setFiles(combinedFiles);
+    //     } catch (error) {
+    //         console.error("Dosyaları çekerken hata oluştu:", error);
+    //     }
+    // };
+
+    const fetchFiles = async (search = '') => {
+        let excludeIds = [];
+        let combinedFiles = [];
+
+        if (initialFile?._id) {
+            excludeIds = [initialFile._id]
+            combinedFiles = [initialFile];
+        }
+
+        // `initialSelectedFiles` kontrolü
+        if (initialSelectedFiles && Array.isArray(initialSelectedFiles && initialSelectedFiles.length > 0)) {
+            // Eğer dizi ise, ID'leri çıkar
+            excludeIds = initialSelectedFiles.map(file => file._id);
+            combinedFiles = [...initialSelectedFiles];
+        } else if (initialSelectedFiles && typeof initialSelectedFiles === 'object' && initialSelectedFiles._id) {
+            // Eğer obje ise ve `_id` özelliği var ise, bu ID'yi kullan
+            excludeIds.push(initialSelectedFiles._id);
+            combinedFiles = [initialSelectedFiles];
+        }
+
+        try {
+            // API isteğini yapın, `search` ve `excludeIds`'ı parametre olarak geçirin
+            const filesData = await getFiles(search, 1, 10, excludeIds,fileTypeFilter);
+            // API'den gelen dosyaları mevcut dosyalarla birleştir
+            combinedFiles = [...combinedFiles, ...filesData.files];
+            setFiles(combinedFiles);
+        } catch (error) {
+            console.error("Dosyaları çekerken hata oluştu:", error);
+        }
+    };
+
+
+    //   // Dosya listesini API'den çekmek için kullanılan useEffect
+      useEffect(() => {
+        fetchFiles();
+    }, [fileTypeFilter]);
+
+    useEffect(() => {
+        // console.log("debouncedFetch :",searchTerm,initialSelectedFiles ) 
+        const debouncedFetch = _.debounce(() => fetchFiles(searchTerm), 400);
+        debouncedFetch();
+
+        // Cleanup fonksiyonu, useEffect temizlendiğinde debounce'ı iptal eder
+        return () => {
+            debouncedFetch.cancel();
+        };
+    }, [searchTerm]);
+
+    // useEffect(() => {
+    //     // Başlangıçta seçili dosyaları `files` listesine ekleyin
+    //     setFiles(initialSelectedFiles);
+    //     // API'den dosyaları çekin, başlangıçta seçili dosyaları hariç tutarak
+    //     // fetchFiles();
+    //   }, [initialSelectedFiles]);
+
     return (
         <Grid container style={{ height: '100%', paddingTop: 10 }} spacing={2}>
             <Grid container spacing={2} style={{ margin: 10 }}>
@@ -244,6 +284,7 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
                         size='small'
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                    // style={{ width: '100%' }} // TextField'ı genişlet
                     />
                 </Grid>
                 <Grid item xs={12} sm={4} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
@@ -254,11 +295,12 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
                             onChange={(e) => setFileTypeFilter(e.target.value)}
                             size='small'
                             label="Filtrele"
-                            style={{ minWidth: 140 }}
+                            style={{ minWidth: 140 }} // Select'ı genişlet
                         >
                             <MenuItem value=""><em>Hepsi</em></MenuItem>
                             <MenuItem value="image">Resimler</MenuItem>
                             <MenuItem value="application">Dokümanlar</MenuItem>
+                            {/* Diğer dosya türleri */}
                         </Select>
                     </FormControl>
                 </Grid>
@@ -273,13 +315,6 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
                     <ImageList cols={cols}>
                         {files.map((file, index) => renderFileItem(file, index))}
                     </ImageList>
-                    <Pagination
-                        count={totalPages}  // Toplam sayfa sayısı
-                        page={currentPage}  // Mevcut sayfa
-                        onChange={handlePageChange}  // Sayfa değişimi işlevi
-                        color="primary"
-                        sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
-                    />
                     <Drawer
                         anchor="right"
                         open={drawerOpen}
@@ -298,15 +333,53 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
                                             variant="outlined"
                                             fullWidth
                                             margin="normal"
-                                            InputProps={{
+                                            InputProps={{ // TextField içinde buton eklemek için InputProps kullanılıyor
                                                 endAdornment: (
                                                     <IconButton onClick={handleClickCopy} edge="end">
-                                                        <ContentCopyIcon fontSize='small' />
+                                                        <ContentCopyIcon fontSize='small' /> {/* Kopyala ikonu */}
                                                     </IconButton>
                                                 ),
                                             }}
                                         />
                                     </div>
+                                    {/* {isRenaming ? (
+                                        <>
+                                            <TextField
+                                                label="Yeni Ad"
+                                                defaultValue={fileDetails.originalName}
+                                                variant="outlined"
+                                                fullWidth
+                                                margin="normal"
+                                                onChange={(e) => setNewFileName(e.target.value)}
+                                            />
+                                            <TextField
+                                                label="Dosya Yolu"
+                                                defaultValue={fileDetails.bucketPath}
+                                                variant="outlined"
+                                                fullWidth
+                                                margin="normal"
+                                                onChange={(e) => setNewFilePath(e.target.value)}
+                                            />
+                                            <Button
+                                                variant="outlined"
+                                                color="primary"
+                                                onClick={handleUpdateClick}
+                                                fullWidth
+                                            >
+                                                Güncelle
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleRenameClick}
+                                            fullWidth
+                                        >
+                                            Yeniden Adlandır
+                                        </Button>
+                                    )} */}
+
                                     <Button
                                         variant="contained"
                                         fullWidth

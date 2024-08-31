@@ -55,7 +55,7 @@ export const uploadFiles = async (files, onUploadProgress) => {
 export const getFiles = async (searchTerm = '', page = 1, pageSize = 20, excludeIds = [], fileType = '') => {
   try {
     // Sorgu parametrelerini oluştur
-    let query = `?page=${page}&pageSize=${pageSize}`;
+    let query = `?page=${page}&limit=${pageSize}`;
 
     if (searchTerm) {
       query += `&s=${encodeURIComponent(searchTerm)}`;

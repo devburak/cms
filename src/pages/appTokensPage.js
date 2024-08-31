@@ -1,6 +1,6 @@
 import React from 'react';
-import AppTokenForm from './AppTokenForm';
-import AppTokenList from './AppTokenList';
+import AppTokenForm from '../components/appToken/AppTokenForm';
+import AppTokenList from '../components/appToken/AppTokenList';
 
 const AppTokensPage = () => {
   return (
