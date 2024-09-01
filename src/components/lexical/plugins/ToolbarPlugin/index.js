@@ -1052,7 +1052,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
               <i className="icon page-break" />
               <span className="text">Page Break</span>
             </DropDownItem> */}
-            {/* <DropDownItem
+            <DropDownItem
               onClick={() => {
                 showModal("Insert Image", onClose => (
                   <InsertImageDialog
@@ -1065,8 +1065,8 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon image" />
               <span className="text">Image</span>
-            </DropDownItem> */}
-            {/* <DropDownItem
+            </DropDownItem>
+            <DropDownItem
               onClick={() => {
                 showModal("Insert Inline Image", onClose => (
                   <InsertInlineImageDialog
@@ -1079,7 +1079,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon image" />
               <span className="text">Inline Image</span>
-            </DropDownItem> */}
+            </DropDownItem>
             {/* <DropDownItem
               onClick={() =>
                 insertGifOnClick({

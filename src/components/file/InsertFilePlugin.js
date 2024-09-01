@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import FileViewer from './fileviewer'; // Doğru yolu kullanın
-import { maxWidth } from '@mui/system';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {INSERT_IMAGE_COMMAND} from '../lexical/plugins/ImagesPlugin';
 
@@ -30,6 +29,10 @@ function InsertFilePlugin( {onClose}) {
     const insertImage = () => {
         if (selectedImage?.url) {
             editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                resizable:true,
+                maxWidth: 600, // Varsayılan genişlik değeri
+                width: '100%', // Genişliği %100 yaparak stil problemlerini engelle
+                height: 'auto', // Yüksekliği otomatik ayarla
                 src: selectedImage?.url,
                 altText: selectedImage?.altText || selectedImage?.filename || "selected Image"
             });

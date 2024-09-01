@@ -6,6 +6,8 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import { $generateNodesFromDOM } from "@lexical/html";
+import { $getRoot, $insertNodes } from 'lexical';
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import Editor from './Editor';
 
@@ -19,10 +21,21 @@ function Playground({ initialContent, getContent }) {
       editor.update(() => {
         try {
           // Boş veya geçersiz JSON içerik varsa burada kontrol ediyoruz.
-          if (typeof initialContent === 'string') {
+          if (typeof initialContent === 'string' && initialContent.trim().startsWith('{')) {
             const editorState = editor.parseEditorState(initialContent);
             editor.setEditorState(editorState);
-          } else {
+          }else if (typeof initialContent === 'string' && initialContent.trim().startsWith('<')){
+             // Eğer içerik bir HTML ise
+             const parser = new DOMParser();
+             const dom = parser.parseFromString(initialContent, 'text/html'); // HTML string'i parse et
+             const nodes = $generateNodesFromDOM(editor, dom); // Lexical düğümleri oluştur
+            // Select the root
+            $getRoot().select();
+
+            // Insert them at a selection.
+            $insertNodes(nodes);
+          }
+           else {
             console.error("Invalid initial content format. It should be a JSON string.");
           }
         } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import { Grid, TextField, Button, Autocomplete, Chip, FormControl, Select, InputLabel, MenuItem, Paper, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import EditorWrapper from '../components/lexical/playground';
@@ -15,6 +15,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { $generateNodesFromDOM } from "@lexical/html";
 import { createEditor } from "lexical";
+import { $getRoot } from 'lexical';
+
+
 import FeaturedImageUpload from '../components/file/featuredImage';
 
 const ContentPage = () => {
@@ -61,14 +64,44 @@ const ContentPage = () => {
                         const parsedContent = JSON.parse(contentData.bodyJson);
                         setInitialContent(parsedContent); // İlk içeriği ayarla
                     } else if (contentData.bodyHtml) {
-                        const editor = createEditor();
-                        const parser = new DOMParser();
-                        const dom = parser.parseFromString(contentData.bodyHtml, "text/html");
-                        editor.update(() => {
-                            const nodes = $generateNodesFromDOM(editor, dom);
-                            const jsonContent = editor.getEditorState().toJSON();
-                            setInitialContent(jsonContent);
-                        });
+                        setInitialContent(contentData.bodyHtml)
+                        // const editor = createEditor();
+                        //  const parser = new DOMParser();
+                        // const dom = parser.parseFromString(contentData.bodyHtml, "text/html");
+                        // // Yalnızca body içeriğini kullan
+                    //      const body = dom.body;
+                    //      console.log("dom:",body )
+                    //     editor.update(() => {
+                    //         const nodes = $generateNodesFromDOM(editor, dom);
+                    //         console.log(nodes)
+                    //         // Kök düğüm yapısını oluşturun
+                    //         const rootNode = {
+                    //             root: {
+                    //                 children: nodes,  // Düğümleri JSON formatında ekle
+                    //                 direction: "ltr",  // Yön
+                    //                 format: "",        // Biçim
+                    //                 indent: 0,         // Girinti
+                    //                 type: "root",      // Düğüm tipi
+                    //                 version: 1         // Versiyon
+                    //             }
+                    // };
+                    //         // const jsonContent = editor.getEditorState().toJSON();
+                    //         console.log("json:" , JSON.stringify(rootNode))
+                    //         setInitialContent(JSON.stringify(rootNode));
+                    //     },{ discrete: true });
+
+                           // HTML içeriği varsa, bunu Lexical JSON'a dönüştür
+                        // Create a parser function.
+                        // const dom = new JSDOM(contentData.bodyHtml);
+                        // const editor = createHeadlessEditor();
+                        // const parser = new DOMParser();
+                        // const dom = parser.parseFromString(contentData.bodyHtml, "text/html" );
+                        // console.log(dom.body)
+                        // // Once you have the DOM instance it's easy to generate LexicalNodes.
+                        // const nodes = $generateNodesFromDOM(editor, dom.body);
+
+                        // console.log(nodes)
+
                     } else {
                         setInitialContent(''); // Hiçbir içerik yoksa boş string olarak ayarla
                     }
@@ -270,7 +303,7 @@ const ContentPage = () => {
                 />
                 <EditorWrapper initialContent={initialContent} getContent={getContent} />
                 <TextField
-                    label={`Özet/description ${160 - seoDescription.length}`}
+                    label={`Özet/description ${160 }`}
                     variant="outlined"
                     value={seoDescription}
                     onChange={(e) => setSeoDescription(e.target.value)}

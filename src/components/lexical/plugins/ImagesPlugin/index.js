@@ -201,7 +201,15 @@ export default function ImagesPlugin({ captionsEnabled }) {
       editor.registerCommand(
         INSERT_IMAGE_COMMAND,
         payload => {
-          const imageNode = $createImageNode(payload)
+          console.log(payload)
+          const imageNode = $createImageNode({
+            ...payload,
+            resizable: true,  // `resizable` özelliği burada doğru ayarlanmış mı kontrol edin
+            maxWidth: payload.maxWidth || 500,  // Maksimum genişlik ayarlayın
+            width: payload.width || '100%',  // Varsayılan genişlik ayarlayın
+            height: payload.height || 'auto',  // Yükseklik otomatik ayarla
+            style: 'display: block; margin: auto;',  // Stil ayarları
+          });
           $insertNodes([imageNode])
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
             $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd()
