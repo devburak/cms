@@ -8,7 +8,9 @@ import { AuthProvider } from './context/AuthContext';
 import { SystemProvider } from './context/SystemContext';
 import Playground from './components/lexical/playground';
 import './App.css';
-
+import './index.css';
+import '../src/components/lexical/themes/CommentEditorTheme.css';
+import '../src/components/lexical/themes/PlaygroundEditorTheme'
 const Login = lazy(() => import('./pages/login'));
 const Profile = lazy(() => import('./pages/profile'));
 const SystemSetting = lazy(() => import('./pages/systemSetting'));

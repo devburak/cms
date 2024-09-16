@@ -14,7 +14,9 @@ import {
   $unmergeCell,
   getTableSelectionFromTableElement,
   TableCellHeaderStates,
-  TableCellNode
+  TableCellNode,
+  $isGridSelection,
+  // $isTableCellNode
 } from "@lexical/table"
 import {
   $createParagraphNode,
@@ -25,8 +27,9 @@ import {
   $isRangeSelection,
   $isTextNode,
   DEPRECATED_$getNodeTriplet,
-  DEPRECATED_$isGridCellNode,
-  DEPRECATED_$isGridSelection
+  // DEPRECATED_$isGridCellNode,
+ 
+ // DEPRECATED_$isGridSelection
 } from "lexical"
 import * as React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -90,9 +93,9 @@ function $canUnmerge() {
   const selection = $getSelection()
   if (
     ($isRangeSelection(selection) && !selection.isCollapsed()) ||
-    (DEPRECATED_$isGridSelection(selection) &&
+    ($isGridSelection(selection) &&
       !selection.anchor.is(selection.focus)) ||
-    (!$isRangeSelection(selection) && !DEPRECATED_$isGridSelection(selection))
+    (!$isRangeSelection(selection) && !$isGridSelection(selection))
   ) {
     return false
   }
@@ -127,7 +130,7 @@ function currentCellBackgroundColor(editor) {
     const selection = $getSelection()
     if (
       $isRangeSelection(selection) ||
-      DEPRECATED_$isGridSelection(selection)
+      $isGridSelection(selection)
     ) {
       const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor)
       if ($isTableCellNode(cell)) {
@@ -177,7 +180,7 @@ function TableActionMenu({
     editor.getEditorState().read(() => {
       const selection = $getSelection()
       // Merge cells
-      if (DEPRECATED_$isGridSelection(selection)) {
+      if ($isGridSelection(selection)) {
         const currentSelectionCounts = computeSelectionCount(selection)
         updateSelectionCounts(computeSelectionCount(selection))
         setCanMergeCells(
@@ -270,13 +273,13 @@ function TableActionMenu({
   const mergeTableCellsAtSelection = () => {
     editor.update(() => {
       const selection = $getSelection()
-      if (DEPRECATED_$isGridSelection(selection)) {
+      if ($isGridSelection(selection)) {
         const { columns, rows } = computeSelectionCount(selection)
         const nodes = selection.getNodes()
         let firstCell = null
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i]
-          if (DEPRECATED_$isGridCellNode(node)) {
+          if ($isTableCellNode(node)) {
             if (firstCell === null) {
               node.setColSpan(columns).setRowSpan(rows)
               firstCell = node
@@ -288,7 +291,7 @@ function TableActionMenu({
               ) {
                 firstChild.remove()
               }
-            } else if (DEPRECATED_$isGridCellNode(firstCell)) {
+            } else if ($isTableCellNode(firstCell)) {
               const isEmpty = $cellContainsEmptyParagraph(node)
               if (!isEmpty) {
                 firstCell.append(...node.getChildren())
@@ -434,7 +437,7 @@ function TableActionMenu({
         const selection = $getSelection()
         if (
           $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
+          $isGridSelection(selection)
         ) {
           const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor)
           if ($isTableCellNode(cell)) {

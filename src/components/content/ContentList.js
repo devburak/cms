@@ -1,22 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, TablePagination } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, TablePagination, Grid, TextField, MenuItem, Select, FormControl, InputLabel, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllContents, deleteContent } from '../../api'; // API fonksiyonlarını içe aktarın
 import { useNavigate } from 'react-router-dom';
+import { getAllCategories } from '../../api'; // Kategorileri çekmek için API çağrısı
+
 const ContentList = () => {
   const [contents, setContents] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
+  const [titleFilter, setTitleFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const navigate = useNavigate();
+  
   useEffect(() => {
     fetchContents();
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, titleFilter, categoryFilter]);
+
+  useEffect(() => {
+    // Kategorileri yükle
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await getAllCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const fetchContents = async () => {
     try {
-      const params = { page: page + 1, limit: rowsPerPage };
+      const params = { 
+        page: page + 1, 
+        limit: rowsPerPage,
+        title: titleFilter,
+        category: categoryFilter
+      };
       const data = await getAllContents(params);
       setContents(data.contents);
       setTotalCount(data.totalDocuments);
@@ -35,8 +59,6 @@ const ContentList = () => {
   };
 
   const handleEdit = (content) => {
-    console.log('Edit content:', content);
-    // Düzenleme işlemi burada yapılabilir
     navigate(`/content/${content._id}`);
   };
 
@@ -49,8 +71,57 @@ const ContentList = () => {
     }
   };
 
+  const handleFilterChange = () => {
+    // Filtreleme işlemi
+    setPage(0);
+    fetchContents();
+  };
+
   return (
     <Paper>
+      {/* Filtreleme Satırı */}
+      <Grid container spacing={2} alignItems="center" style={{ padding: 16 }}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Başlık Ara"
+            variant="outlined"
+            fullWidth
+            value={titleFilter}
+            onChange={(e) => setTitleFilter(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel>Kategori Seç</InputLabel>
+            <Select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              label="Kategori Seç"
+            >
+              <MenuItem value="">
+                <em>Hepsi</em>
+              </MenuItem>
+              {categories.map((category) => (
+                <MenuItem key={category._id} value={category._id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            fullWidth
+            onClick={handleFilterChange}
+          >
+            Filtrele
+          </Button>
+        </Grid>
+      </Grid>
+
+      {/* İçerik Listesi Tablosu */}
       <TableContainer>
         <Table>
           <TableHead>
@@ -61,7 +132,7 @@ const ContentList = () => {
               <TableCell>Yayın Tarihi</TableCell>
               <TableCell>Durum</TableCell>
               <TableCell>Güncelleme</TableCell>
-              <TableCell>Actions</TableCell> {/* Action sütunu */}
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -90,6 +161,8 @@ const ContentList = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Sayfalama */}
       <TablePagination
         component="div"
         count={totalCount}

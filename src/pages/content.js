@@ -16,7 +16,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { $generateNodesFromDOM } from "@lexical/html";
 import { createEditor } from "lexical";
 import { $getRoot } from 'lexical';
-
+import 'moment/locale/tr';
 
 import FeaturedImageUpload from '../components/file/featuredImage';
 

@@ -151,14 +151,16 @@ export function UpdateInlineImageDialog(props) {
     );
   }
   
-
+// maxWidth: 600, // Varsayılan genişlik değeri
+//width: '100%', // Genişliği %100 yaparak stil problemlerini engelle
+//height: 'auto', // Yüksekliği otomatik ayarla
 export default function InlineImageComponent(props) {
     const {
       src,
       altText,
       nodeKey,
-      width,
-      height,
+      width= '100%',
+      height ='auto',
       showCaption,
       caption,
       position

@@ -10,7 +10,7 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import { $getRoot, $insertNodes } from 'lexical';
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import Editor from './Editor';
-
+import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
 function Playground({ initialContent, getContent }) {
   const [editor] = useLexicalComposerContext();
   const [isContentLoaded, setIsContentLoaded] = useState(false);
@@ -81,9 +81,10 @@ export default function EditorWrapper({ initialContent, getContent }) {
     namespace: 'Playground',
     nodes: [...PlaygroundNodes],
     onError: (error) => {
-      throw error;
+      console.error('Lexical editor hatası:', error.message); //
+      // throw error;
     },
-    theme: {}, // Lexical temanız
+    theme: PlaygroundEditorTheme, // Lexical temanız
     editable: true,
   };
 

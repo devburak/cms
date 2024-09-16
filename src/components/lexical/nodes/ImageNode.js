@@ -5,7 +5,7 @@ const ImageComponent = React.lazy(() => import('./ImageComponent'));
 
 function convertImageElement(domNode) {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width, height } = domNode;
+    const { alt: altText, src, width ="100%", height="auto"} = domNode;
     const node = $createImageNode({ altText, height, src, width });
     return { node };
   }
@@ -54,7 +54,7 @@ export class ImageNode extends DecoratorNode {
   }
 
   static importJSON(serializedNode) {
-    const { altText, height, width, maxWidth, caption, src, showCaption } = serializedNode;
+    const { altText, height="auto", width="100%", maxWidth=600, caption, src, showCaption } = serializedNode;
     const node = $createImageNode({
       altText,
       height,
@@ -93,13 +93,13 @@ export class ImageNode extends DecoratorNode {
     return {
       altText: this.getAltText(),
       caption: this.__caption.toJSON(),
-      height: this.__height === 'inherit' ? 0 : this.__height,
+      height: this.__height === 'inherit' ? "100%" : this.__height,
       maxWidth: this.__maxWidth,
       showCaption: this.__showCaption,
       src: this.getSrc(),
       type: 'image',
       version: 1,
-      width: this.__width === 'inherit' ? 0 : this.__width
+      width: this.__width === 'inherit' ? "100%" : this.__width
     };
   }
 
@@ -158,11 +158,11 @@ export class ImageNode extends DecoratorNode {
 
 export function $createImageNode({
   altText,
-  height,
-  maxWidth = 500,
+  height ='auto',
+  maxWidth = 700,
   captionsEnabled,
   src,
-  width,
+  width ="100%",
   showCaption,
   caption,
   key

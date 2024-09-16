@@ -62,14 +62,18 @@ function useSuspenseImage(src) {
   }
 }
 
+// maxWidth: 600, // Varsayılan genişlik değeri
+//width: '100%', // Genişliği %100 yaparak stil problemlerini engelle
+//height: 'auto', // Yüksekliği otomatik ayarla
+
 function LazyImage({
   altText,
   className,
   imageRef,
   src,
-  width,
-  height,
-  maxWidth
+  width ,
+  height ,
+  maxWidth 
 }) {
   useSuspenseImage(src)
   return (
@@ -79,7 +83,7 @@ function LazyImage({
       alt={altText}
       ref={imageRef}
       style={{
-        height,
+        height ,
         maxWidth,
         width
       }}
@@ -92,9 +96,9 @@ export default function ImageComponent({
   src,
   altText,
   nodeKey,
-  width,
-  height,
-  maxWidth,
+  width ='100%',
+  height ='auto',
+  maxWidth =600,
   resizable,
   showCaption,
   caption,
