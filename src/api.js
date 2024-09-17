@@ -225,7 +225,7 @@ export const getAllCategories = async () => {
 // };
 
 ////
-export const getAllPeriods = async (page = 1, pageSize = 10) => {
+export const getAllPeriods = async (page = 1, pageSize = 100) => {
   const response = await instance.get(`/api/periods?page=${page}&pageSize=${pageSize}`);
   return response.data;
 };
@@ -560,6 +560,114 @@ export const deleteAppToken = async (tokenId) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting app token:', error);
+    throw error;
+  }
+};
+
+
+// Celebrations
+
+export const createCelebration = async (celebrationData) => {
+  try {
+    const response = await instance.post('/api/celebrations', celebrationData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating celebration:', error);
+    throw error;
+  }
+};
+
+export const updateCelebration = async (celebrationId, celebrationData) => {
+  try {
+    const response = await instance.put(`/api/celebrations/${celebrationId}`, celebrationData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating celebration:', error);
+    throw error;
+  }
+};
+
+export const getCelebrationById = async (celebrationId) => {
+  try {
+    const response = await instance.get(`/api/celebrations/${celebrationId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching celebration by ID:', error);
+    throw error;
+  }
+};
+
+export const getAllCelebrations = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  try {
+    const response = await instance.get(`/api/celebrations?${query}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all celebrations:', error);
+    throw error;
+  }
+};
+
+export const deleteCelebration = async (celebrationId) => {
+  try {
+    const response = await instance.delete(`/api/celebrations/${celebrationId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting celebration:', error);
+    throw error;
+  }
+};
+// Tüm Dönem Dokümanlarını Getir
+export const getPeriodDocuments = async () => {
+  try {
+    const response = await instance.get('/api/perioddocuments');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching period documents:', error);
+    throw error;
+  }
+};
+
+// ID'ye Göre Dönem Dokümanı Getir
+export const getPeriodDocumentById = async (id) => {
+  try {
+    const response = await instance.get(`/api/perioddocuments/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching period document with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Yeni Dönem Dokümanı Oluştur
+export const createPeriodDocument = async (data) => {
+  try {
+    const response = await instance.post('/api/perioddocuments', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating period document:', error);
+    throw error;
+  }
+};
+
+// Dönem Dokümanını Güncelle
+export const updatePeriodDocument = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/perioddocuments/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating period document with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Dönem Dokümanını Güncelle
+export const deletePeriodDocument = async (id, data) => {
+  try {
+    const response = await instance.delete(`/api/perioddocuments/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error delete period document with ID ${id}:`, error);
     throw error;
   }
 };

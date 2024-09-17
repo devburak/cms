@@ -53,7 +53,7 @@ function Sidebar({ open, handleToggle }) {
                                     <ListItemIcon>
                                         <child.icon />
                                     </ListItemIcon>
-                                    <ListItemText primary={child.title} />
+                                    <ListItemText primary={child.title}  primaryTypographyProps={{ fontSize: 14 }} />
                                 </ListItemButton>
 
                             ) : (
@@ -63,15 +63,15 @@ function Sidebar({ open, handleToggle }) {
                                         <ListItemIcon>
                                             <child.icon />
                                         </ListItemIcon>
-                                        <ListItemText primary={menuItem.title} />
+                                        <ListItemText primary={menuItem.title} primaryTypographyProps={{ fontSize: 14 }} />
                                         {openItems[menuItem.id] ? <ExpandLess /> : <ExpandMore />}
                                     </ListItemButton>
 
-                                    <Collapse in={openItems[menuItem.id]} timeout="auto" unmountOnExit>
+                                    <Collapse in={openItems[menuItem.id]} timeout="auto" unmountOnExit >
                                         <List component="div" disablePadding>
                                             {child.children.map((subItem) => (
                                                 <ListItemButton key={subItem.id} component="a" href={subItem.url}>
-                                                    <ListItemText inset primary={subItem.title} />
+                                                    <ListItemText inset primary={subItem.title}  primaryTypographyProps={{ fontSize: 12 }} />
                                                 </ListItemButton>
                                             ))}
                                         </List>

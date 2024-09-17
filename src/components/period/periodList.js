@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllPeriods, deletePeriod } from '../../api';
 
-const PeriodList = ({ onEdit }) => {
+const PeriodList = ({ onEdit,refreshKey }) => {
     const [periods, setPeriods] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -12,7 +12,7 @@ const PeriodList = ({ onEdit }) => {
 
     useEffect(() => {
         fetchPeriods();
-    }, [page, rowsPerPage]);
+    }, [page, rowsPerPage,refreshKey]);
 
     const fetchPeriods = async () => {
         try {

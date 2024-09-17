@@ -9,6 +9,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import CelebrationIcon from '@mui/icons-material/Celebration';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -200,6 +201,13 @@ const settings = {
       icon: SettingsSuggestIcon,
       children: [
         {
+          id: 'period',
+          title: t('Periods'),
+          type: 'item',
+          url: '/period',
+          target: true
+        },
+        {
           id: 'apptoken',
           title: t('App Token'),
           type: 'item',
@@ -217,13 +225,46 @@ const settings = {
     }
   ]
 };
+
+const celebration = {
+  id: 'celebration',
+  title: t('70. yıl içerikleri'),
+  caption: t('Celebration'),
+  type: 'group',
+  children: [
+    {
+      id: 'celebrationPage',
+      title: t('70. yıl'),
+      type: 'collapse',
+      icon: CelebrationIcon,
+      children: [
+        {
+          id: 'newCelebrationContent',
+          title: t('New'),
+          type: 'item',
+          url: '/celebration',
+          target: true
+        },
+        {
+          id: 'celebrationContents',
+          title: t('List'),
+          type: 'item',
+          url: '/celebrations',
+          target: true
+        }
+      ]
+    }
+  ]
+};
+
 const menuItems = {
   items: [
     dashboard,
     pages,
     users,
     events,
-    settings
+    settings,
+    celebration
   ]
 }
   return menuItems;

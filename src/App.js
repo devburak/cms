@@ -11,6 +11,7 @@ import './App.css';
 import './index.css';
 import '../src/components/lexical/themes/CommentEditorTheme.css';
 import '../src/components/lexical/themes/PlaygroundEditorTheme'
+
 const Login = lazy(() => import('./pages/login'));
 const Profile = lazy(() => import('./pages/profile'));
 const SystemSetting = lazy(() => import('./pages/systemSetting'));
@@ -25,8 +26,12 @@ const UsersPage = lazy(()=>import('./pages/usersPage'));
 const UserPage = lazy(()=>import('./pages/userPage'));
 const EventPage =lazy(()=>import('./pages/eventPage'));
 const EventsPage = lazy(()=>import('./pages/eventsPage'));
-const AppTokensPage = lazy(()=>import('./pages/appTokensPage'))
-const UnderConstructionPage = lazy(()=>import('./pages/underConstructionPage'))
+const AppTokensPage = lazy(()=>import('./pages/appTokensPage'));
+const UnderConstructionPage = lazy(()=>import('./pages/underConstructionPage'));
+const CelebrationPage = lazy(()=>import('./pages/celebrationPage'));
+const CelebrationListPage =lazy(()=>import('./pages/CelebrationListPage'));
+const PeriodDocumentFormPage = lazy(()=>import('./pages/PeriodDocumentFormPage'));
+const PeriodDocumentListPage = lazy(()=>import('./pages/PeriodDocumentListPage'));
 
 function App() {
   return (
@@ -54,6 +59,10 @@ function App() {
                 <Route path='/events' element={<EventsPage />} />
                 <Route path='/event/:id?' element={<EventPage />} />
                 <Route path='/apptoken' element={<AppTokensPage />} /> 
+                <Route path='/celebration/:id?' element={<CelebrationPage />} />
+                <Route path='/celebrations' element={<CelebrationListPage />} />
+                <Route path='/period-document/:id?' element={<PeriodDocumentFormPage />} />
+                <Route path='/period-documents' element={<PeriodDocumentListPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>
