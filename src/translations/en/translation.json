@@ -43,5 +43,8 @@
   "Roles":"Roles",
   "Logs": "Logs",
   "Apply Filters":"Apply Filters",
-  "List":"List"
+  "List":"List",
+  "Settings":"Settings",
+  "New Period Documents":"New Period Documents",
+  "Events":"Events"
 }

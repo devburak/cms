@@ -16,7 +16,7 @@ const CelebrationForm = () => {
       title: '', 
       bodyHtml: '', 
       bodyJson: '', 
-      period: '', 
+      period: {}, 
       eventDate: '', 
       publishDate: moment(), // Varsayılan olarak şu anki zaman
       type: 'tmmob', // Varsayılan değer olarak 'tmmob' seçili
@@ -29,10 +29,10 @@ const CelebrationForm = () => {
     const { id } = useParams();
   
     useEffect(() => {
+        fetchPeriods();
       if (id) {
         fetchCelebration(id);
       }
-      fetchPeriods();
     }, [id]);
   
     const fetchCelebration = async (id) => {
@@ -41,7 +41,6 @@ const CelebrationForm = () => {
         setCelebration({
             ...data,
             publishDate: data.publishDate ? moment(data.publishDate) : null,
-          
           });
         if (data.bodyJson) {
           setInitialContent(JSON.parse(data.bodyJson)); // JSON içeriği varsa ayarla
@@ -125,9 +124,10 @@ const CelebrationForm = () => {
           <Grid item xs={12}>
           <Autocomplete
               options={periods}
-              getOptionLabel={(option) => option.name }
+              getOptionLabel={(option) => (option && option.name ? option.name : '')} 
               onChange={handlePeriodChange}
-              value={periods.find(period => period._id === celebration.period) || null}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
+              value={celebration.period || null}
               renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" />}
               fullWidth
             />

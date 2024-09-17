@@ -11,7 +11,7 @@ const PeriodDocumentForm = () => {
     title: '',
     bodyHtml: '',
     bodyJson: '',
-    period: '',
+    period: {},
   });
   const [periods, setPeriods] = useState([]); // Dönemleri tutar
   const [initialContent, setInitialContent] = useState(''); // İçeriği JSON formatında saklar
@@ -20,10 +20,10 @@ const PeriodDocumentForm = () => {
   const { id } = useParams(); // Düzenleme için ID al
 
   useEffect(() => {
+    fetchPeriods();
     if (id) {
       fetchDocument(id);
     }
-    fetchPeriods();
   }, [id]);
 
   const fetchDocument = async (id) => {
@@ -34,6 +34,7 @@ const PeriodDocumentForm = () => {
         createdBy: data.createdBy || '',
         updatedBy: data.updatedBy || '',
       });
+      console.log("doc" , data)
       if (data.bodyJson) {
         setInitialContent(JSON.parse(data.bodyJson)); // JSON içeriği varsa ayarla
       } else if (data.bodyHtml) {
@@ -106,9 +107,11 @@ const PeriodDocumentForm = () => {
         <Grid item xs={12}>
           <Autocomplete
             options={periods}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => (option && option.name ? option.name : '')} 
             onChange={handlePeriodChange}
-            value={periods.find(period => period._id === document.period) || null}
+            isOptionEqualToValue={(option, value) => option._id === value._id}
+            // value={periods.find(period => period._id === document.period?._id) || null}
+            value={document.period || {}}
             renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" />}
             fullWidth
           />

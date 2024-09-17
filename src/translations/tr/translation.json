@@ -43,5 +43,9 @@
   "Roles":"Roller",
   "Logs": "Loglar",
   "Apply Filters":"Filitreyi Uygula",
-  "List": "Liste"
+  "List": "Liste",
+  "Settings":"Ayarlar",
+  "New Period Documents":"Yeni Dönem Dökumanı",
+  "Period Documents":"Dönem Dokumanları",
+  "Events":"Etkinlikler"
 }
