@@ -251,7 +251,22 @@ const celebration = {
           type: 'item',
           url: '/celebrations',
           target: true
+        },
+        {
+          id: 'periodDocuments',
+          title: t('New Period Documents'),
+          type: 'item',
+          url: '/period-document',
+          target: true
+        },
+        {
+          id: 'periodDocuments',
+          title: t('Period Documents'),
+          type: 'item',
+          url: '/period-documents',
+          target: true
         }
+       
       ]
     }
   ]
