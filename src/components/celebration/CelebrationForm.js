@@ -55,6 +55,7 @@ const CelebrationForm = () => {
     const fetchPeriods = async () => {
       try {
         const periodsData = await getAllPeriods();
+        console.log(periodsData)
         setPeriods(periodsData.periods || []); // Eğer periodsData boş veya undefined ise, boş dizi olarak ayarla
       } catch (error) {
         console.error('Error fetching periods:', error);
@@ -96,7 +97,7 @@ const CelebrationForm = () => {
     };
 
     const handlePeriodChange = (event, newValue) => {
-        setCelebration({ ...celebration, period: newValue ? newValue._id : '' });
+        setCelebration({ ...celebration, period: newValue ? newValue : '' });
       };
   
     const getContent = (content) => {
@@ -122,15 +123,15 @@ const CelebrationForm = () => {
           </Grid>
           {/* Dönem Seçimi */}
           <Grid item xs={12}>
-          <Autocomplete
-              options={periods}
-              getOptionLabel={(option) => (option && option.name ? option.name : '')} 
-              onChange={handlePeriodChange}
-              isOptionEqualToValue={(option, value) => option._id === value._id}
-              value={celebration.period || null}
-              renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" />}
-              fullWidth
-            />
+                    <Autocomplete
+                        options={periods}
+                        getOptionLabel={(option) => option?.name || ''} // Güvenli şekilde option.name kontrolü
+                        onChange={handlePeriodChange}
+                        isOptionEqualToValue={(option, value) => option?._id === value?._id} // Daha güvenli karşılaştırma
+                        value={periods.find(p => p._id === celebration.period?._id) || null} // Value olarak object set etme
+                        renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" />}
+                        fullWidth
+                    />
           </Grid>
           {/* PublishDate Seçici */}
           <Grid item xs={12} md={6}>

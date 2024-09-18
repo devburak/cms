@@ -60,7 +60,7 @@ const PeriodDocumentForm = () => {
   };
 
   const handlePeriodChange = (event, newValue) => {
-    setDocument({ ...document, period: newValue ? newValue._id : '' });
+    setDocument({ ...document, period: newValue ? newValue : '' });
   };
 
   const handleSave = async () => {
