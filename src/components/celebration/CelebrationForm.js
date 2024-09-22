@@ -125,7 +125,11 @@ const CelebrationForm = () => {
           <Grid item xs={12}>
                     <Autocomplete
                         options={periods}
-                        getOptionLabel={(option) => option?.name || ''} // Güvenli şekilde option.name kontrolü
+                        getOptionLabel={(option) => {
+                            const startYear = option.startDate ? new Date(option.startDate).getFullYear() : '';
+                            const endYear = option.endDate ? new Date(option.endDate).getFullYear() : '';
+                            return option?.name ? `${option.name} (${startYear} - ${endYear})` : '';
+                          }}
                         onChange={handlePeriodChange}
                         isOptionEqualToValue={(option, value) => option?._id === value?._id} // Daha güvenli karşılaştırma
                         value={periods.find(p => p._id === celebration.period?._id) || null} // Value olarak object set etme

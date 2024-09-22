@@ -671,3 +671,61 @@ export const deletePeriodDocument = async (id, data) => {
     throw error;
   }
 };
+
+
+// Get all celebration publications with pagination support
+export const getAllCelebrationPublications = async ({ limit = 20, page = 1 } = {}) => {
+  const query = new URLSearchParams({ limit, page }).toString(); // Pagination params
+  try {
+    const response = await instance.get(`/api/celebrationpublications?${query}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching celebration publications:', error);
+    throw error;
+  }
+};
+
+
+// Get celebration publication by ID
+export const getCelebrationPublicationById = async (id) => {
+  try {
+    const response = await instance.get(`/api/celebrationpublications/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching celebration publication with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Create celebration publication
+export const createCelebrationPublication = async (data) => {
+  try {
+    const response = await instance.post('/api/celebrationpublications', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating celebration publication:', error);
+    throw error;
+  }
+};
+
+// Update celebration publication
+export const updateCelebrationPublication = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/celebrationpublications/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating celebration publication with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Delete celebration publication
+export const deleteCelebrationPublication = async (id) => {
+  try {
+    const response = await instance.delete(`/api/celebrationpublications/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting celebration publication with ID ${id}:`, error);
+    throw error;
+  }
+};

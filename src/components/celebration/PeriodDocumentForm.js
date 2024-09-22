@@ -107,7 +107,11 @@ const PeriodDocumentForm = () => {
         <Grid item xs={12}>
           <Autocomplete
             options={periods}
-            getOptionLabel={(option) => (option && option.name ? option.name : '')} 
+            getOptionLabel={(option) => {
+                const startYear = option.startDate ? new Date(option.startDate).getFullYear() : '';
+                const endYear = option.endDate ? new Date(option.endDate).getFullYear() : '';
+                return option?.name ? `${option.name} (${startYear} - ${endYear})` : '';
+              }}
             onChange={handlePeriodChange}
             isOptionEqualToValue={(option, value) => option._id === value._id}
             // value={periods.find(period => period._id === document.period?._id) || null}

@@ -265,6 +265,13 @@ const celebration = {
           type: 'item',
           url: '/period-documents',
           target: true
+        },
+        {
+          id: 'periodPublication',
+          title: t('Period Publication'),
+          type: 'item',
+          url: '/celebration-publication',
+          target: true
         }
        
       ]
