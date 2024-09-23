@@ -108,10 +108,21 @@ const PeriodDocumentForm = () => {
           <Autocomplete
             options={periods}
             getOptionLabel={(option) => {
-                const startYear = option.startDate ? new Date(option.startDate).getFullYear() : '';
-                const endYear = option.endDate ? new Date(option.endDate).getFullYear() : '';
-                return option?.name ? `${option.name} (${startYear} - ${endYear})` : '';
+                const startDateFormatted = option.startDate ? new Date(option.startDate).toLocaleDateString('tr-TR', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                }) : '';
+                
+                const endDateFormatted = option.endDate ? new Date(option.endDate).toLocaleDateString('tr-TR', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                }) : '';
+              
+                return option?.name ? `${option.name} (${startDateFormatted} - ${endDateFormatted})` : '';
               }}
+              
             onChange={handlePeriodChange}
             isOptionEqualToValue={(option, value) => option._id === value._id}
             // value={periods.find(period => period._id === document.period?._id) || null}

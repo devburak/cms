@@ -30,7 +30,11 @@ const CelebrationPublicationForm = ({ initialValues, onSave, onCancel, periods =
   }, [initialValues]);
 
   const handleChange = (e) => {
-    setPublication({ ...publication, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setPublication({ 
+      ...publication, 
+      [name]: name === 'title' ? value.toLocaleUpperCase('tr-TR') : value 
+    });
   };
 
   const handleDateChange = (date) => {
@@ -68,6 +72,7 @@ const CelebrationPublicationForm = ({ initialValues, onSave, onCancel, periods =
             variant="outlined"
             fullWidth
             name="url"
+            required
             value={publication.url}
             onChange={handleChange}
           />
@@ -76,10 +81,21 @@ const CelebrationPublicationForm = ({ initialValues, onSave, onCancel, periods =
           <Autocomplete
             options={periods}
             getOptionLabel={(option) => {
-                const startYear = option.startDate ? new Date(option.startDate).getFullYear() : '';
-                const endYear = option.endDate ? new Date(option.endDate).getFullYear() : '';
-                return option?.name ? `${option.name} (${startYear} - ${endYear})` : '';
+                const startDateFormatted = option.startDate ? new Date(option.startDate).toLocaleDateString('tr-TR', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                }) : '';
+                
+                const endDateFormatted = option.endDate ? new Date(option.endDate).toLocaleDateString('tr-TR', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                }) : '';
+              
+                return option?.name ? `${option.name} (${startDateFormatted} - ${endDateFormatted})` : '';
               }}
+              
             onChange={(event, newValue) => setPublication({ ...publication, period: newValue ? newValue._id : '' })}
             value={periods?.find(p => p._id === publication.period) || null}
             isOptionEqualToValue={(option, value) => option._id === value._id}
