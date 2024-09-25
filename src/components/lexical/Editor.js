@@ -5,7 +5,8 @@ import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
 import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
 import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
-import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugin';
+// import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugin';
+import { LexicalClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
@@ -199,8 +200,8 @@ const Editor = React.forwardRef((props, ref) => {
               <FloatingTextFormatToolbarPlugin />
             </NewTablePlugin>
             <ImagesPlugin />
-            <InlineImagePlugin />
-            <LinkPlugin />
+            <InlineImagePlugin /> 
+             <LinkPlugin />
             <PollPlugin />
             <TwitterPlugin />
             <YouTubePlugin />

@@ -1,6 +1,7 @@
 {
   "login": "Giriş",
   "loginPage": "Giriş Sayfası",
+  "logout":"Çıkış",
   "username": "Kullanıcı Adı",
   "username_or_email": "Kullanıcı adı veya E-posta",
   "password": "Şifre",

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Paper, Typography, Pagination } from '@mui/material';
+import { Button, Box, Paper, Typography, Pagination, Grid, TextField, Autocomplete } from '@mui/material';
 import CelebrationPublicationList from '../components/celebration/CelebrationPublicationList'; // The list component
 import CelebrationPublicationForm from '../components/celebration/CelebrationPublicationForm'; // The form component
-import { getAllCelebrationPublications, deleteCelebrationPublication, getCelebrationPublicationById , getAllPeriods,
-    createCelebrationPublication, updateCelebrationPublication
-} from '../api'; // API functions
+import { getAllCelebrationPublications, deleteCelebrationPublication, getCelebrationPublicationById, getAllPeriods, createCelebrationPublication, updateCelebrationPublication } from '../api'; // API functions
+import { useNavigate } from 'react-router-dom';
 
 const CelebrationPublicationPage = () => {
   const [publications, setPublications] = useState([]);
@@ -15,6 +14,8 @@ const CelebrationPublicationPage = () => {
   const [page, setPage] = useState(1); // Mevcut sayfa
   const [limit] = useState(10); // Sayfa başına gösterilecek yayın sayısı
   const [totalPages, setTotalPages] = useState(1); // Toplam sayfa sayısı
+  const [titleFilter, setTitleFilter] = useState(''); // Başlık filtresi
+  const [selectedPeriod, setSelectedPeriod] = useState(null); // Seçilen dönem filtresi
 
   useEffect(() => {
     fetchPublications();
@@ -23,7 +24,12 @@ const CelebrationPublicationPage = () => {
 
   const fetchPublications = async () => {
     try {
-      const data = await getAllCelebrationPublications({ limit, page });
+      const data = await getAllCelebrationPublications({
+        limit, 
+        page, 
+        title: titleFilter,
+        period: selectedPeriod ? selectedPeriod._id : ''
+      });
       setPublications(data.publications || []);
       setTotalPages(data.totalPages || 1); // Toplam sayfa sayısını ayarla
     } catch (error) {
@@ -61,8 +67,8 @@ const CelebrationPublicationPage = () => {
     }
   };
 
- // Kaydetme işlemi
- const handleFormSave = async (publicationData) => {
+  // Kaydetme işlemi
+  const handleFormSave = async (publicationData) => {
     try {
       if (currentPublicationId) {
         // Güncelleme işlemi
@@ -93,18 +99,77 @@ const CelebrationPublicationPage = () => {
     setPage(value); // Mevcut sayfayı değiştir
   };
 
+  const handleFilterChange = () => {
+    setPage(1); // Filtreleme sonrası sayfayı sıfırla
+    fetchPublications(); // Filtrelenmiş sonuçları çek
+  };
+
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleFilterChange(); // Enter'a basıldığında filtreleme yap
+    }
+  };
+
   return (
     <Box p={2}>
       <Typography variant="h4" gutterBottom>
         Celebration Publications
       </Typography>
-
-      {/* Show the list if form is not open */}
       {!isFormOpen && (
         <Box>
-          <Button variant="contained" color="primary" onClick={handleCreateNew}>
-            Create New Publication
+          
+          {/* Filtreleme Alanı */}
+      <Grid container spacing={2} alignItems="center" style={{ paddingBottom: 16 }}>
+            <Grid item xs={6} sm={12}>
+            <Button variant="contained" fullWidth color="primary" onClick={handleCreateNew}>
+                Create New Publication
+              </Button>
+            </Grid>
+            <Grid item xs={6} sm={12}>
+              
+            </Grid>
+        <Grid item xs={12} sm={4}>
+          <TextField
+            label="Başlık Ara"
+            variant="outlined"
+            fullWidth
+            size="small"
+            value={titleFilter}
+            onChange={(e) => setTitleFilter(e.target.value)}
+            onKeyPress={handleKeyPress} // Enter'a basıldığında filtreleme
+          />
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Autocomplete
+            options={periods}
+            size="small"
+            getOptionLabel={(option) => {
+              const startDateFormatted = option.startDate ? new Date(option.startDate).toLocaleDateString('tr-TR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }) : '';
+              
+              const endDateFormatted = option.endDate ? new Date(option.endDate).toLocaleDateString('tr-TR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              }) : '';
+            
+              return option?.name ? `${option.name} (${startDateFormatted} - ${endDateFormatted})` : '';
+            }}
+            value={selectedPeriod}
+            onChange={(event, newValue) => setSelectedPeriod(newValue)}
+            renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" fullWidth />}
+          />
+        </Grid>
+        <Grid item xs={6} sm={4}>
+          <Button variant="outlined" fullWidth color="primary" onClick={handleFilterChange}>
+            Filtrele
           </Button>
+        </Grid>
+      </Grid>
 
           <CelebrationPublicationList 
             publications={publications} 
@@ -123,7 +188,7 @@ const CelebrationPublicationPage = () => {
         </Box>
       )}
 
-      {/* Show the form if isFormOpen is true */}
+      {/* Form */}
       {isFormOpen && (
         <Paper elevation={3} sx={{ padding: 2 }}>
           <CelebrationPublicationForm

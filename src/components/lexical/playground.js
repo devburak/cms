@@ -11,6 +11,7 @@ import { $getRoot, $insertNodes } from 'lexical';
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import Editor from './Editor';
 import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
+
 function Playground({ initialContent, getContent }) {
   const [editor] = useLexicalComposerContext();
   const [isContentLoaded, setIsContentLoaded] = useState(false);

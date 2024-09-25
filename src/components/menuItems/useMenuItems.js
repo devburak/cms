@@ -253,7 +253,7 @@ const celebration = {
           target: true
         },
         {
-          id: 'periodDocuments',
+          id: 'periodDocument',
           title: t('New Period Documents'),
           type: 'item',
           url: '/period-document',

@@ -1,6 +1,7 @@
 {
   "login": "Login",
   "loginPage": "Login Page",
+  "logout":"Log Out",
   "username": "User Name",
   "username_or_email": "Username or Email",
   "password": "Password",

@@ -41,12 +41,21 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
+       // Logout function
+       const logout = () => {
+        localStorage.removeItem('accessToken');  // Remove token
+        setIsLoggedIn(false);                   // Update state
+        setUser(null);                          // Clear user state
+    };
+
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser ,logout}}>
             {children}
         </AuthContext.Provider>
     );
 };
+
+
 
 export const useAuth = () => {
     return useContext(AuthContext);

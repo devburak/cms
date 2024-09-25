@@ -673,11 +673,17 @@ export const deletePeriodDocument = async (id, data) => {
 };
 
 
-// Get all celebration publications with pagination support
-export const getAllCelebrationPublications = async ({ limit = 20, page = 1 } = {}) => {
-  const query = new URLSearchParams({ limit, page }).toString(); // Pagination params
+// Get all celebration publications with pagination and filtering support
+export const getAllCelebrationPublications = async ({ limit = 20, page = 1, title = '', period = '', publishDate = '' } = {}) => {
+  const queryParams = new URLSearchParams({ limit, page });
+
+  // Optional filtering parameters
+  if (title) queryParams.append('title', title);
+  if (period) queryParams.append('period', period);
+  if (publishDate) queryParams.append('publishDate', publishDate);
+
   try {
-    const response = await instance.get(`/api/celebrationpublications?${query}`);
+    const response = await instance.get(`/api/celebrationpublications?${queryParams.toString()}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching celebration publications:', error);

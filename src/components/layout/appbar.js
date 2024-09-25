@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Toolbar,AppBar,IconButton,Box,Button ,Typography} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import LogoutButton from '../LogoutButton'
 
 export default function BAppBar({open, handleToggle }) {
   const location = useLocation();
@@ -48,7 +48,7 @@ export default function BAppBar({open, handleToggle }) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {currentTitle}
           </Typography>
-          <Button color="inherit">{t("login")}</Button>
+          <LogoutButton />
         </Toolbar>
       </AppBar>
     </Box>

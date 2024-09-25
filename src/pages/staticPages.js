@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Editor from '../components/editor';
+// import Editor from '../components/editor';
 import { Grid, Box, TextField, Button } from '@mui/material';
 
 function StaticPages() {
@@ -22,7 +22,7 @@ function StaticPages() {
     return (
         <Grid container spacing={3}>
             <Grid item xs={12} sm={9}>
-                <div>
+                {/* <div>
                     <Editor initialData={{
                         blocks: [
                             {
@@ -33,7 +33,7 @@ function StaticPages() {
                             }
                         ]
                     }} language="tr" onChange={handleDataChange} />
-                </div>
+                </div> */}
 
             </Grid>
             <Grid item xs={12} sm={3}>

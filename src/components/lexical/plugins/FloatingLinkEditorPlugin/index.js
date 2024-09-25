@@ -45,7 +45,8 @@ function FloatingLinkEditor({
   const [linkUrl, setLinkUrl] = useState("")
   const [editedLinkUrl, setEditedLinkUrl] = useState("https://")
   const [lastSelection, setLastSelection] = useState(null)
-
+  //link target attribute
+  const [linkTarget, setLinkTarget] = useState("_blank"); 
 
   const updateLinkEditor = useCallback(() => {
     const selection = $getSelection()
@@ -94,6 +95,10 @@ function FloatingLinkEditor({
 
     return true
   }, [anchorElem, editor, setIsLinkEditMode])
+
+  useEffect(()=>{
+    console.log(linkTarget)
+  },[linkTarget])
 
   useEffect(() => {
     const scrollerElem = anchorElem.parentElement
@@ -173,7 +178,7 @@ function FloatingLinkEditor({
   const handleLinkSubmission = () => {
     if (lastSelection !== null) {
       if (linkUrl !== "") {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizeUrl(editedLinkUrl))
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url: sanitizeUrl(editedLinkUrl), target: linkTarget });
       }
       setEditedLinkUrl("https://")
       setIsLinkEditMode(false)
@@ -181,9 +186,23 @@ function FloatingLinkEditor({
   }
 
   return (
-    <div ref={editorRef} className="link-editor">
+    <div ref={editorRef} className="link-editor" >
       {!isLink ? null : isLinkEditMode ? (
         <>
+          <select
+            className="link-target-select"
+            value={linkTarget} // linkTarget state ile kontrol edilir
+           
+            onChange={event => {
+             console.log(event.target.value)
+              setLinkTarget(event.target.value); // Seçilen target güncellenir
+            }}
+          >
+            <option value="_blank">_blank</option>
+            <option value="_self">_self</option>
+            <option value="_parent">_parent</option>
+            <option value="_top">_top</option>
+          </select>
           <input
             ref={inputRef}
             className="link-input"
