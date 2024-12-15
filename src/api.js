@@ -618,9 +618,9 @@ export const deleteCelebration = async (celebrationId) => {
   }
 };
 // Tüm Dönem Dokümanlarını Getir
-export const getPeriodDocuments = async () => {
+export const getPeriodDocuments = async (page = 1, limit = 10) => {
   try {
-    const response = await instance.get('/api/perioddocuments');
+    const response = await instance.get(`/api/perioddocuments?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching period documents:', error);

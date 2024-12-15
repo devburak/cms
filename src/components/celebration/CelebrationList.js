@@ -159,7 +159,7 @@ const CelebrationList = () => {
               <TableCell>Tip</TableCell>
               <TableCell>Başlık</TableCell>
               <TableCell>Olay Tarihi</TableCell>
-              <TableCell>Oluşturulma Tarihi</TableCell>
+              <TableCell>Yayın Tarihi</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -170,7 +170,7 @@ const CelebrationList = () => {
                  <TableCell>{celebration.type ?  celebration.type : ''}</TableCell>
                 <TableCell>{celebration.title}</TableCell>
                 <TableCell>{celebration.eventDate}</TableCell>
-                <TableCell>{new Date(celebration.createdAt).toLocaleString()}</TableCell>
+                <TableCell>{new Date(celebration.publishDate).toLocaleString()}</TableCell>
                 <TableCell>
                   <Tooltip title="Edit">
                     <IconButton onClick={() => handleEdit(celebration)}>
