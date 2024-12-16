@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import Notification from '../components/informations/notification';
 
 const Login = () => {
-    const { setIsLoggedIn ,setUser } = useAuth();
+    const { setIsLoggedIn, setUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { from } = location.state || { from: { pathname: "/" } };
@@ -16,29 +16,28 @@ const Login = () => {
     const [notification, setNotification] = useState({
         open: false,
         message: '',
-        severity: 'error', // 'success' | 'error' | 'warning' | 'info'
+        severity: 'error',
     });
 
     const loginSubmit = async (email, password) => {
         try {
             const data = await login(email, password);
             if (data && data.accessToken && data.refreshToken) {
-                setIsLoggedIn(true);  // Bu satırı ekleyin
-                const user = await getProfile( data.accessToken)
-                setUser(user)
+                localStorage.setItem('accessToken', data.accessToken);
+                setIsLoggedIn(true);
+                const user = await getProfile(data.accessToken);
+                setUser(user);
                 navigate(redirectTo);
             }
         } catch (error) {
             console.error("Login failed:", error);
-            // Hata mesajını kullanıcıya gösterebilirsiniz.
             setNotification({
                 open: true,
-                message: 'Bir hata oluştu! tekrar deneyin.',
+                message: 'Bir hata oluştu! Tekrar deneyin.',
                 severity: 'error',
-            })
+            });
         }
     };
-
 
     return (
         <Box
@@ -49,13 +48,13 @@ const Login = () => {
             height="95vh"
         >
             <Container maxWidth="sm">
-                <LoginForm  handleLogin={loginSubmit} />
+                <LoginForm handleLogin={loginSubmit} />
                 <Notification
-                open={notification.open}
-                message={notification.message}
-                severity={notification.severity}
-                onClose={() => setNotification({ open: false, message: '', severity: 'error' })}
-            />
+                    open={notification.open}
+                    message={notification.message}
+                    severity={notification.severity}
+                    onClose={() => setNotification({ open: false, message: '', severity: 'error' })}
+                />
             </Container>
         </Box>
     );

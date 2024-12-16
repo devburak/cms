@@ -65,21 +65,24 @@ const dashboard = {
             title: t('New user'),
             type: 'item',
             url: '/user',
-            target: true
+            target: true,
+             requiredPermission: "createUser"
           },
           {
             id: 'users',
             title: t('Users'),
             type: 'item',
             url: '/users',
-            target: true
+            target: true,
+            requiredPermission: ["deleteUser","updateUser"]
           },
           {
             id: 'roles',
             title: t('Roles'),
             type: 'item',
             url: '/role',
-            target: true
+            target: true ,
+            requiredPermission: ["deleteRole","updateRole","readRoles", "createRole"]
           },
           {
             id: 'logs',

@@ -7,10 +7,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('accessToken'));
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true); // Yükleme durumu
 
     useEffect(() => {
-        let isMounted = true; 
         const checkAuthentication = async () => {
+            setLoading(true);
             const token = localStorage.getItem('accessToken');
             if (token) {
                 try {
@@ -19,11 +20,9 @@ export const AuthProvider = ({ children }) => {
                             'Authorization': `Bearer ${token}`
                         }
                     });
-
-                    if (isMounted && response.data) { // Sadece bileşen mount edildiyse state güncellemesi yap
-                        setIsLoggedIn(true);
-                        setUser(response.data);
-                    }
+                    setIsLoggedIn(true);
+                    console.log(response.data)
+                    setUser(response.data);
                 } catch (error) {
                     console.error("Authentication check failed:", error);
                     setIsLoggedIn(false);
@@ -33,29 +32,23 @@ export const AuthProvider = ({ children }) => {
                 setIsLoggedIn(false);
                 setUser(null);
             }
+            setLoading(false);
         };
-
         checkAuthentication();
-        return () => {
-            isMounted = false; // Cleanup fonksiyonunda bileşenin unmount edildiğini belirt
-        };
     }, []);
 
-       // Logout function
-       const logout = () => {
-        localStorage.removeItem('accessToken');  // Remove token
-        setIsLoggedIn(false);                   // Update state
-        setUser(null);                          // Clear user state
+    const logout = () => {
+        localStorage.removeItem('accessToken');
+        setIsLoggedIn(false);
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser ,logout}}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
 };
-
-
 
 export const useAuth = () => {
     return useContext(AuthContext);

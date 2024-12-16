@@ -54,8 +54,8 @@ export const getProfile = async (token)=>{
             }
         });
 
-        if (response.data && response.data.user) {
-            return response.data.user;
+        if (response.data && response.data) {
+            return response.data;
         }
         return new Error("Can't get user data")
         
