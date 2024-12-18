@@ -388,6 +388,14 @@ export const getPermissions = async () => {
 
 
 ///users
+//password
+export const requestPasswordReset = async (email) => {
+  return await instance.post('/api/users/request-password-reset', { email });
+};
+
+export const resetPassword = async (token, newPassword) => {
+  return await instance.post(`/api/users/reset-password/${token}`, { password:newPassword });
+};
 
 // Tüm kullanıcıları getiren fonksiyon
 export const getAllUsers = async () => {

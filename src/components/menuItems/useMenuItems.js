@@ -66,7 +66,7 @@ const dashboard = {
             type: 'item',
             url: '/user',
             target: true,
-             requiredPermission: "createUser"
+            requiredPermission: "createUser"
           },
           {
             id: 'users',
@@ -89,7 +89,8 @@ const dashboard = {
             title: t('Logs'),
             type: 'item',
             url: '/logs',
-            target: true
+            target: true,
+            requiredPermission: ["readLogs","deleteLog"]
           }
         ]
       }
@@ -114,14 +115,16 @@ const dashboard = {
             title: t('New'),
             type: 'item',
             url: '/content',
-            target: true
+            target: true,
+            requiredPermission: ["updateContent","createContent"]
           },
           {
             id: 'allstaticpages',
             title: t('Pages'),
             type: 'item',
             url: '/allpages',
-            target: true
+            target: true,
+            requiredPermission: ["createContent","viewContent","updateContent"]
           }
         ]
       }
@@ -177,14 +180,16 @@ const events = {
           title: t('New'),
           type: 'item',
           url: '/event',
-          target: true
+          target: true,
+          requiredPermission:["createEvent","updateEvent","deleteEvent"]
         },
         {
           id: 'eventlist',
           title: t('Events'),
           type: 'item',
           url: '/events',
-          target: true
+          target: true,
+          requiredPermission:["readEvent","updateEvent","deleteEvent"]
         }
       ]
     }
@@ -208,21 +213,24 @@ const settings = {
           title: t('Periods'),
           type: 'item',
           url: '/period',
-          target: true
+          target: true,
+          requiredPermission:["viewPeriods","viewPeriod","createPeriod","updatePeriod","deletePeriod"]
         },
         {
           id: 'apptoken',
           title: t('App Token'),
           type: 'item',
           url: '/apptoken',
-          target: true
+          target: true,
+          requiredPermission:["createAppToken","updateAppToken"]
         },
         {
           id: 'logs',
           title: t('Logs'),
           type: 'item',
           url: '/logs',
-          target: true
+          target: true,
+          requiredPermission:["readLogs"]
         }
       ]
     }
@@ -246,35 +254,40 @@ const celebration = {
           title: t('New'),
           type: 'item',
           url: '/celebration',
-          target: true
+          target: true,
+          requiredPermission:["createCelebration"]
         },
         {
           id: 'celebrationContents',
           title: t('List'),
           type: 'item',
           url: '/celebrations',
-          target: true
+          target: true,
+          requiredPermission:["deleteCelebration" , "updateCelebration"]
         },
         {
           id: 'periodDocument',
           title: t('New Period Documents'),
           type: 'item',
           url: '/period-document',
-          target: true
+          target: true,
+          requiredPermission:["createPeriodDocument"]
         },
         {
           id: 'periodDocuments',
           title: t('Period Documents'),
           type: 'item',
           url: '/period-documents',
-          target: true
+          target: true,
+          requiredPermission:["updatePeriodDocument","deletePeriodDocument"]
         },
         {
           id: 'periodPublication',
           title: t('Period Publication'),
           type: 'item',
           url: '/celebration-publication',
-          target: true
+          target: true,
+          requiredPermission:["createPublication","updatePublication","deletePublication"]
         }
        
       ]

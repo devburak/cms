@@ -49,5 +49,20 @@
   "New Period Documents":"New Period Documents",
   "Events":"Events",
   "Period Publication":"Period Publication",
-  "user operations":"User Operations"
+  "user operations":"User Operations",
+  "forgotPasswordTitle": "Forgot Password",
+  "email": "Email Address",
+  "sendResetLink": "Send Reset Link",
+  "passwordResetLinkSent": "Password reset link sent to your email.",
+  "errorOccurred": "An error occurred. Please try again.",
+  "newPasswordTitle": "Set New Password",
+  "newPassword": "New Password",
+  "confirmNewPassword": "Confirm New Password",
+  "passwordsDoNotMatch": "Passwords do not match.",
+  "passwordResetSuccess": "Password reset successful!",
+  "passwordResetError": "Error resetting password. Please try again.",
+  "resetToken": "Reset Token",
+  "tokenRequired": "Reset token is required.",
+  "updatePassword": "Update Password",
+   "sending": "Sending..."
 }

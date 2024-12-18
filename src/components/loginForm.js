@@ -90,7 +90,7 @@ function LoginForm({ handleLogin }) {
                         </Link>
                     ) : null}
 
-                    <Link href="#" variant="body2">
+                    <Link href="/forget-password" variant="body2">
                         {t("forget_password")}
                     </Link>
                 </Box>

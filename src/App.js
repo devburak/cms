@@ -12,6 +12,9 @@ import './index.css';
 import '../src/components/lexical/themes/CommentEditorTheme.css';
 import '../src/components/lexical/themes/PlaygroundEditorTheme'
 
+import ForgetPasswordPage from './pages/ForgetPasswordPage';
+import NewPasswordPage from './pages/NewPasswordPage';
+
 const Login = lazy(() => import('./pages/login'));
 const Profile = lazy(() => import('./pages/profile'));
 const SystemSetting = lazy(() => import('./pages/systemSetting'));
@@ -34,6 +37,7 @@ const PeriodDocumentFormPage = lazy(()=>import('./pages/PeriodDocumentFormPage')
 const PeriodDocumentListPage = lazy(()=>import('./pages/PeriodDocumentListPage'));
 const CelebrationPublicationPage = lazy(()=>import('./pages/celebrationPublicationPage'));
 
+
 function App() {
   return (
     <SystemProvider>
@@ -43,6 +47,8 @@ function App() {
           <Suspense fallback={<div>Yükleniyor...</div>}>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/forget-password" element={<ForgetPasswordPage />} />
+              <Route path="/reset/:token?" element={<NewPasswordPage />} />
               <Route path='/' element={<ProtectedRoute />}>
                 <Route path='/' element={<Profile />} />
                 <Route path='/content/:id?' element={<ContentPage />} /> 

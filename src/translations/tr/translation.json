@@ -50,5 +50,21 @@
   "Period Documents":"Dönem Dokumanları",
   "Events":"Etkinlikler",
   "Period Publication":"Dönem Yayınları",
-  "user operations":"Kullanıcı İşlemleri"
+  "user operations":"Kullanıcı İşlemleri",
+  "forgotPasswordTitle": "Şifre Sıfırlama",
+  "email": "E-posta Adresi",
+  "sendResetLink": "Şifre Sıfırlama Linki Gönder",
+  "passwordResetLinkSent": "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.",
+  "errorOccurred": "Bir hata oluştu. Lütfen tekrar deneyin.",
+  "newPasswordTitle": "Yeni Şifre Belirle",
+  "newPassword": "Yeni Şifre",
+  "confirmNewPassword": "Yeni Şifreyi Tekrar Girin",
+  "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
+  "passwordResetSuccess": "Şifreniz başarıyla güncellendi!",
+  "passwordResetError": "Şifre sıfırlama başarısız. Lütfen tekrar deneyin.",
+  "resetToken": "Şifre Sıfırlama Kodu",
+  "tokenRequired": "Şifre sıfırlama kodu gerekli.",
+  "updatePassword": "Şifreyi Güncelle",
+  "sending": "Gönderiliyor..."
+  
 }
