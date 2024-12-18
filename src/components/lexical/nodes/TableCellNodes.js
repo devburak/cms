@@ -13,7 +13,7 @@ import {EquationNode} from './EquationNode';
 import {ImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
 import {MentionNode} from './MentionNode';
-
+import { HtmlEditorNode } from "./HtmlEditorNode";
 
 const PlaygroundNodes = [
   HeadingNode,
@@ -31,6 +31,7 @@ const PlaygroundNodes = [
   EquationNode,
   AutocompleteNode,
   KeywordNode,
+  HtmlEditorNode
 ];
 
 export default PlaygroundNodes;

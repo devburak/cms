@@ -28,6 +28,7 @@ import { TableNode as NewTableNode } from "./TableNode"
 import { TweetNode } from "./TweetNode"
 import { YouTubeNode } from "./YouTubeNode"
 import {FileInputNode} from './FileInputNode'
+import { HtmlEditorNode } from "./HtmlEditorNode"
 
 const PlaygroundNodes = [
   HeadingNode,
@@ -64,7 +65,8 @@ const PlaygroundNodes = [
   PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
-  FileInputNode
+  FileInputNode,
+  HtmlEditorNode
 ]
 
 export default PlaygroundNodes

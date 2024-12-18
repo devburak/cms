@@ -92,6 +92,7 @@ import { InsertNewTableDialog, InsertTableDialog } from "../TablePlugin"
 import FileInputPlugin from "../FileInputPlugin"
 import InsertFilePlugin from "../../../file/InsertFilePlugin"
 import { Button } from "@mui/material"
+import { HtmlEditorNode } from "../../nodes/HtmlEditorNode";
 
 const blockTypeToBlockName = {
   bullet: "Bulleted List",
@@ -754,6 +755,15 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
     })
   }, [activeEditor])
 
+  const insertHtmlEditorNode = () => {
+    activeEditor.update(() => {
+      const root = $getRoot(); // Root'u al
+      const htmlNode = new HtmlEditorNode("<p>HTML içeriğinizi buraya yazın</p>");
+      root.append(htmlNode); // Node'u root'a ekle
+    });
+  };
+  
+
   const onFontColorSelect = useCallback(
     value => {
       applyStyleText({ color: value })
@@ -866,6 +876,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             value={fontSize}
             editor={editor}
           />
+           
           <Divider />
           <button
             disabled={!isEditable}
@@ -1172,7 +1183,17 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
               <i className="icon columns" />
               <span className="text">Columns Layout</span>
             </DropDownItem>
+              <DropDownItem
+                onClick={insertHtmlEditorNode }
+                title="HTML Düzenleyici Ekle"
+                className="item"
 
+                aria-label="Insert HTML Editor"
+              >
+                <i className="icon html-editor" />
+                <span>HTML Code</span>
+
+              </DropDownItem>
             <DropDownItem
               onClick={() => {
                 showModal("Insert Equation", onClose => (

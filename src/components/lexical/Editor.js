@@ -6,7 +6,7 @@ import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
 import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
 import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
 // import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugin';
-import { LexicalClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
+import  LexicalClickableLinkPlugin  from '@lexical/react/LexicalClickableLinkPlugin';
 import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
@@ -24,7 +24,7 @@ import { CAN_USE_DOM } from './shared/canUseDom';
 import { createWebsocketProvider } from './collaboration';
 import { useSettings } from './context/SettingsContext';
 import { useSharedHistoryContext } from './context/SharedHistoryContext';
-import TableCellNodes from './nodes/TableCellNodes';
+import PlaygroundNodes from './nodes/TableCellNodes';
 import ActionsPlugin from './plugins/ActionsPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
@@ -60,6 +60,7 @@ import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import { TablePlugin as NewTablePlugin } from './plugins/TablePlugin';
+import  HtmlEditorPlugin from "./plugins/HtmlEditorPlugin";
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
@@ -73,6 +74,7 @@ const skipCollaborationInit =
 
 const Editor = React.forwardRef((props, ref) => {
   const { historyState } = useSharedHistoryContext();
+  console.log(historyState)
   const {
     settings: {
       isCollab,
@@ -107,7 +109,7 @@ const Editor = React.forwardRef((props, ref) => {
 
   const cellEditorConfig = {
     namespace: 'Playground',
-    nodes: [...TableCellNodes],
+    nodes: [...PlaygroundNodes],
     onError: (error) => {
       throw error;
     },
@@ -205,7 +207,7 @@ const Editor = React.forwardRef((props, ref) => {
             <PollPlugin />
             <TwitterPlugin />
             <YouTubePlugin />
-            
+           <HtmlEditorPlugin />
             {!isEditable && <LexicalClickableLinkPlugin />}
             <HorizontalRulePlugin />
             <EquationsPlugin />
