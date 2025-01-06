@@ -225,7 +225,8 @@ function TableActionMenu({
         const position = menuButtonRect.bottom - dropDownElementRect.height
         topPosition = (position < 0 ? margin : position) + window.pageYOffset
       }
-      dropDownElement.style.top = `${topPosition + +window.pageYOffset}px`
+      // dropDownElement.style.top = `${topPosition + +window.pageYOffset}px`
+      dropDownElement.style.top = `${80}px`
     }
   }, [contextRef, dropDownRef, editor])
 
@@ -498,7 +499,7 @@ function TableActionMenu({
       >
         <span className="text">Background color</span>
       </button>
-      <hr />
+      <hr style={{margin:0}} />
       <button
         className="item"
         onClick={() => insertTableRowAtSelection(false)}
@@ -521,7 +522,7 @@ function TableActionMenu({
           below
         </span>
       </button>
-      <hr />
+      <hr style={{margin:0}} />
       <button
         className="item"
         onClick={() => insertTableColumnAtSelection(false)}
@@ -548,7 +549,7 @@ function TableActionMenu({
           right
         </span>
       </button>
-      <hr />
+      <hr style={{margin:0}} />
       <button
         className="item"
         onClick={() => deleteTableColumnAtSelection()}
@@ -570,7 +571,7 @@ function TableActionMenu({
       >
         <span className="text">Delete table</span>
       </button>
-      <hr />
+      <hr style={{margin:0}} />
       <button className="item" onClick={() => toggleTableRowIsHeader()}>
         <span className="text">
           {(tableCellNode.__headerState & TableCellHeaderStates.ROW) ===

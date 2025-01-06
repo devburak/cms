@@ -88,6 +88,7 @@ const Editor = React.forwardRef((props, ref) => {
       shouldUseLexicalContextMenu,
       tableCellMerge,
       tableCellBackgroundColor,
+      tableHorizontalScroll,
     },
   } = useSettings();
   const isEditable = useLexicalEditable();
@@ -107,14 +108,14 @@ const Editor = React.forwardRef((props, ref) => {
     }
   };
 
-  const cellEditorConfig = {
-    namespace: 'Playground',
-    nodes: [...PlaygroundNodes],
-    onError: (error) => {
-      throw error;
-    },
-    theme: PlaygroundEditorTheme,
-  };
+  // const cellEditorConfig = {
+  //   namespace: 'Playground',
+  //   nodes: [...PlaygroundNodes],
+  //   onError: (error) => {
+  //     throw error;
+  //   },
+  //   theme: PlaygroundEditorTheme,
+  // };
 
   useEffect(() => {
     const updateViewPortWidth = () => {
@@ -183,9 +184,10 @@ const Editor = React.forwardRef((props, ref) => {
             <TablePlugin
               hasCellMerge={tableCellMerge}
               hasCellBackgroundColor={tableCellBackgroundColor}
+              hasHorizontalScroll={tableHorizontalScroll}
             />
             <TableCellResizer />
-            <NewTablePlugin cellEditorConfig={cellEditorConfig}>
+            {/* <NewTablePlugin cellEditorConfig={cellEditorConfig}>
               <AutoFocusPlugin />
               <RichTextPlugin
                 contentEditable={
@@ -200,7 +202,7 @@ const Editor = React.forwardRef((props, ref) => {
               <LinkPlugin />
               <LexicalClickableLinkPlugin />
               <FloatingTextFormatToolbarPlugin />
-            </NewTablePlugin>
+            </NewTablePlugin> */}
             <ImagesPlugin />
             <InlineImagePlugin /> 
              <LinkPlugin />

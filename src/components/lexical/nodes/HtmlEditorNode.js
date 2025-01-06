@@ -56,6 +56,12 @@ export class HtmlEditorNode extends DecoratorNode {
   canBeEmpty() {
     return true;
   }
+  // Yeni eklenen exportDOM metodu
+  exportDOM() {
+    const element = document.createElement("div");
+    element.innerHTML = this.__html; // Node'un HTML içeriğini DOM'a aktar
+    return { element };
+  }
 }
 
 // function HtmlEditorComponent({ html, nodeKey }) {
