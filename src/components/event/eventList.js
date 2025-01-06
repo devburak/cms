@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchEvents, deleteEvent } from '../../api';
+import { fetchEvents, deleteEvent, getAllEventTypes } from '../../api';
 import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Button, Select, MenuItem, Container, Typography, Pagination } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Button, Container, Typography, Pagination, Autocomplete, Skeleton, Snackbar, Alert, Grid } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -12,12 +12,17 @@ const EventList = () => {
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [eventTypes, setEventTypes] = useState([]);
     const [filter, setFilter] = useState({
         eventType: '',
         startDate: '',
         endDate: '',
         title: '',
     });
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     const navigate = useNavigate();
 
@@ -34,8 +39,18 @@ const EventList = () => {
         }
     };
 
+    const fetchEventTypes = async () => {
+        try {
+            const types = await getAllEventTypes();
+            setEventTypes([{ label: t('All Types'), value: '' }, ...types.map((type) => ({ label: type.name, value: type.name }))]);
+        } catch (error) {
+            console.error('Failed to fetch event types:', error);
+        }
+    };
+
     useEffect(() => {
         fetchEventData();
+        fetchEventTypes();
     }, [page]);
 
     const handlePageChange = (event, value) => {
@@ -49,13 +64,30 @@ const EventList = () => {
         });
     };
 
+    const handleEventTypeChange = (event, value) => {
+        setFilter({
+            ...filter,
+            eventType: value?.value || '',
+        });
+    };
+
+    const handleApplyFilters = () => {
+        setPage(1); // Sayfayı başa döndür
+        fetchEventData();
+    };
+
     const handleDelete = async (eventId) => {
         if (window.confirm(t('Are you sure you want to delete this event?'))) {
             try {
                 await deleteEvent(eventId);
                 fetchEventData();
+                setSnackbarMessage(t('Event deleted successfully'));
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
             } catch (error) {
-                setError(t('Failed to delete event'));
+                setSnackbarMessage(t('Failed to delete event'));
+                setSnackbarSeverity('error');
+                setSnackbarOpen(true);
             }
         }
     };
@@ -64,65 +96,105 @@ const EventList = () => {
         navigate(`/event/${eventId}`);
     };
 
-    if (loading) return <Typography>{t('Loading')}...</Typography>;
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
+    if (loading) {
+        return (
+            <Container>
+                {/* <Typography variant="h4" gutterBottom>
+                    {t('Event List')}
+                </Typography> */}
+                <Skeleton variant="rectangular" height={50} />
+                <Skeleton variant="rectangular" height={50} sx={{ mt: 2 }} />
+                <Skeleton variant="rectangular" height={50} sx={{ mt: 2 }} />
+            </Container>
+        );
+    }
+
     if (error) return <Typography color="error">{error}</Typography>;
 
     return (
         <Container>
-            <Typography variant="h4" gutterBottom>
+            {/* <Typography variant="h4" gutterBottom>
                 {t('Event List')}
-            </Typography>
+            </Typography> */}
 
-            {/* Filter Section */}
             <Paper sx={{ padding: 2, marginBottom: 2 }}>
-                <TextField
-                    label={t('Title')}
-                    name="title"
-                    value={filter.title}
-                    onChange={handleFilterChange}
-                    variant="outlined"
-                    size="small"
-                    sx={{ marginRight: 2 }}
-                />
-                <TextField
-                    label={t('Start Date')}
-                    name="startDate"
-                    type="date"
-                    value={filter.startDate}
-                    onChange={handleFilterChange}
-                    variant="outlined"
-                    size="small"
-                    sx={{ marginRight: 2 }}
-                    InputLabelProps={{ shrink: true }}
-                />
-                <TextField
-                    label={t('End Date')}
-                    name="endDate"
-                    type="date"
-                    value={filter.endDate}
-                    onChange={handleFilterChange}
-                    variant="outlined"
-                    size="small"
-                    sx={{ marginRight: 2 }}
-                    InputLabelProps={{ shrink: true }}
-                />
-                <Select
-                    name="eventType"
-                    value={filter.eventType}
-                    onChange={handleFilterChange}
-                    variant="outlined"
-                    size="small"
-                    displayEmpty
-                    sx={{ marginRight: 2, minWidth: 150 }}
-                >
-                    <MenuItem value="">{t('All Types')}</MenuItem>
-                    <MenuItem value="type1">{t('Type 1')}</MenuItem>
-                    <MenuItem value="type2">{t('Type 2')}</MenuItem>
-                </Select>
-                <Button variant="contained" onClick={fetchEventData}>
-                    {t('Apply Filters')}
-                </Button>
+                <Grid container spacing={2} alignItems="center">
+                    {/* Title Filter */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                            label={t('Title')}
+                            name="title"
+                            value={filter.title}
+                            onChange={handleFilterChange}
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                        />
+                    </Grid>
+
+                    {/* Start Date Filter */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                            label={t('Start Date')}
+                            name="startDate"
+                            type="date"
+                            value={filter.startDate}
+                            onChange={handleFilterChange}
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </Grid>
+
+                    {/* End Date Filter */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                            label={t('End Date')}
+                            name="endDate"
+                            type="date"
+                            value={filter.endDate}
+                            onChange={handleFilterChange}
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </Grid>
+
+                    {/* Event Type Filter */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Autocomplete
+                            options={eventTypes}
+                            getOptionLabel={(option) => option.label}
+                            onChange={handleEventTypeChange}
+                            value={eventTypes.find((option) => option.value === filter.eventType) || eventTypes[0]}
+                            renderInput={(params) => (
+                                <TextField {...params} label={t('Event Type')} variant="outlined" size="small" fullWidth />
+                            )}
+                        />
+                    </Grid>
+
+                    {/* Apply Filters Button */}
+                    <Grid item xs={12} >
+                        <Button
+                            variant="contained"
+                            onClick={handleApplyFilters}
+                            fullWidth
+                            sx={{
+                                height: { xs: 'auto', sm: '100%' }, // Mobilde otomatik, masaüstünde tam yüksekliği kaplar
+                            }}
+                        >
+                            {t('Apply Filters')}
+                        </Button>
+                    </Grid>
+                </Grid>
             </Paper>
+
 
             {/* Event List Table */}
             <TableContainer component={Paper}>
@@ -142,8 +214,8 @@ const EventList = () => {
                         {Array.isArray(events) && events.length > 0 ? (
                             events.map((event) => (
                                 <TableRow key={event._id}>
-                                    <TableCell>{event.title.length > 50 ? `${event.title.slice(0, 50)}...` : event.title}</TableCell>
-                                    <TableCell>{event.spot.length > 50 ? `${event.spot.slice(0, 50)}...` : event.spot}</TableCell>
+                                    <TableCell>{event.title}</TableCell>
+                                    <TableCell>{event.spot}</TableCell>
                                     <TableCell>{event.location}</TableCell>
                                     <TableCell>{event.eventType}</TableCell>
                                     <TableCell>{event.startDate}</TableCell>
@@ -166,7 +238,6 @@ const EventList = () => {
                             </TableRow>
                         )}
                     </TableBody>
-
                 </Table>
             </TableContainer>
 
@@ -178,6 +249,13 @@ const EventList = () => {
                 color="primary"
                 sx={{ marginTop: 2 }}
             />
+
+            {/* Snackbar */}
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

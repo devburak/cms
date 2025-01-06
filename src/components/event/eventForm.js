@@ -24,7 +24,47 @@ const EventForm = ({ eventId, onSave }) => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [newEventType, setNewEventType] = useState('');
-  const [initialContent, setInitialContent] = useState('');
+  const [initialContent, setInitialContent] = useState(null);
+
+  useEffect(() => {
+    console.log("Initial Content:", initialContent);
+    if (typeof initialContent !== "object") {
+      console.error("Invalid initialContent format:", initialContent);
+    }
+  }, [initialContent]);
+
+  // useEffect(() => {
+  //   if (eventId) {
+  //     getEventById(eventId).then((data) => {
+  //       console.log(data);
+  //       setEvent({
+  //         ...data,
+  //         startDate: data.startDate ? moment(data.startDate) : null,
+  //         endDate: data.endDate ? moment(data.endDate) : null,
+  //         bodyHtml: data.bodyHtml || '',
+  //         bodyJson: data.bodyJson || '',
+  //       });
+
+  //         // İçeriği işleme: JSON varsa onu kullan, yoksa HTML'den dönüştür
+  //         if (data.bodyJson) {
+  //           const parsedContent = JSON.parse(data.bodyJson);
+  //           console.log(parsedContent);
+  //             setInitialContent(parsedContent);
+  //         } else if (data.bodyHtml) {
+  //             const editor = createEditor();
+  //             const parser = new DOMParser();
+  //             const dom = parser.parseFromString(data.bodyHtml, "text/html");
+  //             editor.update(() => {
+  //                 // const nodes = $generateNodesFromDOM(editor, dom);
+  //                 // const jsonContent = editor.getEditorState().toJSON();
+  //                 // setInitialContent(JSON.stringify(jsonContent));
+  //                 setInitialContent(dom)
+  //             });
+  //         }
+  //     });
+  //   }
+  //   getAllEventTypes().then(setEventTypes);
+  // }, [eventId]);
 
   useEffect(() => {
     if (eventId) {
@@ -36,23 +76,25 @@ const EventForm = ({ eventId, onSave }) => {
           bodyHtml: data.bodyHtml || '',
           bodyJson: data.bodyJson || '',
         });
-
-          // İçeriği işleme: JSON varsa onu kullan, yoksa HTML'den dönüştür
-          if (data.bodyJson) {
-              setInitialContent(data.bodyJson);
-          } else if (data.bodyHtml) {
-              const editor = createEditor();
-              const parser = new DOMParser();
-              const dom = parser.parseFromString(data.bodyHtml, "text/html");
-              editor.update(() => {
-                  const nodes = $generateNodesFromDOM(editor, dom);
-                  const jsonContent = editor.getEditorState().toJSON();
-                  setInitialContent(JSON.stringify(jsonContent));
-              });
+  
+        if (data.bodyJson) {
+          try {
+           
+            setInitialContent(data.bodyJson);
+          } catch (error) {
+            console.error("Error parsing bodyJson:", error);
           }
+        } else if (data.bodyHtml) {
+          const editor = createEditor();
+          const dom = new DOMParser().parseFromString(data.bodyHtml, "text/html");
+          editor.update(() => {
+            const nodes = $generateNodesFromDOM(editor, dom);
+            const jsonContent = editor.getEditorState().toJSON();
+            setInitialContent(jsonContent);
+          });
+        }
       });
     }
-    getAllEventTypes().then(setEventTypes);
   }, [eventId]);
 
   const handleChange = (e) => {
@@ -93,12 +135,12 @@ const EventForm = ({ eventId, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let eventTypeId = event.eventType;
+      let eventTypeName = event.eventType;
       if (event.eventType === 'new' && newEventType) {
         const createdType = await createEventType({ name: newEventType });
-        eventTypeId = createdType._id;
+        eventTypeName = createdType.name;
       }
-      const eventData = { ...event, eventType: eventTypeId };
+      const eventData = { ...event, eventType: eventTypeName };
       if (eventId) {
         await updateEvent(eventId, eventData);
       } else {
@@ -112,6 +154,7 @@ const EventForm = ({ eventId, onSave }) => {
 
 
   const handleEditorChange = (content) => {
+    console.log(content);
     setEvent((prev) => ({
       ...prev,
       bodyHtml: content.html, // HTML içerik
