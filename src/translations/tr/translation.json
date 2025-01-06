@@ -65,6 +65,21 @@
   "resetToken": "Şifre Sıfırlama Kodu",
   "tokenRequired": "Şifre sıfırlama kodu gerekli.",
   "updatePassword": "Şifreyi Güncelle",
-  "sending": "Gönderiliyor..."
-  
+  "sending": "Gönderiliyor...",
+  "Go to Event":"Etkinliğe Git",
+  "End Date":"Bitiş Tarihi",
+  "Start Date":"Başlangıç Tarihi",
+  "Title":"Başlık",
+  "Event":"Etkinlik",
+  "Event Title":"Etkinlik Başlığı",
+  "Event Spot":"Etkinlik spotu",
+  "Location":"Konum",
+  "Type":"Tür",
+  "Spot":"Spot",
+  "Actions":"İşlemler",
+  "All Types":"Tüm Türler",
+  "Event Type":"Etkinlik Türü",
+  "Go to Event List":"Etkinlik Listesine Git",
+  "Create New Event":"Yeni Etkinlik Oluştur",
+  "Update Event":"Etkinliği Güncelle"
 }

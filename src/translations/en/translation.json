@@ -64,5 +64,22 @@
   "resetToken": "Reset Token",
   "tokenRequired": "Reset token is required.",
   "updatePassword": "Update Password",
-   "sending": "Sending..."
+   "sending": "Sending...",
+   "Go to Event":"Go to Event",
+   "End Date":"End Date",
+   "Start Date":"Start Date",
+   "Title":"Title",
+   "Event":"Event",
+    "Event Title":"Event Title",
+    "Event Spot":"Event Spot",
+    "Location":"Location",
+    "Type":"Type",
+    "Spot":"Spot",
+    "Actions":"Actions",
+    "All Types":"All Types",
+    "Event Type":"Event Type",
+    "Go to Event List":"Go to Event List",
+    "Create New Event":"Create New Event",
+    "Update Event":"Update Event"
+
 }
