@@ -205,8 +205,8 @@ export default function ImagesPlugin({ captionsEnabled }) {
           const imageNode = $createImageNode({
             ...payload,
             resizable: true,  // `resizable` özelliği burada doğru ayarlanmış mı kontrol edin
-            maxWidth: payload.maxWidth || 500,  // Maksimum genişlik ayarlayın
-            width: payload.width || '100%',  // Varsayılan genişlik ayarlayın
+            maxWidth: payload.maxWidth || "600px",  // Maksimum genişlik ayarlayın
+            width: payload.width || 'inherit',  // Varsayılan genişlik ayarlayın
             height: payload.height || 'auto',  // Yükseklik otomatik ayarla
             style: 'display: block; margin: auto;',  // Stil ayarları
           });
@@ -270,7 +270,7 @@ function onDragStart(event) {
         caption: node.__caption,
         height: node.__height,
         key: node.getKey(),
-        maxWidth: node.__maxWidth,
+        maxWidth: node.__maxWidth || "600px",
         showCaption: node.__showCaption,
         src: node.__src,
         width: node.__width

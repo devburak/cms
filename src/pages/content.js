@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {  useParams } from 'react-router-dom';
-import { Grid, TextField, Button, Autocomplete, Chip, FormControl, Select, InputLabel, MenuItem, Paper, Stack } from '@mui/material';
+import { Grid, TextField, Button, Autocomplete, Chip,Typography, FormControl, Select, InputLabel, MenuItem, Paper, Stack, Container } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import EditorWrapper from '../components/lexical/playground';
 import {
@@ -44,12 +44,15 @@ const ContentPage = () => {
     const [availableTags, setAvailableTags] = useState([]);
     const [inputValue, setInputValue] = useState(''); // Kullanıcının Autocomplete'e yazdığı değer
   const [noOptions, setNoOptions] = useState(false);
+  const [loading, setLoading] = useState(false); // Button'u işlevsiz hale getirmek için state
+const [error, setError] = useState(null); 
 
     useEffect(() => {
         const fetchContent = async () => {
             if (contentId) {
                 try {
                     const contentData = await getContentById(contentId);
+                    console.log(contentData)
                     setTitle(contentData.title);
                     setSlug(contentData.slug);
                     setSeoDescription(contentData.metaDescription);
@@ -57,6 +60,7 @@ const ContentPage = () => {
                     setPublicationStatus(contentData.status);
                     setSelectedCategories(contentData.categories);
                     setSpot(contentData.spot);
+                    // setSelectedPeriod(contentData.period || {});
                     // İçeriğin mevcut etiketlerini setTags'e kaydet
                     setTags(contentData.tags);
 
@@ -118,9 +122,11 @@ const ContentPage = () => {
             }
         };
 
-        fetchContent();
         getAllCategories().then(setCategories).catch(console.error);
-        getAllPeriods().then(setPeriods).catch(console.error);
+        getAllPeriods().then((periodsData)=>setPeriods(periodsData.periods || [])).catch(console.error);
+        fetchContent();
+       
+
     }, [contentId]);
 
     const handleTitleChange = (event) => {
@@ -153,6 +159,8 @@ const ContentPage = () => {
     };
 
     const handlePublishClick = async () => {
+        setLoading(true);
+        setError(null); // Hata mesajını sıfırla
         const formData = {
             title,
             slug,
@@ -182,8 +190,11 @@ const ContentPage = () => {
             if (response && response._id) {
                 setContentId(response._id);
             }
-        } catch (error) {
+        }catch (error) {
             console.error('Error saving content:', error);
+            setError(error.message || 'Bir hata oluştu.');
+        } finally {
+            setLoading(false); // İşlem tamamlanınca loading'i kapat
         }
     };
 
@@ -281,6 +292,7 @@ const ContentPage = () => {
         }
       };
     return (
+        <Container maxWidth="lg">
         <Grid container spacing={2} sx={{ marginTop: 4 }}>
             <Grid item xs={12} md={9}>
                 <TextField
@@ -316,16 +328,23 @@ const ContentPage = () => {
             </Grid>
 
             <Grid item xs={12} md={3}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    size='large'
-                    onClick={handlePublishClick}
-                    fullWidth
-                    sx={{ mb: 3 }}
-                >
-                    {contentId ? 'Güncelle' : 'Yayınla'}
-                </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={handlePublishClick}
+                        fullWidth
+                        sx={{ mb: 3 }}
+                        disabled={loading} // loading sırasında button işlevsiz
+                    >
+                        {loading ? 'İşlem Yapılıyor...' : contentId ? 'Güncelle' : 'Yayınla'}
+                    </Button>
+
+                    {error && (
+                        <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                            {error}
+                        </Typography>
+                    )}
                 <Paper style={{ maxHeight: 'calc(120vh - 100px)', overflowY: 'auto', paddingTop: 4 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -390,7 +409,7 @@ const ContentPage = () => {
                                 isOptionEqualToValue={(option, value) => option._id === value._id} // Burada _id üzerinden eşitlik karşılaştırması yapıyoruz
                                 renderTags={(value, getTagProps) =>
                                     value.map((option, index) => (
-                                        <Chip variant="outlined" key={index} label={option.name} {...getTagProps({ index })} />
+                                        <Chip variant="outlined" key={option._id +'__'+index}  label={option.name} {...getTagProps} />
                                     ))
                                 }
                                 renderInput={(params) => (
@@ -402,6 +421,31 @@ const ContentPage = () => {
                                     />
                                 )}
                                 sx={{ mt: 2 }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Autocomplete
+                                options={periods}
+                                getOptionLabel={(option) => {
+                                    const startDateFormatted = option.startDate ? new Date(option.startDate).toLocaleDateString('tr-TR', {
+                                        day: '2-digit',
+                                        month: 'long',
+                                        year: 'numeric',
+                                    }) : '';
+
+                                    const endDateFormatted = option.endDate ? new Date(option.endDate).toLocaleDateString('tr-TR', {
+                                        day: '2-digit',
+                                        month: 'long',
+                                        year: 'numeric',
+                                    }) : '';
+
+                                    return option?.name ? `${option.name} (${startDateFormatted} - ${endDateFormatted})` : '';
+                                }}
+                                onChange={(event, newValue) => setSelectedPeriod(newValue)}
+                                isOptionEqualToValue={(option, value) => option?._id == value?._id} // Daha güvenli karşılaştırma
+                                 value={selectedPeriod} // Value olarak object set etme
+                                renderInput={(params) => <TextField {...params} label="Dönem Seç" variant="outlined" />}
+                                fullWidth
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -446,6 +490,7 @@ const ContentPage = () => {
                 </Paper>
             </Grid>
         </Grid>
+        </Container>
     );
 };
 
