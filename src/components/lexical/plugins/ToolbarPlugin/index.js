@@ -90,6 +90,7 @@ import { INSERT_PAGE_BREAK } from "../PageBreakPlugin"
 import { InsertPollDialog } from "../PollPlugin"
 import { InsertNewTableDialog, InsertTableDialog } from "../TablePlugin"
 import FileInputPlugin from "../FileInputPlugin"
+import {DocumentsPlagin} from "../DocumentsPlugin"
 import InsertFilePlugin from "../../../file/InsertFilePlugin"
 import { Button } from "@mui/material"
 import { HtmlEditorNode } from "../../nodes/HtmlEditorNode";

@@ -30,6 +30,7 @@ import { YouTubeNode } from "./YouTubeNode"
 import {FileInputNode} from './FileInputNode'
 import { HtmlEditorNode } from "./HtmlEditorNode"
 import CarouselNode from "../../file/CarouselNode"
+import { DocumentNode } from "./DocumentNode"
 const PlaygroundNodes = [
   HeadingNode,
   ListNode,
@@ -67,7 +68,8 @@ const PlaygroundNodes = [
   LayoutItemNode,
   FileInputNode,
   HtmlEditorNode,
-  CarouselNode
+  CarouselNode,
+  DocumentNode
 ]
 
 export default PlaygroundNodes

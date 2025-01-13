@@ -77,3 +77,50 @@ export const determineImageSource = (file) => {
 export const calculateByteSize=(string) =>{
   return new Blob([string]).size;
 }
+
+export const getInlinePngIcon = (fileExtension) => {
+  try {
+    // Dosya türüne göre Base64 formatında PNG ikonları
+    switch (fileExtension) {
+      case 'pdf':
+        return `data:image/png;base64,${btoa(`
+          iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABQklEQVQ4T82SMWoCQRTG/4VId
+          ARJgri0xQsRA4VZiIJY4AgW0Alkh5AdAA8QIgFARHYoQQEZgRCsAkpRtHEjxI4Uz9DLbsPPvvX
+          uWXmCHD9EKCEosAal1WFmYXUAO2AV6rUVuKLqro2uCGdAeJSDHYgjoqsFwd+MZjluDTeVYLKZz
+          3eAK6zAqcAlMfgeGFMpWTQQiEkOGUnrIVYZFqtFrv8C8TVVWyKP9gPo9gDoqzNGtVlgB1zCgmE
+          2BQAgy+8MIGiMAxQqiRO7QZGo3LZldQVcCtAcgRpJcACOWY+hAt2wwhBDwAYysEriJG7gLOzbn
+          tW4A+Yxn8EAkDpiixwibTTwF8c2P+XAVoB58V9HRONykX6GuBOUlWLyGuALp+AAAAAElFTkSuQmCC
+        `)}`; // Base64 kodlanmış PNG (örnek bir PDF simgesi)
+      case 'docx':
+      case 'doc':
+        return `data:image/png;base64,${btoa(`
+          iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABXUlEQVQ4T62SQUoDQRCG32soB
+          AwWE2VAgkYZMCFgiB3EHg0XIAmWoDAZA0OoFPIIBAROFcDGmJoGBUAVAhViiFPbqzcU2Sux0ox
+          4lj8YN9uZs9XK7oIjey6sX9awDfskdOLfA00AMmC2UBmfFmCEAA8EQBwDDAU5BBE0EAA6egwYA
+          cHQB3IoQDo9sAAYKYSoCLM3GYACeDQAwAgAOu7Af2RQJ+QA9FwnwHYxkMFfgC6McECXLAYwYCZ
+          wAKTLBcVgIABtX0AMZIAgFguAFVdAQWphACrrQEXxQEKujAIoNfMBXJ1hBRz8F4bIlRBH3FYwK
+          gb0Cx6sHnp4BjV0Bnq0DWQUAhzkNH5eBuBAABeNiFQUA2x88qlkh9ZYAAAAASUVORK5CYII=
+        `)}`; // Base64 kodlanmış PNG (örnek bir DOC simgesi)
+      case 'svg':
+        return `data:image/png;base64,${btoa(`
+          iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABP0lEQVQ4T82SMUoDQRBFvwUDz
+          KoRQZAowLKFL0EByBwyZGUImEULMI2EuEPkM3GZTLdGblnDPn+3F2X1/dVLVZRBQGUazmm8RoO
+          QAOsp0BeE4kjhwhBDMYDWFS+fXrXIlIL6CihmKjR4NMC6VLK7JoLB+FoAIFgItcXxP8IXoqjkC
+          HZk1AOupSEp4Ah0Bl3UAHKgBVtYHzOnZX7+Ak+F6LGgSyAvkD6yBiSGg6VDJJCSMmkxRdIDMO
+          kpZsxGKcIoqH0/jmwMwHAIcSEnQmAAkpo3YIOAIYFZCQLCQAAAABJRU5ErkJggg==
+        `)}`; // Base64 kodlanmış PNG (örnek bir SVG simgesi)
+      default:
+        return `data:image/png;base64,${btoa(`
+          iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABEUlEQVQ4T82RMUoDQRBFn6EBh
+          CwYEQuCEBLNQIP4EDIpDIEXYJRF4CIqDF2M+JuTa7Zkzu3bv7MwkV0cmRR2+LZVF6FlJMB+KlB
+          A7oScmpVRJUHDcZptU9RPU9NxNVKoAvQN1TMR7DkDfiFeAMmjMIqkgDs9lgQMQjoZgIuoigBW
+          7gKbKoBb+0NT+k6IIgV9YDkTQQAVJcAV44RhP8FDN44CtaIBJWBA2zLEU5r2lgA7HQBjy4Dcy
+          c5XZUoDFsVLvkpS8q7AF3QMlwApo44OdMPEdO4yOnFTPCqlKcMOIFU/WJEMcpsfcp3Aiv7xAf
+          WAAAAAElFTkSuQmCC
+        `)}`; // Base64 kodlanmış PNG (varsayılan simge)
+    }
+  } catch (error) {
+    console.error('Error generating inline PNG icon:', error);
+    return null; // Hatalı durumlarda null döndür
+  }
+};

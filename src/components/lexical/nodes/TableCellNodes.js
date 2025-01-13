@@ -15,7 +15,7 @@ import {KeywordNode} from './KeywordNode';
 import {MentionNode} from './MentionNode';
 import { HtmlEditorNode } from "./HtmlEditorNode";
 import CarouselNode from '../../file/CarouselNode';
-
+import { DocumentNode } from '../nodes/DocumentNode';
 const PlaygroundNodes = [
   HeadingNode,
   ListNode,
@@ -33,7 +33,8 @@ const PlaygroundNodes = [
   AutocompleteNode,
   KeywordNode,
   HtmlEditorNode,
-  CarouselNode
+  CarouselNode,
+  DocumentNode
 ];
 
 export default PlaygroundNodes;
