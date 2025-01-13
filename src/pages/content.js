@@ -19,6 +19,7 @@ import { $getRoot } from 'lexical';
 import 'moment/locale/tr';
 
 import FeaturedImageUpload from '../components/file/featuredImage';
+import PreviewLink from '../components/PreviewLink';
 
 const ContentPage = () => {
     const { t } = useTranslation();
@@ -345,6 +346,9 @@ const [error, setError] = useState(null);
                             {error}
                         </Typography>
                     )}
+
+                    <PreviewLink contentId={contentId} />
+                    
                 <Paper style={{ maxHeight: 'calc(120vh - 100px)', overflowY: 'auto', paddingTop: 4 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
