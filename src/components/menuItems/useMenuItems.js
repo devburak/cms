@@ -10,9 +10,44 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CelebrationIcon from '@mui/icons-material/Celebration';
+import CampaignIcon from '@mui/icons-material/Campaign';
 
 export function useMenuItems() {
   const { t } = useTranslation();
+
+  const campaignsMenu = {
+    id: 'campaign',
+    title: t('Kampanyalar'),
+    caption: t('Kampanya Yönetimi'),
+    type: 'group',
+    children: [
+      {
+        id: 'campaignPage',
+        title: t('Kampanyalar'),
+        type: 'collapse',
+        icon: CampaignIcon, // Uygun bir ikon seçebilirsiniz
+        children: [
+          {
+            id: 'newCampaign',
+            title: t('Yeni Kampanya'),
+            type: 'item',
+            url: '/campaign',
+            target: true,
+            requiredPermission: ['createCampaign'], // İzin gereksinimi
+          },
+          {
+            id: 'campaignList',
+            title: t('Kampanya Listesi'),
+            type: 'item',
+            url: '/campaigns',
+            target: true,
+            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], // İzin gereksinimi
+          },
+        ],
+      },
+    ],
+  };
+  
 
   
 const dashboard = {
@@ -47,7 +82,6 @@ const dashboard = {
     ]
   };
 
- 
   const users ={
     id: 'usersgruop',
     title: t('Users'),
@@ -302,7 +336,8 @@ const menuItems = {
     users,
     events,
     settings,
-    celebration
+    celebration,
+    campaignsMenu
   ]
 }
   return menuItems;

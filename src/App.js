@@ -36,6 +36,8 @@ const CelebrationListPage =lazy(()=>import('./pages/CelebrationListPage'));
 const PeriodDocumentFormPage = lazy(()=>import('./pages/PeriodDocumentFormPage'));
 const PeriodDocumentListPage = lazy(()=>import('./pages/PeriodDocumentListPage'));
 const CelebrationPublicationPage = lazy(()=>import('./pages/celebrationPublicationPage'));
+const CampaignFormPage = lazy(()=>import('./pages/CampaignFormPage'));
+const CampaignListPage = lazy(()=>import('./pages/CampaignListPage'));
 
 
 function App() {
@@ -71,6 +73,8 @@ function App() {
                 <Route path='/period-document/:id?' element={<PeriodDocumentFormPage />} />
                 <Route path='/period-documents' element={<PeriodDocumentListPage />} />
                 <Route path='/celebration-publication/:id?' element={<CelebrationPublicationPage />} />
+                <Route path='/campaign/:id?' element={<CampaignFormPage />} />
+                <Route path='/campaigns' element={<CampaignListPage />} /> 
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>

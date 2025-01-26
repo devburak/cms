@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography';
 const ImageButton = styled(ButtonBase)(({ theme }) => ({
   position: 'relative',
   height: 200,
+  width: '100%',
   [theme.breakpoints.down('sm')]: {
-    width: '100% !important', // Overrides inline-style
     height: 100,
   },
   '&:hover, &.Mui-focusVisible': {
@@ -42,14 +42,19 @@ const ImageBackdrop = styled('span')(({ theme }) => ({
   transition: theme.transitions.create('opacity'),
 }));
 
-export default function CustomImageButton({ image, onClick, title }) {
+export default function CustomImageButton({
+  image,
+  onClick,
+  title,
+  sx = {}, // Material-UI `sx` propunu desteklemek için
+  ...props // Diğer Material-UI ButtonBase özellikleri
+}) {
   return (
     <ImageButton
       focusRipple
-      style={{
-        width: '100%',
-      }}
       onClick={onClick}
+      sx={{ ...sx }} // Kullanıcının `sx` ile gönderdiği stilleri destekle
+      {...props} // Diğer Material-UI özelliklerini destekle
     >
       <ImageSrc style={{ backgroundImage: `url(${image})` }} />
       <ImageBackdrop className="MuiImageBackdrop-root" />
@@ -69,3 +74,10 @@ export default function CustomImageButton({ image, onClick, title }) {
     </ImageButton>
   );
 }
+
+// Varsayılan Props
+CustomImageButton.defaultProps = {
+  image: '', // Varsayılan boş bir görsel
+  onClick: () => {}, // Varsayılan olarak tıklama fonksiyonu boş
+  title: '', // Varsayılan başlık boş
+};

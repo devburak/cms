@@ -743,3 +743,36 @@ export const deleteCelebrationPublication = async (id) => {
     throw error;
   }
 };
+
+//Campaign services
+export const getAllCampaigns = async () => {
+  try {
+  const response =  await instance.get('/api/campaigns');
+   return response.data;
+  } catch (error) {
+    console.error(`Error fetching:`, error);
+    throw error;
+  }
+};
+
+export const getCampaignById = async (id) => {
+  try {
+    const response = await instance.get(`/api/campaigns/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching:`, error);
+    throw error;
+  }
+};
+
+export const createCampaign = async (campaignData) => {
+  return await instance.post('/api/campaigns', campaignData);
+};
+
+export const updateCampaign = async (id, campaignData) => {
+  return await instance.put(`/api/campaigns/${id}`, campaignData);
+};
+
+export const deleteCampaign = async (id) => {
+  return await instance.delete(`/api/campaigns/${id}`);
+};
