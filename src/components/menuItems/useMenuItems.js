@@ -4,13 +4,14 @@ import ArticleIcon from '@mui/icons-material/Article';
 import ExplicitIcon from '@mui/icons-material/Explicit';
 import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MemoryIcon from '@mui/icons-material/Memory';
 import PeopleIcon from '@mui/icons-material/People';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts'; // Import the new icon
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -329,15 +330,72 @@ const celebration = {
   ]
 };
 
+// New publications section
+const publications = {
+  id: 'publications',
+  title: t('Yayınlar'),
+  caption: t('Yayın Yönetimi'),
+  type: 'group',
+  children: [
+    {
+      id: 'publicationsPage',
+      title: t('Yayınlar'),
+      type: 'item',
+      url: '/publication',
+      icon: ImportContactsIcon,
+      target: true,
+      requiredPermission: ["createPublication" , "updatePublication", "deletePublication"]
+    }
+  ]
+};
+
+  // New chambers section
+  const chambers = {
+    id: 'chambers',
+    title: t('70. yıl içerikleri'),
+    caption: t('chambers'),
+    type: 'group',
+    caption: t('Chamber Management'),
+    children: [{
+      id: 'chambers',
+      title: t('Chambers'),
+     
+      icon: MemoryIcon,
+      type: 'collapse',
+      children: [
+        {
+          id: 'chambersPage',
+          title: t('Chambers'),
+          type: 'item',
+          url: '/chambers',
+
+          target: true,
+          //requiredPermission: ["viewChambers"]
+        },
+        {
+          id: 'boardsPage',
+          title: t('Boards'),
+          type: 'item',
+          url: '/boards',
+          target: true,
+          //requiredPermission: ["viewBoards"]
+        }
+      ]
+    }
+    ]
+  };
+
 const menuItems = {
   items: [
     dashboard,
     pages,
     users,
     events,
-    settings,
+    publications, 
+    chambers, 
     celebration,
-    campaignsMenu
+    campaignsMenu,
+    settings,
   ]
 }
   return menuItems;

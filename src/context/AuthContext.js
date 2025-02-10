@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import config from '../config';
 
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
                         }
                     });
                     setIsLoggedIn(true);
-                    console.log(response.data)
+                    console.log(response.data);
                     setUser(response.data);
                 } catch (error) {
                     console.error("Authentication check failed:", error);
@@ -43,8 +43,17 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // Kullanıcının gerekli izne sahip olup olmadığını kontrol eden fonksiyon
+    const hasPermission = useCallback((requiredPermission) => {
+        if (!requiredPermission) return true;
+        if (Array.isArray(requiredPermission)) {
+            return requiredPermission.some((perm) => user?.role?.permissions?.includes(perm));
+        }
+        return user?.role?.permissions?.includes(requiredPermission);
+    }, [user?.role?.permissions]);
+
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, logout, loading }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, logout, loading, hasPermission }}>
             {children}
         </AuthContext.Provider>
     );

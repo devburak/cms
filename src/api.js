@@ -776,3 +776,123 @@ export const updateCampaign = async (id, campaignData) => {
 export const deleteCampaign = async (id) => {
   return await instance.delete(`/api/campaigns/${id}`);
 };
+
+
+//publications
+// Yayınları listele (pagination, search, period filtresi ve kategori ekleyebileceğiz)
+export const getPublications = async (params) => {
+  try {
+    const response = await instance.get(`/api/publication`, { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching publications:', error);
+    throw error;
+  }
+};
+
+export const createPublication = async (data) => {
+  try {
+    const response = await instance.post(`/api/publication`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating publication:', error);
+    throw error;
+  }
+};
+
+export const updatePublication = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/publication/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating publication:', error);
+    throw error;
+  }
+};
+
+export const deletePublication = async (id) => {
+  try {
+    const response = await instance.delete(`/api/publication/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting publication:', error);
+    throw error;
+  }
+};
+
+// Real getChambers function
+export const getChambers = async (params = {}) => {
+  try {
+    const response = await instance.get('/api/chambers', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chambers:', error);
+    throw error;
+  }
+};
+
+// Real createChamber function
+export const createChamber = async (data) => {
+  try {
+    const response = await instance.post('/api/chambers', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating chamber:', error);
+    throw error;
+  }
+};
+
+// Real updateChamber function
+export const updateChamber = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/chambers/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating chamber with ID: ${id}`, error);
+    throw error;
+  }
+};
+
+// Real deleteChamber function
+export const deleteChamber = async (id) => {
+  try {
+    const response = await instance.delete(`/api/chambers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting chamber with ID: ${id}`, error);
+    throw error;
+  }
+};
+
+// Real getBoards function
+export const getBoards = async (params = {}) => {
+  try {
+    const response = await instance.get('/api/boards', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching boards:', error);
+    throw error;
+  }
+};
+
+// Real deleteBoard function
+export const deleteBoard = async (id) => {
+  try {
+    const response = await instance.delete(`/api/boards/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting board with ID: ${id}`, error);
+    throw error;
+  }
+};
+
+// Real getAllChambers function
+export const getAllChambers = async () => {
+  try {
+    const response = await instance.get('/api/chambers');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all chambers:', error);
+    throw error;
+  }
+};

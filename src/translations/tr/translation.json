@@ -81,5 +81,16 @@
   "Event Type":"Etkinlik Türü",
   "Go to Event List":"Etkinlik Listesine Git",
   "Create New Event":"Yeni Etkinlik Oluştur",
-  "Update Event":"Etkinliği Güncelle"
+  "Update Event":"Etkinliği Güncelle",
+  "Body":"Gövde",
+  "Text":"Metin",
+  "Link":"Link",
+  "publicationUpdated":"Yayın Güncellendi",
+  "publicationCreated":"Yayın Oluşuturldu",
+  "updatePublication": "Yayını Güncelle",
+  "createPublication": "Yayın Oluştur",
+  "Boards":"Kurullar",
+  "Chambers":"Odalar"
+
+ 
 }

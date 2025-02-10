@@ -79,7 +79,14 @@
     "All Types":"All Types",
     "Event Type":"Event Type",
     "Go to Event List":"Go to Event List",
-    "Create New Event":"Create New Event",
-    "Update Event":"Update Event"
+    "Body":"Body",
+    "Text":"Text",
+    "Link":"Link",
+    "publicationUpdated":"Publication Updated",
+    "publicationCreated":"Publication Created",
+    "updatePublication": "Update Publication",
+    "createPublication": "Create Publication",
+    "Boards":"Boards",
+    "Chambers":"Chambers"
 
 }
