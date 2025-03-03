@@ -21,7 +21,7 @@ const ChamberList = ({ onEdit, onNotify }) => {
 
   useEffect(() => {
     fetchChambers();
-  }, []);
+  }, [onNotify]);
 
   const handleDelete = async (id) => {
     if (window.confirm(t('confirmDeleteChamber'))) {

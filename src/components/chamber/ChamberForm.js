@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { createChamber, updateChamber } from '../../api';
 
 const ChamberForm = ({ chamber, onSuccess, onError }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [formData, setFormData] = useState({
         logo: null,          // Logo dosya bilgisi (File objesi)
         name: '',
@@ -113,6 +113,10 @@ const ChamberForm = ({ chamber, onSuccess, onError }) => {
         }
     };
 
+    const capitalize = (str) => {
+        return str.toLocaleUpperCase(i18n.language);
+    };
+
     return (
         <Paper sx={{ p: 2 }}>
             <form onSubmit={handleSubmit}>
@@ -127,7 +131,6 @@ const ChamberForm = ({ chamber, onSuccess, onError }) => {
                     <Grid item xs={12} sm={8} >
                     <h3>{t('Chamber Information')}</h3>
                         <TextField
-                   
                             label={t('Name')}
                             name="name"
                             value={formData.name}
@@ -223,6 +226,7 @@ const ChamberForm = ({ chamber, onSuccess, onError }) => {
                                         onChange={(e) => handleSocialMediaChange(index, 'name', e.target.value)}
                                         fullWidth
                                         size='small'
+                                        sx={{my:1}}
                                     />
                                 </Grid>
                                 <Grid item xs={6}>
@@ -232,6 +236,7 @@ const ChamberForm = ({ chamber, onSuccess, onError }) => {
                                         onChange={(e) => handleSocialMediaChange(index, 'link', e.target.value)}
                                         fullWidth
                                         size='small'
+                                        sx={{my:1}}
                                     />
                                 </Grid>
                                 <Grid item xs={1}>

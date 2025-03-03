@@ -43,6 +43,12 @@ function FeaturedImageUpload({ handleFeaturedImage, initialFile, sx }) {
                 url: initialFile.url,
                 mediaType: initialFile.mediaType || 'image',
             });
+        } else {
+            setSelectedMedia({
+                mediaId: '',
+                url: '',
+                mediaType: 'image',
+            });
         }
     }, [initialFile]);
 

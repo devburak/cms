@@ -896,3 +896,127 @@ export const getAllChambers = async () => {
     throw error;
   }
 };
+
+// Tüm Board Tiplerini Getir
+export const getAllBoardTypes = async () => {
+  try {
+    const response = await instance.get('/api/board-types');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching board types:', error);
+    throw error;
+  }
+};
+
+// Belirli bir Board Tipini Getir
+export const getBoardTypeById = async (id) => {
+  try {
+    const response = await instance.get(`${'/api/board-types'}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching board type:', error);
+    throw error;
+  }
+};
+
+// Yeni Board Tipi Oluştur
+export const createBoardType = async (data) => {
+  try {
+    const response = await instance.post('/api/board-types', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating board type:', error);
+    throw error;
+  }
+};
+
+// Board Tipini Güncelle
+export const updateBoardType = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/board-types/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating board type:', error);
+    throw error;
+  }
+};
+
+// Board Tipini Sil
+export const deleteBoardType = async (id) => {
+  try {
+    const response = await instance.delete(`/api/board-types/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting board type:', error);
+    throw error;
+  }
+};
+
+// Real createBoard function
+export const createBoard = async (data) => {
+  try {
+    const response = await instance.post('/api/boards', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating board:', error);
+    throw error;
+  }
+};
+
+
+// Yeni bir video oluşturma
+export async function createVideo(videoData) {
+  try {
+    const response = await instance.post('/api/videos', videoData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating video:', error);
+    throw error;
+  }
+}
+
+// Tüm videoları getirme (Arama + Sayfalama)
+export async function getVideos({ search = '', page = 1, limit = 20 }) {
+  try {
+    const response = await instance.get('/api/videos', {
+      params: { search, page, limit },
+    });
+    return response.data; // { videos, totalCount, page, limit }
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+    throw error;
+  }
+}
+
+// Tek bir videoyu ID'ye göre getirme
+export async function getVideoById(id) {
+  try {
+    const response = await instance.get(`/api/videos/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching video by ID:', error);
+    throw error;
+  }
+}
+
+// Bir videoyu güncelleme
+export async function updateVideo(id, videoData) {
+  try {
+    const response = await instance.put(`/api/videos/${id}`, videoData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating video:', error);
+    throw error;
+  }
+}
+
+// Bir videoyu silme
+export async function deleteVideo(id) {
+  try {
+    await instance.delete(`/api/videos/${id}`);
+    return true;
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    throw error;
+  }
+}

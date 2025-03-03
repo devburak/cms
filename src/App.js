@@ -41,6 +41,8 @@ const CampaignListPage = lazy(()=>import('./pages/CampaignListPage'));
 const PublicationsPage = lazy(()=>import('./pages/PublicationsPage'));
 const ChamberPage = lazy(()=>import('./pages/ChamberPage'));
 const BoardPage = lazy(()=>import('./pages/BoardPage'));
+const BoardTypesPage = lazy(()=>import('./pages/BoardTypesPage'));
+const VideosPage = lazy(()=>import('./pages/VideosPage'));
 
 function App() {
   return (
@@ -80,6 +82,8 @@ function App() {
                 <Route path='/publication/:id?' element={<PublicationsPage />} />
                 <Route path='/chambers' element={<ChamberPage />} />
                 <Route path='/boards' element={<BoardPage />} />
+                <Route path='/videos' element={<VideosPage />} />
+                <Route path='/board-types' element={<BoardTypesPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>

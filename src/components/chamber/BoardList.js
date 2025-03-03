@@ -21,7 +21,7 @@ const BoardList = ({ onEdit, onNotify }) => {
 
   useEffect(() => {
     fetchBoards();
-  }, []);
+  }, [onNotify]);
 
   const handleDelete = async (id) => {
     if (window.confirm(t('confirmDeleteBoard'))) {
@@ -41,7 +41,7 @@ const BoardList = ({ onEdit, onNotify }) => {
         <Table>
           <TableHead>
             <TableRow>
-            <TableCell>{t('Chamber')}</TableCell>
+              <TableCell>{t('Chamber')}</TableCell>
               <TableCell>{t('Name')}</TableCell>
               <TableCell>{t('Period')}</TableCell>
               <TableCell>{t('Members')}</TableCell>
@@ -55,9 +55,10 @@ const BoardList = ({ onEdit, onNotify }) => {
                 <TableCell>{board.name}</TableCell>
                 <TableCell>{board.period && board.period.name}</TableCell>
                 <TableCell>
-                  {board.members.map((member, i) => (
+                  {board.members.slice(0, 3).map((member, i) => (
                     <div key={i}>{member.title} - {member.name}</div>
                   ))}
+                  {board.members.length > 3 && <div>...</div>}
                 </TableCell>
                 <TableCell>
                   <IconButton onClick={() => onEdit(board)}>

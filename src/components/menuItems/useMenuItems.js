@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ArticleIcon from '@mui/icons-material/Article';
-import ExplicitIcon from '@mui/icons-material/Explicit';
 import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import MemoryIcon from '@mui/icons-material/Memory';
@@ -11,7 +10,8 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CampaignIcon from '@mui/icons-material/Campaign';
-import ImportContactsIcon from '@mui/icons-material/ImportContacts'; // Import the new icon
+import ImportContactsIcon from '@mui/icons-material/ImportContacts'; 
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary'; // Import the video icon
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export function useMenuItems() {
         id: 'campaignPage',
         title: t('Kampanyalar'),
         type: 'collapse',
-        icon: CampaignIcon, // Uygun bir ikon seçebilirsiniz
+        icon: CampaignIcon, 
         children: [
           {
             id: 'newCampaign',
@@ -34,7 +34,7 @@ export function useMenuItems() {
             type: 'item',
             url: '/campaign',
             target: true,
-            requiredPermission: ['createCampaign'], // İzin gereksinimi
+            requiredPermission: ['createCampaign'], 
           },
           {
             id: 'campaignList',
@@ -42,7 +42,7 @@ export function useMenuItems() {
             type: 'item',
             url: '/campaigns',
             target: true,
-            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], // İzin gereksinimi
+            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], 
           },
         ],
       },
@@ -352,8 +352,7 @@ const publications = {
   // New chambers section
   const chambers = {
     id: 'chambers',
-    title: t('70. yıl içerikleri'),
-    caption: t('chambers'),
+    title: t('Chambers'),
     type: 'group',
     caption: t('Chamber Management'),
     children: [{
@@ -379,16 +378,40 @@ const publications = {
           url: '/boards',
           target: true,
           //requiredPermission: ["viewBoards"]
+        },
+        {
+          id: 'boardTypesPage',
+          title: t('Board Types'),
+          type: 'item',
+          url: '/board-types',
+          target: true,
         }
       ]
     }
     ]
   };
 
+const videos = {
+  id: 'videos',
+  title: t('Videos'),
+  type: 'group',
+  children: [
+    {
+      id: 'videosPage',
+      title: t('Videos'),
+      type: 'item',
+      url: '/videos',
+      icon: VideoLibraryIcon,
+      target: true,
+    }
+  ]
+};
+
 const menuItems = {
   items: [
     dashboard,
     pages,
+    videos,
     users,
     events,
     publications, 
@@ -396,6 +419,7 @@ const menuItems = {
     celebration,
     campaignsMenu,
     settings,
+
   ]
 }
   return menuItems;

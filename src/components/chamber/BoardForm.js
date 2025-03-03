@@ -5,15 +5,17 @@ import { Autocomplete } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useTranslation } from 'react-i18next';
-import { getAllPeriods, getAllChambers } from '../../api';
+import { getAllPeriods, getAllChambers, getAllBoardTypes, createBoard } from '../../api';
 
 const BoardForm = ({ board, onSuccess, onError }) => {
     const { t } = useTranslation();
     const [periods, setPeriods] = useState([]);
     const [chambers, setChambers] = useState([]);
+    const [boardTypes, setBoardTypes] = useState([]);
 
     const [formData, setFormData] = useState({
         name: '',
+        type: null, 
         period: null,
         chamber: null,
         chamberPeriod: '',
@@ -31,11 +33,21 @@ const BoardForm = ({ board, onSuccess, onError }) => {
                 console.error('Error fetching periods or chambers:', error);
             }
         };
+        const fetchBoardTypes = async () => {
+            try {
+                const data = await getAllBoardTypes();
+                setBoardTypes(data);
+            } catch (error) {
+                console.error('Error fetching board types:', error);
+            }
+        };
+        fetchBoardTypes();
         fetchPeriodsAndChambers();
 
         if (board) {
             setFormData({
                 name: board.name,
+                type: board.type || null,
                 period: board.period || null,
                 chamber: board.chamber || null,
                 chamberPeriod: board.chamberPeriod || '',
@@ -67,12 +79,12 @@ const BoardForm = ({ board, onSuccess, onError }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // API çağrısı: createBoard(formData) veya updateBoard(board._id, formData)
-            console.log('Form Data:', formData);
+            await createBoard(formData);
             onSuccess(t('boardCreated'));
             // Reset form data
             setFormData({
                 name: '',
+                type: null,
                 period: null,
                 chamber: null,
                 chamberPeriod: '',
@@ -98,7 +110,18 @@ const BoardForm = ({ board, onSuccess, onError }) => {
                             required
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
+                        <Autocomplete
+                            size="small"
+                            options={boardTypes}
+                            getOptionLabel={(option) => option.name}
+                            onChange={(e, value) => setFormData(prev => ({ ...prev, type: value }))}
+                            value={formData.type || null}
+                            renderInput={(params) => <TextField {...params} label={t("Board Type")} variant="outlined" />}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
                         <TextField
                             label={t('Chamber Period')}
                             name="chamberPeriod"
