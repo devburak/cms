@@ -5,7 +5,7 @@ import { Autocomplete } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useTranslation } from 'react-i18next';
-import { getAllPeriods, getAllChambers, getAllBoardTypes, createBoard } from '../../api';
+import { getAllPeriods, getAllChambers, getAllBoardTypes, createBoard, updateBoard } from '../../api';
 
 const BoardForm = ({ board, onSuccess, onError }) => {
     const { t } = useTranslation();
@@ -79,8 +79,13 @@ const BoardForm = ({ board, onSuccess, onError }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await createBoard(formData);
-            onSuccess(t('boardCreated'));
+            if (board && board._id) {
+                await updateBoard(board._id, formData);
+                onSuccess(t('boardUpdated'));
+            } else {
+                await createBoard(formData);
+                onSuccess(t('boardCreated'));
+            }
             // Reset form data
             setFormData({
                 name: '',

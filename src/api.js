@@ -963,6 +963,17 @@ export const createBoard = async (data) => {
   }
 };
 
+// Real updateBoard function
+export const updateBoard = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/boards/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating board:', error);
+    throw error;
+  }
+};
+
 
 // Yeni bir video oluşturma
 export async function createVideo(videoData) {

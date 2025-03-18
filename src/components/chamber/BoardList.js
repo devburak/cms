@@ -1,38 +1,64 @@
 // components/chamber/BoardList.js
-import React, { useEffect, useState } from 'react';
-import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton, TableContainer } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton, TableContainer, TablePagination, TextField } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import { getBoards, deleteBoard } from '../../api';
+import debounce from 'lodash.debounce';
 
 const BoardList = ({ onEdit, onNotify }) => {
   const { t } = useTranslation();
   const [boards, setBoards] = useState([]);
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
 
-  const fetchBoards = async () => {
+  const fetchBoards = async (searchTerm = '') => {
     try {
-      const result = await getBoards();
+      const result = await getBoards({ page: page + 1, limit, search: searchTerm });
       setBoards(result.data);
+      setTotalCount(result.total);
     } catch (error) {
       onNotify(t('errorLoadingBoards'), 'error');
     }
   };
 
   useEffect(() => {
-    fetchBoards();
-  }, [onNotify]);
+    fetchBoards(search);
+  }, [page, limit, search]);
 
   const handleDelete = async (id) => {
     if (window.confirm(t('confirmDeleteBoard'))) {
       try {
         await deleteBoard(id);
         onNotify(t('boardDeleted'));
-        fetchBoards();
+        fetchBoards(search);
       } catch (error) {
         onNotify(t('errorDeletingBoard'), 'error');
       }
     }
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setLimit(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setSearch(value);
+    }, 300),
+    []
+  );
+
+  const handleSearchChange = (event) => {
+    debouncedSearch(event.target.value);
   };
 
   return (
@@ -41,8 +67,16 @@ const BoardList = ({ onEdit, onNotify }) => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>
+                <TextField
+                  label={t('Name')}
+                  variant="outlined"
+                  size="small"
+                  onChange={handleSearchChange}
+                  fullWidth
+                />
+              </TableCell>
               <TableCell>{t('Chamber')}</TableCell>
-              <TableCell>{t('Name')}</TableCell>
               <TableCell>{t('Period')}</TableCell>
               <TableCell>{t('Members')}</TableCell>
               <TableCell>{t('Actions')}</TableCell>
@@ -51,8 +85,8 @@ const BoardList = ({ onEdit, onNotify }) => {
           <TableBody>
             {boards.map(board => (
               <TableRow key={board._id}>
-                <TableCell>{board.chamber?.name}</TableCell>
                 <TableCell>{board.name}</TableCell>
+                <TableCell>{board.chamber?.name}</TableCell>
                 <TableCell>{board.period && board.period.name}</TableCell>
                 <TableCell>
                   {board.members.slice(0, 3).map((member, i) => (
@@ -73,6 +107,14 @@ const BoardList = ({ onEdit, onNotify }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={totalCount}
+        page={page}
+        onPageChange={handlePageChange}
+        rowsPerPage={limit}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
     </Paper>
   );
 };
