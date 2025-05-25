@@ -1031,3 +1031,47 @@ export async function deleteVideo(id) {
     throw error;
   }
 }
+
+// IKK Listeleme
+export const getAllIKKs = async () => {
+  try {
+    const response = await instance.get('/api/ikk');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching IKKs:', error);
+    throw error;
+  }
+};
+
+// IKK Oluşturma
+export const createIKK = async (data) => {
+  try {
+    const response = await instance.post('/api/ikk', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating IKK:', error);
+    throw error;
+  }
+};
+
+// IKK Güncelleme
+export const updateIKK = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/ikk/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating IKK:', error);
+    throw error;
+  }
+};
+
+// IKK Silme
+export const deleteIKK = async (id) => {
+  try {
+    const response = await instance.delete(`/api/ikk/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting IKK:', error);
+    throw error;
+  }
+};

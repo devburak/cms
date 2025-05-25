@@ -43,6 +43,7 @@ const ChamberPage = lazy(()=>import('./pages/ChamberPage'));
 const BoardPage = lazy(()=>import('./pages/BoardPage'));
 const BoardTypesPage = lazy(()=>import('./pages/BoardTypesPage'));
 const VideosPage = lazy(()=>import('./pages/VideosPage'));
+const IKKPage = lazy(()=>import('./pages/IKKPage'));
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
                 <Route path='/boards' element={<BoardPage />} />
                 <Route path='/videos' element={<VideosPage />} />
                 <Route path='/board-types' element={<BoardTypesPage />} />
+                <Route path='/ikk' element={<IKKPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>

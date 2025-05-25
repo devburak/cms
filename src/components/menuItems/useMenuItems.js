@@ -330,7 +330,7 @@ const celebration = {
   ]
 };
 
-// New publications section
+
 const publications = {
   id: 'publications',
   title: t('Yayınlar'),
@@ -378,6 +378,14 @@ const publications = {
           url: '/boards',
           target: true,
           //requiredPermission: ["viewBoards"]
+        },
+        {
+          id: 'ikk',
+          title: t('İKKlar'),
+          type: 'item',
+          url: '/ikk',
+          target: true,
+          requiredPermission: ["createIKK", "updateIKK", "deleteIKK"]
         },
         {
           id: 'boardTypesPage',
