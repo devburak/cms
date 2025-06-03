@@ -1075,3 +1075,60 @@ export const deleteIKK = async (id) => {
     throw error;
   }
 };
+
+// Expertise services
+
+// Create new expertise training
+export const createExpertise = async (data) => {
+  try {
+    const response = await instance.post('/api/expertise', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating expertise:', error);
+    throw error;
+  }
+};
+
+// Get expertise trainings with filtering and pagination
+export const getExpertises = async (params = {}) => {
+  try {
+    const response = await instance.get('/api/expertise', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching expertises:', error);
+    throw error;
+  }
+};
+
+// Get expertise training by ID
+export const getExpertiseById = async (id) => {
+  try {
+    const response = await instance.get(`/api/expertise/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching expertise with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Update expertise training by ID
+export const updateExpertise = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/expertise/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating expertise with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Delete expertise training by ID
+export const deleteExpertise = async (id) => {
+  try {
+    const response = await instance.delete(`/api/expertise/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting expertise with ID ${id}:`, error);
+    throw error;
+  }
+};

@@ -1,17 +1,17 @@
 import { useTranslation } from "react-i18next";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ArticleIcon from '@mui/icons-material/Article';
+import ExplicitIcon from '@mui/icons-material/Explicit';
 import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import MemoryIcon from '@mui/icons-material/Memory';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PeopleIcon from '@mui/icons-material/People';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CampaignIcon from '@mui/icons-material/Campaign';
-import ImportContactsIcon from '@mui/icons-material/ImportContacts'; 
-import VideoLibraryIcon from '@mui/icons-material/VideoLibrary'; // Import the video icon
+import SchoolIcon from '@mui/icons-material/School'; // Add an icon for expertise
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export function useMenuItems() {
         id: 'campaignPage',
         title: t('Kampanyalar'),
         type: 'collapse',
-        icon: CampaignIcon, 
+        icon: CampaignIcon, // Uygun bir ikon seçebilirsiniz
         children: [
           {
             id: 'newCampaign',
@@ -34,7 +34,7 @@ export function useMenuItems() {
             type: 'item',
             url: '/campaign',
             target: true,
-            requiredPermission: ['createCampaign'], 
+            requiredPermission: ['createCampaign'], // İzin gereksinimi
           },
           {
             id: 'campaignList',
@@ -42,7 +42,7 @@ export function useMenuItems() {
             type: 'item',
             url: '/campaigns',
             target: true,
-            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], 
+            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], // İzin gereksinimi
           },
         ],
       },
@@ -330,86 +330,17 @@ const celebration = {
   ]
 };
 
-
-const publications = {
-  id: 'publications',
-  title: t('Yayınlar'),
-  caption: t('Yayın Yönetimi'),
+const expertiseMenu = {
+  id: 'expertise',
+  title: t('Bilirkişilik Eğitimleri'),
   type: 'group',
   children: [
     {
-      id: 'publicationsPage',
-      title: t('Yayınlar'),
+      id: 'expertisePage',
+      title: t('Bilirkişilik Eğitimleri'),
       type: 'item',
-      url: '/publication',
-      icon: ImportContactsIcon,
-      target: true,
-      requiredPermission: ["createPublication" , "updatePublication", "deletePublication"]
-    }
-  ]
-};
-
-  // New chambers section
-  const chambers = {
-    id: 'chambers',
-    title: t('Chambers'),
-    type: 'group',
-    caption: t('Chamber Management'),
-    children: [{
-      id: 'chambers',
-      title: t('Chambers'),
-     
-      icon: MemoryIcon,
-      type: 'collapse',
-      children: [
-        {
-          id: 'chambersPage',
-          title: t('Chambers'),
-          type: 'item',
-          url: '/chambers',
-
-          target: true,
-          //requiredPermission: ["viewChambers"]
-        },
-        {
-          id: 'boardsPage',
-          title: t('Boards'),
-          type: 'item',
-          url: '/boards',
-          target: true,
-          //requiredPermission: ["viewBoards"]
-        },
-        {
-          id: 'ikk',
-          title: t('İKKlar'),
-          type: 'item',
-          url: '/ikk',
-          target: true,
-          requiredPermission: ["createIKK", "updateIKK", "deleteIKK"]
-        },
-        {
-          id: 'boardTypesPage',
-          title: t('Board Types'),
-          type: 'item',
-          url: '/board-types',
-          target: true,
-        }
-      ]
-    }
-    ]
-  };
-
-const videos = {
-  id: 'videos',
-  title: t('Videos'),
-  type: 'group',
-  children: [
-    {
-      id: 'videosPage',
-      title: t('Videos'),
-      type: 'item',
-      url: '/videos',
-      icon: VideoLibraryIcon,
+      url: '/expertise',
+      icon: SchoolIcon,
       target: true,
     }
   ]
@@ -419,15 +350,12 @@ const menuItems = {
   items: [
     dashboard,
     pages,
-    videos,
     users,
     events,
-    publications, 
-    chambers, 
-    celebration,
-    campaignsMenu,
+    expertiseMenu,
     settings,
-
+    celebration,
+    campaignsMenu
   ]
 }
   return menuItems;

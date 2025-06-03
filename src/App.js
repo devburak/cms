@@ -44,6 +44,7 @@ const BoardPage = lazy(()=>import('./pages/BoardPage'));
 const BoardTypesPage = lazy(()=>import('./pages/BoardTypesPage'));
 const VideosPage = lazy(()=>import('./pages/VideosPage'));
 const IKKPage = lazy(()=>import('./pages/IKKPage'));
+const ExpertisePage = lazy(()=>import('./pages/expertisePage')); // Lazy import for ExpertisePage
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
                 <Route path='/videos' element={<VideosPage />} />
                 <Route path='/board-types' element={<BoardTypesPage />} />
                 <Route path='/ikk' element={<IKKPage />} />
+                <Route path='/expertise' element={<ExpertisePage />} /> {/* Add the new route */}
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>
@@ -100,3 +102,6 @@ function App() {
 }
 
 export default App;
+
+// Note: Add a MenuItem for "Bilirkişilik Eğitimleri" linking to "/expertise"
+// in your application's navigation component (e.g., Sidebar, Header).
