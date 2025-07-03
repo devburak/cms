@@ -54,22 +54,32 @@ export const uploadFiles = async (files, onUploadProgress) => {
 
 export const uploadFilesPresigned = async (files, onUploadProgress) => {
   try {
-    const meta = files.map((f) => ({ fileName: f.name, fileType: f.type }));
-    const { data: presigned } = await instance.post('/api/files/presign', { files: meta });
+    const meta = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const url = presigned[i]?.url;
+    for (const file of files) {
+      // Request a presigned URL for each file
+      const { data: presigned } = await instance.post('/api/files/presign', {
+        filename: file.name,
+      });
+
+      const { url, path } = presigned || {};
       if (!url) continue;
-      await axios.put(url, files[i], {
-        headers: { 'Content-Type': files[i].type },
+
+      await axios.put(url, file, {
+        headers: { 'Content-Type': file.type },
         onUploadProgress,
       });
+
+      meta.push({ fileName: file.name, fileType: file.type, path });
     }
 
     const response = await instance.post('/api/files/confirm', { meta });
     return response.data;
   } catch (error) {
-    console.error('Error uploading files via presigned URLs:', error.response ? error.response.data : error.message);
+    console.error(
+      'Error uploading files via presigned URLs:',
+      error.response ? error.response.data : error.message,
+    );
     throw error;
   }
 };
