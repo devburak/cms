@@ -2,9 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useMediaQuery, Pagination } from '@mui/material';  // Pagination eklendi
 import { Select, MenuItem, FormControl, InputLabel, Grid, ImageList, ImageListItem, ImageListItemBar, LinearProgress, Icon, Paper, IconButton, Drawer, TextField, Button } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
-import { uploadFiles, renameFile, deleteFile } from '../../api';
+import { uploadFilesPresigned, renameFile, deleteFile } from '../../api';
+import { determineImageSource, generateThumbnails } from '../../utils/file'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { determineImageSource } from '../../utils/file'
 import InfoIcon from '@mui/icons-material/Info';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { getFiles } from '../../api';
@@ -110,7 +110,17 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
         const uploadedFiles = event.target.files;
         setIsUploading(true);
         try {
-            await uploadFiles(Array.from(uploadedFiles), (progressEvent) => {
+            const filesToUpload = [];
+            for (const file of uploadedFiles) {
+                filesToUpload.push(file);
+                if (file.type.startsWith('image/')) {
+                    const thumbs = await generateThumbnails(file);
+                    thumbs.forEach(({ size, blob }) => {
+                        filesToUpload.push(new File([blob], `${file.name}-${size}.webp`, { type: 'image/webp' }));
+                    });
+                }
+            }
+            await uploadFilesPresigned(filesToUpload, (progressEvent) => {
                 const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 setUploadProgress(percentCompleted);
             });
