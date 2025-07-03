@@ -55,7 +55,7 @@ export const uploadFiles = async (files, onUploadProgress) => {
 export const uploadFilesPresigned = async (files, onUploadProgress) => {
   try {
     const meta = files.map((f) => ({ fileName: f.name, fileType: f.type }));
-    const { data: presigned } = await instance.post('/api/files/presigned', { files: meta });
+    const { data: presigned } = await instance.post('/api/files/presign', { files: meta });
 
     for (let i = 0; i < files.length; i++) {
       const url = presigned[i]?.url;
