@@ -124,3 +124,31 @@ export const getInlinePngIcon = (fileExtension) => {
     return null; // Hatalı durumlarda null döndür
   }
 };
+
+export const generateThumbnails = async (file) => {
+  const sizes = [
+    { size: 'small', width: 150, height: 150 },
+    { size: 'medium', width: 300, height: 300 },
+    { size: 'large', width: 600, height: 600 },
+    { size: 'x-large', width: 1024, height: 1024 },
+  ];
+
+  const imageBitmap = await createImageBitmap(file);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  return Promise.all(
+    sizes.map(({ size, width, height }) => {
+      canvas.width = width;
+      canvas.height = height;
+      ctx.clearRect(0, 0, width, height);
+      const ratio = Math.min(width / imageBitmap.width, height / imageBitmap.height);
+      const w = imageBitmap.width * ratio;
+      const h = imageBitmap.height * ratio;
+      ctx.drawImage(imageBitmap, 0, 0, w, h);
+      return new Promise((resolve) =>
+        canvas.toBlob((blob) => resolve({ size, blob }), 'image/webp')
+      );
+    })
+  );
+};

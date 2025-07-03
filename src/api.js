@@ -1,4 +1,5 @@
 import instance from './axiosConfig';
+import axios from 'axios';
 
 export const postSystemVariable = async (data) => {
   try {
@@ -47,6 +48,28 @@ export const uploadFiles = async (files, onUploadProgress) => {
     return response.data;
   } catch (error) {
     console.error('Error uploading files:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const uploadFilesPresigned = async (files, onUploadProgress) => {
+  try {
+    const meta = files.map((f) => ({ fileName: f.name, fileType: f.type }));
+    const { data: presigned } = await instance.post('/api/files/presigned', { files: meta });
+
+    for (let i = 0; i < files.length; i++) {
+      const url = presigned[i]?.url;
+      if (!url) continue;
+      await axios.put(url, files[i], {
+        headers: { 'Content-Type': files[i].type },
+        onUploadProgress,
+      });
+    }
+
+    const response = await instance.post('/api/files/confirm', { meta });
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading files via presigned URLs:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
