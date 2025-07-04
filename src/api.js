@@ -70,11 +70,22 @@ export const uploadFilesPresigned = async (files, onUploadProgress) => {
         onUploadProgress,
       });
 
-      meta.push({ fileName: file.name, fileType: file.type, path });
+      meta.push({
+        fileName: file.name,
+        originalName: file.name,
+        mimeType: file.type,
+        fileType: file.type,
+        size: file.size,
+        path,
+      });
     }
 
-    const response = await instance.post('/api/files/confirm', { meta });
-    return response.data;
+    const savedFiles = [];
+    for (const m of meta) {
+      const { data } = await instance.post('/api/files/confirm', { ...m });
+      savedFiles.push(data);
+    }
+    return savedFiles;
   } catch (error) {
     console.error(
       'Error uploading files via presigned URLs:',
