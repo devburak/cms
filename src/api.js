@@ -1216,3 +1216,39 @@ export const deleteExpertise = async (id) => {
     throw error;
   }
 };
+
+// ----- Forms API -----
+export const createForm = async (data) => {
+  const response = await instance.post('/api/forms', data);
+  return response.data;
+};
+
+export const updateForm = async (id, data) => {
+  const response = await instance.put(`/api/forms/${id}`, data);
+  return response.data;
+};
+
+export const getForms = async (params = {}) => {
+  const response = await instance.get('/api/forms', { params });
+  return response.data;
+};
+
+export const getFormById = async (id) => {
+  const response = await instance.get(`/api/forms/${id}`);
+  return response.data;
+};
+
+export const deleteForm = async (id) => {
+  const response = await instance.delete(`/api/forms/${id}`);
+  return response.data;
+};
+
+export const createSubmission = async (formId, data) => {
+  const response = await instance.post(`/api/forms/${formId}/submissions`, data);
+  return response.data;
+};
+
+export const getSubmissions = async (formId, params = {}) => {
+  const response = await instance.get(`/api/forms/${formId}/submissions`, { params });
+  return response.data;
+};
