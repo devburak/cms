@@ -145,7 +145,9 @@ export const generateThumbnails = async (file) => {
       const ratio = Math.min(width / imageBitmap.width, height / imageBitmap.height);
       const w = imageBitmap.width * ratio;
       const h = imageBitmap.height * ratio;
-      ctx.drawImage(imageBitmap, 0, 0, w, h);
+      const x = (width - w) / 2;
+      const y = (height - h) / 2;
+      ctx.drawImage(imageBitmap, x, y, w, h);
       return new Promise((resolve) =>
         canvas.toBlob((blob) => resolve({ size, blob }), 'image/webp')
       );
