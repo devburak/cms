@@ -79,12 +79,12 @@ export const uploadFilesPresigned = async (files, onUploadProgress) => {
         path,
       });
     }
-
-    const savedFiles = [];
-    for (const m of meta) {
-      const { data } = await instance.post('/api/files/confirm', { ...m });
-      savedFiles.push(data);
-    }
+    const savedFiles = await instance.post('/api/files/confirm', meta);
+    // const savedFiles = [];
+    // for (const m of meta) {
+      // const { data } = await instance.post('/api/files/confirm', { ...m });
+      // savedFiles.push(data);
+    // }
     return savedFiles;
   } catch (error) {
     console.error(
