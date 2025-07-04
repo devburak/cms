@@ -45,6 +45,9 @@ const BoardTypesPage = lazy(()=>import('./pages/BoardTypesPage'));
 const VideosPage = lazy(()=>import('./pages/VideosPage'));
 const IKKPage = lazy(()=>import('./pages/IKKPage'));
 const ExpertisePage = lazy(()=>import('./pages/expertisePage')); // Lazy import for ExpertisePage
+const FormBuilderPage = lazy(()=>import('./pages/FormBuilderPage'));
+const FormListPage = lazy(()=>import('./pages/FormListPage'));
+const FormFillPage = lazy(()=>import('./pages/FormFillPage'));
 
 function App() {
   return (
@@ -88,6 +91,9 @@ function App() {
                 <Route path='/board-types' element={<BoardTypesPage />} />
                 <Route path='/ikk' element={<IKKPage />} />
                 <Route path='/expertise' element={<ExpertisePage />} /> {/* Add the new route */}
+                <Route path='/form/:id?' element={<FormBuilderPage />} />
+                <Route path='/forms' element={<FormListPage />} />
+                <Route path='/form/:id/fill' element={<FormFillPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>

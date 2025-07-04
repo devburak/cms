@@ -346,12 +346,45 @@ const expertiseMenu = {
   ]
 };
 
+  const formsMenu = {
+    id: 'forms',
+    title: t('Forms'),
+    type: 'group',
+    children: [
+      {
+        id: 'formPages',
+        title: t('Forms'),
+        type: 'collapse',
+        icon: ExplicitIcon,
+        children: [
+          {
+            id: 'newForm',
+            title: t('New Form'),
+            type: 'item',
+            url: '/form',
+            target: true,
+            requiredPermission: ['createForm']
+          },
+          {
+            id: 'formList',
+            title: t('Forms'),
+            type: 'item',
+            url: '/forms',
+            target: true,
+            requiredPermission: ['viewForms']
+          }
+        ]
+      }
+    ]
+  };
+
 const menuItems = {
   items: [
     dashboard,
     pages,
     users,
     events,
+    formsMenu,
     expertiseMenu,
     settings,
     celebration,
