@@ -54,37 +54,78 @@ export const uploadFiles = async (files, onUploadProgress) => {
 
 export const uploadFilesPresigned = async (files, onUploadProgress) => {
   try {
+    const uploads = {};
+
+    // Gruplama: orijinal dosya ismi + thumbnail boyutu
+    for (const file of files) {
+      const thumbMatch = file.name.match(/^(.*)\-(small|medium|large|x-large)\.webp$/);
+      if (thumbMatch) {
+        const base = thumbMatch[1];
+        const size = thumbMatch[2];
+        uploads[base] = uploads[base] || { original: null, thumbnails: [] };
+        uploads[base].thumbnails.push({ size, file });
+      } else {
+        uploads[file.name] = uploads[file.name] || { original: null, thumbnails: [] };
+        uploads[file.name].original = file;
+      }
+    }
+
     const meta = [];
 
-    for (const file of files) {
-      // Request a presigned URL for each file
-      const { data: presigned } = await instance.post('/api/files/presign', {
-        filename: file.name,
+    for (const [baseName, { original, thumbnails }] of Object.entries(uploads)) {
+      if (!original) continue; // güvenlik için
+
+      // Orijinal dosya için presigned URL al
+      const { data: originalPresigned } = await instance.post('/api/files/presign', {
+        filename: original.name,
       });
 
-      const { url, path } = presigned || {};
-      if (!url) continue;
+      const { url: originalUrl, path: originalPath } = originalPresigned || {};
+      if (!originalUrl) continue;
 
-      await axios.put(url, file, {
-        headers: { 'Content-Type': file.type },
+      await axios.put(originalUrl, original, {
+        headers: { 'Content-Type': original.type },
         onUploadProgress,
       });
 
+      const thumbnailsMeta = [];
+
+      for (const { size, file } of thumbnails) {
+        const { data: thumbPresigned } = await instance.post('/api/files/presign', {
+          filename: file.name,
+        });
+
+        const { url: thumbUrl, path: thumbPath } = thumbPresigned || {};
+        if (!thumbUrl) continue;
+
+        await axios.put(thumbUrl, file, {
+          headers: { 'Content-Type': file.type },
+          onUploadProgress,
+        });
+
+        thumbnailsMeta.push({
+          fileName: file.name,
+          originalName: original.name,
+          mimeType: file.type,
+          fileType: file.type,
+          size: file.size,
+          path: thumbPath,
+          thumbnailSize: size,
+        });
+      }
+
       meta.push({
-        fileName: file.name,
-        originalName: file.name,
-        mimeType: file.type,
-        fileType: file.type,
-        size: file.size,
-        path,
+        fileName: original.name,
+        originalName: original.name,
+        mimeType: original.type,
+        fileType: original.type,
+        size: original.size,
+        path: originalPath,
+        thumbnails: thumbnailsMeta,
       });
     }
+
     const savedFiles = await instance.post('/api/files/confirm', meta);
-    // const savedFiles = [];
-    // for (const m of meta) {
-      // const { data } = await instance.post('/api/files/confirm', { ...m });
-      // savedFiles.push(data);
-    // }
     return savedFiles;
   } catch (error) {
     console.error(
