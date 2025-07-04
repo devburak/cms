@@ -104,18 +104,17 @@ export const uploadFilesPresigned = async (files, onUploadProgress) => {
         });
 
         thumbnailsMeta.push({
-          fileName: file.name,
+          fileName: thumbPath ? thumbPath.split('/').pop() : file.name,
           originalName: original.name,
           mimeType: file.type,
           fileType: file.type,
-          size: file.size,
+          size,
           path: thumbPath,
-          thumbnailSize: size,
         });
       }
 
       meta.push({
-        fileName: original.name,
+        fileName: originalPath ? originalPath.split('/').pop() : original.name,
         originalName: original.name,
         mimeType: original.type,
         fileType: original.type,
