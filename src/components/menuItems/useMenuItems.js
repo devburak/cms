@@ -5,6 +5,7 @@ import ExplicitIcon from '@mui/icons-material/Explicit';
 import CategoryIcon from '@mui/icons-material/Category';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DynamicFormIcon from '@mui/icons-material/DynamicForm';
 import PeopleIcon from '@mui/icons-material/People';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -355,7 +356,7 @@ const expertiseMenu = {
         id: 'formPages',
         title: t('Forms'),
         type: 'collapse',
-        icon: ExplicitIcon,
+        icon: DynamicFormIcon,
         children: [
           {
             id: 'newForm',
@@ -388,7 +389,8 @@ const menuItems = {
     expertiseMenu,
     settings,
     celebration,
-    campaignsMenu
+    campaignsMenu,
+    
   ]
 }
   return menuItems;
