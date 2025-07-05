@@ -130,4 +130,23 @@
   "Forms":"Forms",
   "Submissions":"Submissions"
 
+  ,"form_name":"Form Name"
+  ,"field_name":"Field Name"
+  ,"label":"Label"
+  ,"option":"Option"
+  ,"add_option":"Add Option"
+  ,"multiline":"Multiline"
+  ,"rows":"Rows"
+  ,"regex":"Regex"
+  ,"required":"Required"
+  ,"success_message":"Success Message"
+  ,"failure_message":"Failure Message"
+  ,"send_email":"Send Email"
+  ,"email_to":"Email To"
+  ,"add_field":"Add Field"
+  ,"save_form":"Save Form"
+  ,"html_content":"HTML Content"
+  ,"include_checkbox":"Include Checkbox"
+  ,"submitted":"Submitted"
+  ,"submission_failed":"Submission failed"
 }
