@@ -186,7 +186,8 @@ export default function FormFill() {
       const submitValues = { ...values };
       form.fields.forEach((f) => {
         if (f.type === "multiselect") {
-          submitValues[f.name] = (values[f.name] || []).join(";");
+          // Backend expects an array for multiselect fields
+          submitValues[f.name] = values[f.name] || [];
         }
         if (f.type === "html" && !f.withCheckbox) {
           delete submitValues[f.name];
