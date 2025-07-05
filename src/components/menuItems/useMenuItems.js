@@ -373,6 +373,14 @@ const expertiseMenu = {
             url: '/forms',
             target: true,
             requiredPermission: ['viewForms']
+          },
+          {
+            id: 'submissions',
+            title: t('Submissions'),
+            type: 'item',
+            url: '/submissions',
+            target: true,
+            requiredPermission: ['viewFormSubmissions']
           }
         ]
       }
