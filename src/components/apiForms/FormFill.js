@@ -125,6 +125,7 @@ function renderField(field, value, setValue, error) {
           error={error}
           fullWidth
           sx={{ mb: 2 }}
+          InputLabelProps={{ shrink: true }}
         />
       );
     case "html":

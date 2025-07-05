@@ -21,6 +21,7 @@ const emptyField = {
   label: "",
   type: "text",
   required: false,
+  unique: false,
   options: [],
   minLength: "",
   maxLength: "",
@@ -113,6 +114,28 @@ function FieldEditor({ field, onChange, onDelete }) {
               <Button size="small" onClick={() => onChange({ ...field, options: [...field.options, ''] })}>
                 {t('add_option')}
               </Button>
+              <Button size="small" component="label" sx={{ ml: 1 }}>
+                {t('import_options')}
+                <input
+                  type="file"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const text = reader.result;
+                      const opts = text
+                        .split(';')
+                        .map((o) => o.trim())
+                        .filter((o) => o);
+                      onChange({ ...field, options: opts });
+                    };
+                    reader.readAsText(file);
+                    e.target.value = '';
+                  }}
+                />
+              </Button>
             </Box>
           )}
           {field.type === "text" && (
@@ -181,6 +204,18 @@ function FieldEditor({ field, onChange, onDelete }) {
             }
             label={t('required')}
           />
+          {(field.type === 'text' || field.type === 'number' || field.type === 'datetime') && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={field.unique}
+                  onChange={handleChange}
+                  name="unique"
+                />
+              }
+              label={t('unique')}
+            />
+          )}
         </Grid>
         <Grid item xs={1}>
           <IconButton onClick={onDelete}>
