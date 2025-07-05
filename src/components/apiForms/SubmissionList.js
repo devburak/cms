@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, Select, MenuItem, Button, Box, Grid } from '@mui/material';
-import { getForms, getSubmissions } from '../../api';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Pagination,
+  Select,
+  MenuItem,
+  Button,
+  Box,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  LinearProgress,
+} from '@mui/material';
+import { getForms, getSubmissions, exportSubmissionsFile } from '../../api';
 import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
 import { useSearchParams } from 'react-router-dom';
 
 export default function SubmissionList() {
@@ -14,6 +30,8 @@ export default function SubmissionList() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const limit = 10;
+  const [exporting, setExporting] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   useEffect(() => { fetchForms(); }, []);
 
@@ -42,27 +60,26 @@ export default function SubmissionList() {
       ? Object.keys(submissions[0]).filter((h) => !hiddenFields.includes(h))
       : [];
 
-  const handleExportCSV = () => {
-    if(submissions.length===0) return;
-    const headers = getHeaders();
-    const rows = submissions.map(s => headers.map(h => JSON.stringify(s[h] ?? '')).join(','));
-    const csv = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'submissions.csv');
-  };
-
-  const handleExportXLSX = () => {
-    if(submissions.length===0) return;
-    const ws = XLSX.utils.json_to_sheet(submissions.map(s => {
-      const copy = {};
-      getHeaders().forEach(h => { copy[h] = s[h]; });
-      return copy;
-    }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Submissions');
-    const xlsBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([xlsBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'submissions.xlsx');
+  const handleExport = async (format) => {
+    if (exporting) return;
+    setExporting(true);
+    setDownloadProgress(0);
+    try {
+      const blob = await exportSubmissionsFile(
+        selectedForm,
+        format,
+        (e) => {
+          if (e.total) {
+            setDownloadProgress(Math.round((e.loaded * 100) / e.total));
+          }
+        },
+      );
+      saveAs(blob, `submissions.${format === 'xlsx' ? 'xlsx' : 'csv'}`);
+    } catch (err) {
+      console.error('Export error', err);
+    } finally {
+      setExporting(false);
+    }
   };
 
   const renderCell = (key, value) => {
@@ -94,10 +111,10 @@ export default function SubmissionList() {
         {selectedForm && (
           <>
             <Grid item xs={6} md={3}>
-              <Button onClick={handleExportCSV} fullWidth variant="outlined">Export CSV</Button>
+              <Button onClick={() => handleExport('csv')} fullWidth variant="outlined" disabled={exporting}>Export CSV</Button>
             </Grid>
             <Grid item xs={6} md={3}>
-              <Button onClick={handleExportXLSX} fullWidth variant="outlined">Export XLSX</Button>
+              <Button onClick={() => handleExport('xlsx')} fullWidth variant="outlined" disabled={exporting}>Export XLSX</Button>
             </Grid>
           </>
         )}
@@ -127,6 +144,17 @@ export default function SubmissionList() {
           <Pagination count={totalPages} page={page} onChange={(e,v)=>setPage(v)} sx={{ mt:2 }} />
         </>
       )}
+      <Dialog open={exporting}>
+        <DialogTitle>Exporting...</DialogTitle>
+        <DialogContent>
+          <Box sx={{ minWidth: 200 }}>
+            <LinearProgress
+              variant={downloadProgress ? 'determinate' : 'indeterminate'}
+              value={downloadProgress}
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
