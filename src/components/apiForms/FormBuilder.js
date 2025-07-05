@@ -1,48 +1,149 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Select, MenuItem, FormControlLabel, Checkbox, IconButton, Typography, Paper, Grid } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { createForm, updateForm, getFormById } from '../../api';
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+  Typography,
+  Paper,
+  Grid,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { createForm, updateForm, getFormById } from "../../api";
 
 const emptyField = {
-  name: '',
-  label: '',
-  type: 'text',
+  name: "",
+  label: "",
+  type: "text",
   required: false,
   options: [],
-  minLength: '',
-  maxLength: '',
-  minValue: '',
-  maxValue: '',
+  minLength: "",
+  maxLength: "",
+  minValue: "",
+  maxValue: "",
   minChoices: 0,
-  maxChoices: '',
-  regex: ''
+  maxChoices: "",
+  regex: "",
+  multiline: false,
+  rows: 3,
 };
 
-const fieldTypes = ['text','number','select','multiselect','radio','date','datetime','html'];
+const fieldTypes = [
+  "text",
+  "number",
+  "select",
+  "multiselect",
+  "radio",
+  "date",
+  "datetime",
+  "html",
+];
 
 function FieldEditor({ field, onChange, onDelete }) {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    onChange({ ...field, [name]: type === 'checkbox' ? checked : value });
+    onChange({ ...field, [name]: type === "checkbox" ? checked : value });
   };
 
   return (
-    <Paper sx={{ p:2, mb:2 }}>
+    <Paper sx={{ p: 2, mb: 2 }}>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={11}>
-          <TextField label="Field Name" name="name" value={field.name} onChange={handleChange} fullWidth sx={{ mb:1 }} />
-          <TextField label="Label" name="label" value={field.label} onChange={handleChange} fullWidth sx={{ mb:1 }} />
-          <Select name="type" value={field.type} onChange={handleChange} fullWidth sx={{ mb:1 }}>
-            {fieldTypes.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+          <TextField
+            label="Field Name"
+            name="name"
+            value={field.name}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 1 }}
+          />
+          <TextField
+            label="Label"
+            name="label"
+            value={field.label}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 1 }}
+          />
+          <Select
+            name="type"
+            value={field.type}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 1 }}
+          >
+            {fieldTypes.map((t) => (
+              <MenuItem key={t} value={t}>
+                {t}
+              </MenuItem>
+            ))}
           </Select>
-          {(field.type === 'select' || field.type === 'multiselect' || field.type === 'radio') && (
-            <TextField label="Options (comma separated)" name="options" value={field.options.join(',')} onChange={e => onChange({ ...field, options:e.target.value.split(',') })} fullWidth sx={{ mb:1 }} />
+          {(field.type === "select" ||
+            field.type === "multiselect" ||
+            field.type === "radio") && (
+            <TextField
+              label="Options (comma separated)"
+              name="options"
+              value={field.options.join(",")}
+              onChange={(e) =>
+                onChange({ ...field, options: e.target.value.split(",") })
+              }
+              fullWidth
+              sx={{ mb: 1 }}
+            />
           )}
-          <TextField label="Regex" name="regex" value={field.regex||''} onChange={handleChange} fullWidth sx={{ mb:1 }} />
-          <FormControlLabel control={<Checkbox checked={field.required} onChange={handleChange} name="required"/>} label="Required" />
+          {field.type === "text" && (
+            <>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={field.multiline}
+                    onChange={handleChange}
+                    name="multiline"
+                  />
+                }
+                label="Multiline"
+              />
+              {field.multiline && (
+                <TextField
+                  type="number"
+                  label="Rows"
+                  name="rows"
+                  value={field.rows}
+                  onChange={handleChange}
+                  fullWidth
+                  sx={{ mb: 1 }}
+                />
+              )}
+            </>
+          )}
+          <TextField
+            label="Regex"
+            name="regex"
+            value={field.regex || ""}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 1 }}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={field.required}
+                onChange={handleChange}
+                name="required"
+              />
+            }
+            label="Required"
+          />
         </Grid>
         <Grid item xs={1}>
-          <IconButton onClick={onDelete}><DeleteIcon /></IconButton>
+          <IconButton onClick={onDelete}>
+            <DeleteIcon />
+          </IconButton>
         </Grid>
       </Grid>
     </Paper>
@@ -50,56 +151,127 @@ function FieldEditor({ field, onChange, onDelete }) {
 }
 
 export default function FormBuilder({ formId, onSaved }) {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [fields, setFields] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [failureMessage, setFailureMessage] = useState("");
+  const [sendEmail, setSendEmail] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
 
   useEffect(() => {
-    if(formId) {
-      getFormById(formId).then(data => {
+    if (formId) {
+      getFormById(formId).then((data) => {
         setName(data.name);
         setFields(data.fields || []);
+        setSuccessMessage(data.successMessage || "");
+        setFailureMessage(data.failureMessage || "");
+        setSendEmail(data.sendEmail || false);
+        setEmailTo(data.emailTo || "");
       });
     }
   }, [formId]);
 
-  const addField = () => setFields([...fields, { ...emptyField, name:`field${fields.length+1}` }]);
+  const addField = () =>
+    setFields([
+      ...fields,
+      { ...emptyField, name: `field${fields.length + 1}` },
+    ]);
   const updateField = (index, field) => {
     const updated = [...fields];
     updated[index] = field;
     setFields(updated);
   };
-  const deleteField = (index) => setFields(fields.filter((_,i)=>i!==index));
+  const deleteField = (index) =>
+    setFields(fields.filter((_, i) => i !== index));
 
   const handleSave = async () => {
-    const form = { name, fields };
-    if(formId) await updateForm(formId, form); else await createForm(form);
-    if(onSaved) onSaved();
+    const form = {
+      name,
+      fields,
+      successMessage,
+      failureMessage,
+      sendEmail,
+      emailTo,
+    };
+    if (formId) await updateForm(formId, form);
+    else await createForm(form);
+    if (onSaved) onSaved();
   };
 
   // simple drag and drop handlers
   const onDragStart = (e, index) => {
-    e.dataTransfer.setData('text/plain', index);
+    e.dataTransfer.setData("text/plain", index);
   };
   const onDrop = (e, index) => {
-    const from = e.dataTransfer.getData('text/plain');
-    if(from === '') return;
+    const from = e.dataTransfer.getData("text/plain");
+    if (from === "") return;
     const updated = [...fields];
-    const moved = updated.splice(from,1)[0];
-    updated.splice(index,0,moved);
+    const moved = updated.splice(from, 1)[0];
+    updated.splice(index, 0, moved);
     setFields(updated);
   };
   const onDragOver = (e) => e.preventDefault();
 
   return (
     <Box>
-      <TextField label="Form Name" value={name} onChange={e=>setName(e.target.value)} fullWidth sx={{ mb:2 }} />
-      {fields.map((f,idx) => (
-        <div key={idx} draggable onDragStart={(e)=>onDragStart(e, idx)} onDragOver={onDragOver} onDrop={(e)=>onDrop(e, idx)}>
-          <FieldEditor field={f} onChange={fld=>updateField(idx,fld)} onDelete={()=>deleteField(idx)} />
+      <TextField
+        label="Form Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      {fields.map((f, idx) => (
+        <div
+          key={idx}
+          draggable
+          onDragStart={(e) => onDragStart(e, idx)}
+          onDragOver={onDragOver}
+          onDrop={(e) => onDrop(e, idx)}
+        >
+          <FieldEditor
+            field={f}
+            onChange={(fld) => updateField(idx, fld)}
+            onDelete={() => deleteField(idx)}
+          />
         </div>
       ))}
+      <TextField
+        label="Success Message"
+        value={successMessage}
+        onChange={(e) => setSuccessMessage(e.target.value)}
+        fullWidth
+        sx={{ mt: 2 }}
+      />
+      <TextField
+        label="Failure Message"
+        value={failureMessage}
+        onChange={(e) => setFailureMessage(e.target.value)}
+        fullWidth
+        sx={{ mt: 2 }}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={sendEmail}
+            onChange={(e) => setSendEmail(e.target.checked)}
+          />
+        }
+        label="Send Email"
+      />
+      {sendEmail && (
+        <TextField
+          label="Email To"
+          value={emailTo}
+          onChange={(e) => setEmailTo(e.target.value)}
+          fullWidth
+          sx={{ mt: 1 }}
+        />
+      )}
       <Button onClick={addField}>Add Field</Button>
-      <Button variant="contained" onClick={handleSave} sx={{ ml:2 }}>Save Form</Button>
+      <Button variant="contained" onClick={handleSave} sx={{ ml: 2 }}>
+        Save Form
+      </Button>
     </Box>
   );
 }
