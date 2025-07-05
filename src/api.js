@@ -1252,3 +1252,19 @@ export const getSubmissions = async (formId, params = {}) => {
   const response = await instance.get(`/api/forms/${formId}/submissions`, { params });
   return response.data;
 };
+
+export const exportSubmissionsFile = async (
+  formId,
+  format = 'csv',
+  onDownloadProgress,
+) => {
+  const response = await instance.get(
+    `/api/forms/${formId}/submissions/export`,
+    {
+      params: { format },
+      responseType: 'blob',
+      onDownloadProgress,
+    },
+  );
+  return response.data;
+};
