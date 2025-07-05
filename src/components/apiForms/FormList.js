@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, TextField, Pagination, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, TextField, Pagination, Button, Grid } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getForms, deleteForm } from '../../api';
@@ -29,8 +29,14 @@ export default function FormList() {
 
   return (
     <TableContainer>
-      <TextField placeholder="Search" value={search} onChange={e=>setSearch(e.target.value)} sx={{ my:2 }} />
-      <Button onClick={()=>navigate('/form')}>New Form</Button>
+      <Grid container spacing={2} alignItems="center" sx={{ my:2 }}>
+        <Grid item xs={12} sm={6}>
+          <TextField placeholder="Search" value={search} onChange={e=>setSearch(e.target.value)} size="small" fullWidth />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Button variant="contained" fullWidth onClick={()=>navigate('/form')}>New Form</Button>
+        </Grid>
+      </Grid>
       <Table>
         <TableHead>
           <TableRow>
@@ -45,7 +51,11 @@ export default function FormList() {
             <TableRow key={form._id}>
               <TableCell>{form.name}</TableCell>
               <TableCell>{new Date(form.createdAt).toLocaleDateString()}</TableCell>
-              <TableCell>{form.submissionCount || 0}</TableCell>
+              <TableCell>
+                <Button variant="outlined" size="small" onClick={()=>navigate(`/submissions?formId=${form._id}`)}>
+                  {form.submissionCount || 0}
+                </Button>
+              </TableCell>
               <TableCell>
                 <IconButton onClick={()=>navigate(`/form/${form._id}`)}><EditIcon/></IconButton>
                 <IconButton onClick={()=>handleDelete(form._id, form.submissionCount)} disabled={form.submissionCount>0}><DeleteIcon/></IconButton>

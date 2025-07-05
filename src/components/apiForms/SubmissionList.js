@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, Select, MenuItem, Button, Box } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, Select, MenuItem, Button, Box, Grid } from '@mui/material';
 import { getForms, getSubmissions } from '../../api';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
+import { useLocation } from 'react-router-dom';
 
 export default function SubmissionList() {
   const [forms, setForms] = useState([]);
@@ -11,8 +12,18 @@ export default function SubmissionList() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const limit = 10;
+  const location = useLocation();
 
   useEffect(() => { fetchForms(); }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('formId');
+    if (id) {
+      setSelectedForm(id);
+      setPage(1);
+    }
+  }, [location.search]);
 
   useEffect(() => { if(selectedForm) fetchSubmissions(); }, [selectedForm, page]);
 
@@ -52,38 +63,62 @@ export default function SubmissionList() {
     return String(value);
   };
 
+  const renderDataCell = (data) => {
+    if (!data || typeof data !== 'object') return '';
+    const entries = Object.entries(data);
+    const shown = entries.slice(0, 3).map(([k,v]) => `${k}: ${renderCell(v)}`);
+    const more = entries.length > 3 ? ' ...' : '';
+    return shown.join(', ') + more;
+  };
+
   return (
     <Box>
-      <Select
-        value={selectedForm}
-        onChange={(e)=>{setSelectedForm(e.target.value); setPage(1);}}
-        displayEmpty
-        sx={{ mb:2, minWidth:200 }}
-      >
-        <MenuItem value="">Select Form</MenuItem>
-        {forms.map(f=>(<MenuItem key={f._id} value={f._id}>{f.name}</MenuItem>))}
-      </Select>
+      <Grid container spacing={2} alignItems="center" sx={{ mb:2 }}>
+        <Grid item xs={12} sm={6}>
+          <Select
+            value={selectedForm}
+            onChange={(e)=>{setSelectedForm(e.target.value); setPage(1);}}
+            displayEmpty
+            size="small"
+            fullWidth
+          >
+            <MenuItem value="">Select Form</MenuItem>
+            {forms.map(f=>(<MenuItem key={f._id} value={f._id}>{f.name}</MenuItem>))}
+          </Select>
+        </Grid>
+        {selectedForm && (
+          <>
+            <Grid item xs={6} sm={3}>
+              <Button onClick={handleExportCSV} variant="outlined" fullWidth>Export CSV</Button>
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <Button onClick={handleExportXLSX} variant="outlined" fullWidth>Export XLSX</Button>
+            </Grid>
+          </>
+        )}
+      </Grid>
       {selectedForm && (
         <>
-          <Box sx={{ mb:2 }}>
-            <Button onClick={handleExportCSV} sx={{mr:1}} variant="outlined">Export CSV</Button>
-            <Button onClick={handleExportXLSX} variant="outlined">Export XLSX</Button>
-          </Box>
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
-                  {submissions.length>0 && Object.keys(submissions[0]).map(key=> (
-                    <TableCell key={key}>{key}</TableCell>
-                  ))}
+                  {submissions.length>0 &&
+                    Object.keys(submissions[0])
+                      .filter(key => !['_id','form','createdBy','__v'].includes(key))
+                      .map(key => (
+                        <TableCell key={key}>{key}</TableCell>
+                      ))}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {submissions.map((sub,idx)=>(
                   <TableRow key={sub._id || idx}>
-                    {Object.keys(submissions[0]||{}).map(k=> (
-                      <TableCell key={k}>{renderCell(sub[k])}</TableCell>
-                    ))}
+                    {Object.keys(submissions[0]||{})
+                      .filter(k => !['_id','form','createdBy','__v'].includes(k))
+                      .map(k => (
+                        <TableCell key={k}>{k === 'data' ? renderDataCell(sub[k]) : renderCell(sub[k])}</TableCell>
+                      ))}
                   </TableRow>
                 ))}
               </TableBody>
