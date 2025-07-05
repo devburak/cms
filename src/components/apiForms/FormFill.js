@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   TextField,
@@ -8,6 +9,8 @@ import {
   MenuItem,
   Button,
   Alert,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { getFormById, createSubmission } from "../../api";
 import { useParams } from "react-router-dom";
@@ -53,38 +56,45 @@ function renderField(field, value, setValue, error) {
       );
     case "select":
       return (
-        <Select
-          value={value || ""}
-          onChange={handleChange}
-          required={field.required}
-          fullWidth
-          sx={{ mb: 2 }}
-          error={error}
-        >
-          {field.options.map((opt) => (
-            <MenuItem key={opt} value={opt}>
-              {opt}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl fullWidth sx={{ mb: 2 }} error={error}>
+          <InputLabel>{field.label}</InputLabel>
+          <Select
+            value={value || ""}
+            label={field.label}
+            onChange={handleChange}
+            required={field.required}
+          >
+            {field.options.map((opt) => (
+              <MenuItem key={opt} value={opt}>
+                {opt}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       );
     case "multiselect":
       return (
-        <Select
-          multiple
-          value={value || []}
-          onChange={handleChange}
-          required={field.required}
-          fullWidth
-          sx={{ mb: 2 }}
-          error={error}
-        >
+        <Box sx={{ mb: 2 }}>
+          <InputLabel sx={{ mb: 1 }}>{field.label}</InputLabel>
           {field.options.map((opt) => (
-            <MenuItem key={opt} value={opt}>
-              {opt}
-            </MenuItem>
+            <FormControlLabel
+              key={opt}
+              control={
+                <Checkbox
+                  checked={(value || []).includes(opt)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    const arr = value ? [...value] : [];
+                    if (checked) arr.push(opt);
+                    else arr.splice(arr.indexOf(opt), 1);
+                    setValue(arr);
+                  }}
+                />
+              }
+              label={opt}
+            />
           ))}
-        </Select>
+        </Box>
       );
     case "radio":
       return (
@@ -119,16 +129,23 @@ function renderField(field, value, setValue, error) {
       );
     case "html":
       return (
-        <TextField
-          multiline
-          label={field.label}
-          value={value || ""}
-          onChange={handleChange}
-          required={field.required}
-          error={error}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+        <Box sx={{ mb: 2 }}>
+          {field.htmlContent && (
+            <div dangerouslySetInnerHTML={{ __html: field.htmlContent }} />
+          )}
+          {field.withCheckbox && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={value || false}
+                  onChange={handleChange}
+                  required={field.required}
+                />
+              }
+              label={field.label}
+            />
+          )}
+        </Box>
       );
     default:
       return null;
@@ -137,6 +154,7 @@ function renderField(field, value, setValue, error) {
 
 export default function FormFill() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [form, setForm] = useState(null);
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
@@ -150,7 +168,7 @@ export default function FormFill() {
   const handleSubmit = async () => {
     const err = {};
     form.fields.forEach((f) => {
-      if (f.required) {
+      if (f.required && !(f.type === "html" && !f.withCheckbox)) {
         const val = values[f.name];
         if (
           val === undefined ||
@@ -165,12 +183,21 @@ export default function FormFill() {
     if (Object.keys(err).length > 0) return;
 
     try {
-      await createSubmission(id, values);
-      const msg = form.successMessage || "Submitted";
-      setResultMsg(replacePlaceholders(msg, values));
+      const submitValues = { ...values };
+      form.fields.forEach((f) => {
+        if (f.type === "multiselect") {
+          submitValues[f.name] = (values[f.name] || []).join(";");
+        }
+        if (f.type === "html" && !f.withCheckbox) {
+          delete submitValues[f.name];
+        }
+      });
+      await createSubmission(id, submitValues);
+      const msg = form.successMessage || t("submitted");
+      setResultMsg(replacePlaceholders(msg, submitValues));
       setResultError(false);
     } catch (e) {
-      const msg = form.failureMessage || "Submission failed";
+      const msg = form.failureMessage || t("submission_failed");
       setResultMsg(
         replacePlaceholders(msg, values) + (e?.message ? `: ${e.message}` : ""),
       );
@@ -202,7 +229,7 @@ export default function FormFill() {
         </Alert>
       )}
       <Button variant="contained" onClick={handleSubmit}>
-        Submit
+        {t('submit')}
       </Button>
     </Box>
   );

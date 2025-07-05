@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -30,6 +31,8 @@ const emptyField = {
   regex: "",
   multiline: false,
   rows: 3,
+  htmlContent: "",
+  withCheckbox: false,
 };
 
 const fieldTypes = [
@@ -44,6 +47,7 @@ const fieldTypes = [
 ];
 
 function FieldEditor({ field, onChange, onDelete }) {
+  const { t } = useTranslation();
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     onChange({ ...field, [name]: type === "checkbox" ? checked : value });
@@ -54,7 +58,7 @@ function FieldEditor({ field, onChange, onDelete }) {
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={11}>
           <TextField
-            label="Field Name"
+            label={t('field_name')}
             name="name"
             value={field.name}
             onChange={handleChange}
@@ -62,7 +66,7 @@ function FieldEditor({ field, onChange, onDelete }) {
             sx={{ mb: 1 }}
           />
           <TextField
-            label="Label"
+            label={t('label')}
             name="label"
             value={field.label}
             onChange={handleChange}
@@ -85,16 +89,31 @@ function FieldEditor({ field, onChange, onDelete }) {
           {(field.type === "select" ||
             field.type === "multiselect" ||
             field.type === "radio") && (
-            <TextField
-              label="Options (comma separated)"
-              name="options"
-              value={field.options.join(",")}
-              onChange={(e) =>
-                onChange({ ...field, options: e.target.value.split(",") })
-              }
-              fullWidth
-              sx={{ mb: 1 }}
-            />
+            <Box sx={{ mb: 1 }}>
+              {field.options.map((opt, i) => (
+                <Box key={i} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <TextField
+                    label={`${t('option')} ${i + 1}`}
+                    value={opt}
+                    onChange={(e) => {
+                      const opts = [...field.options];
+                      opts[i] = e.target.value;
+                      onChange({ ...field, options: opts });
+                    }}
+                    fullWidth
+                  />
+                  <IconButton onClick={() => {
+                    const opts = field.options.filter((_, idx) => idx !== i);
+                    onChange({ ...field, options: opts });
+                  }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button size="small" onClick={() => onChange({ ...field, options: [...field.options, ''] })}>
+                {t('add_option')}
+              </Button>
+            </Box>
           )}
           {field.type === "text" && (
             <>
@@ -106,12 +125,12 @@ function FieldEditor({ field, onChange, onDelete }) {
                     name="multiline"
                   />
                 }
-                label="Multiline"
+                label={t('multiline')}
               />
               {field.multiline && (
                 <TextField
                   type="number"
-                  label="Rows"
+                  label={t('rows')}
                   name="rows"
                   value={field.rows}
                   onChange={handleChange}
@@ -121,8 +140,31 @@ function FieldEditor({ field, onChange, onDelete }) {
               )}
             </>
           )}
+          {field.type === "html" && (
+            <>
+              <TextField
+                label={t('html_content')}
+                name="htmlContent"
+                multiline
+                value={field.htmlContent}
+                onChange={handleChange}
+                fullWidth
+                sx={{ mb: 1 }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={field.withCheckbox}
+                    onChange={handleChange}
+                    name="withCheckbox"
+                  />
+                }
+                label={t('include_checkbox')}
+              />
+            </>
+          )}
           <TextField
-            label="Regex"
+            label={t('regex')}
             name="regex"
             value={field.regex || ""}
             onChange={handleChange}
@@ -137,7 +179,7 @@ function FieldEditor({ field, onChange, onDelete }) {
                 name="required"
               />
             }
-            label="Required"
+            label={t('required')}
           />
         </Grid>
         <Grid item xs={1}>
@@ -151,6 +193,7 @@ function FieldEditor({ field, onChange, onDelete }) {
 }
 
 export default function FormBuilder({ formId, onSaved }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [fields, setFields] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
@@ -215,7 +258,7 @@ export default function FormBuilder({ formId, onSaved }) {
   return (
     <Box>
       <TextField
-        label="Form Name"
+        label={t('form_name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
         fullWidth
@@ -237,14 +280,14 @@ export default function FormBuilder({ formId, onSaved }) {
         </div>
       ))}
       <TextField
-        label="Success Message"
+        label={t('success_message')}
         value={successMessage}
         onChange={(e) => setSuccessMessage(e.target.value)}
         fullWidth
         sx={{ mt: 2 }}
       />
       <TextField
-        label="Failure Message"
+        label={t('failure_message')}
         value={failureMessage}
         onChange={(e) => setFailureMessage(e.target.value)}
         fullWidth
@@ -257,20 +300,20 @@ export default function FormBuilder({ formId, onSaved }) {
             onChange={(e) => setSendEmail(e.target.checked)}
           />
         }
-        label="Send Email"
+        label={t('send_email')}
       />
       {sendEmail && (
         <TextField
-          label="Email To"
+          label={t('email_to')}
           value={emailTo}
           onChange={(e) => setEmailTo(e.target.value)}
           fullWidth
           sx={{ mt: 1 }}
         />
       )}
-      <Button onClick={addField}>Add Field</Button>
+      <Button onClick={addField}>{t('add_field')}</Button>
       <Button variant="contained" onClick={handleSave} sx={{ ml: 2 }}>
-        Save Form
+        {t('save_form')}
       </Button>
     </Box>
   );

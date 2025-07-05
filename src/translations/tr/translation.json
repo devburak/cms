@@ -132,4 +132,23 @@
   "Videos":"Videolar",
   "Forms":"Formlar",
   "Submissions":"Gönderimler"
+  ,"form_name":"Form Adı"
+  ,"field_name":"Alan Adı"
+  ,"label":"Etiket"
+  ,"option":"Seçenek"
+  ,"add_option":"Seçenek Ekle"
+  ,"multiline":"Çok Satırlı"
+  ,"rows":"Satır"
+  ,"regex":"Regex"
+  ,"required":"Zorunlu"
+  ,"success_message":"Başarı Mesajı"
+  ,"failure_message":"Hata Mesajı"
+  ,"send_email":"E-posta Gönder"
+  ,"email_to":"E-posta Alıcısı"
+  ,"add_field":"Alan Ekle"
+  ,"save_form":"Formu Kaydet"
+  ,"html_content":"HTML İçeriği"
+  ,"include_checkbox":"Onay Kutusu Ekle"
+  ,"submitted":"Gönderildi"
+  ,"submission_failed":"Gönderim başarısız"
 }
