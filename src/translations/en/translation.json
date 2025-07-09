@@ -153,5 +153,9 @@
   "import_options": "Import Options",
   "groups": "Groups",
   "show": "Show",
-  "hide": "Hide"
+  "hide": "Hide",
+  "helper_text": "Helper Text",
+  "helper_type": "Helper Type",
+  "info": "Info",
+  "error": "Error"
 }
