@@ -34,6 +34,7 @@ const emptyField = {
   rows: 3,
   htmlContent: "",
   withCheckbox: false,
+  groups: null,
 };
 
 const fieldTypes = [
@@ -59,7 +60,7 @@ function FieldEditor({ field, onChange, onDelete }) {
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={11}>
           <TextField
-            label={t('field_name')}
+            label={t("field_name")}
             name="name"
             value={field.name}
             onChange={handleChange}
@@ -67,7 +68,7 @@ function FieldEditor({ field, onChange, onDelete }) {
             sx={{ mb: 1 }}
           />
           <TextField
-            label={t('label')}
+            label={t("label")}
             name="label"
             value={field.label}
             onChange={handleChange}
@@ -87,14 +88,30 @@ function FieldEditor({ field, onChange, onDelete }) {
               </MenuItem>
             ))}
           </Select>
+          <TextField
+            label={t("groups")}
+            value={field.groups ? field.groups.join(",") : ""}
+            onChange={(e) => {
+              const arr = e.target.value
+                .split(",")
+                .map((g) => g.trim())
+                .filter((g) => g);
+              onChange({ ...field, groups: arr.length ? arr : null });
+            }}
+            fullWidth
+            sx={{ mb: 1 }}
+          />
           {(field.type === "select" ||
             field.type === "multiselect" ||
             field.type === "radio") && (
             <Box sx={{ mb: 1 }}>
               {field.options.map((opt, i) => (
-                <Box key={i} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Box
+                  key={i}
+                  sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                >
                   <TextField
-                    label={`${t('option')} ${i + 1}`}
+                    label={`${t("option")} ${i + 1}`}
                     value={opt}
                     onChange={(e) => {
                       const opts = [...field.options];
@@ -103,19 +120,26 @@ function FieldEditor({ field, onChange, onDelete }) {
                     }}
                     fullWidth
                   />
-                  <IconButton onClick={() => {
-                    const opts = field.options.filter((_, idx) => idx !== i);
-                    onChange({ ...field, options: opts });
-                  }}>
+                  <IconButton
+                    onClick={() => {
+                      const opts = field.options.filter((_, idx) => idx !== i);
+                      onChange({ ...field, options: opts });
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </Box>
               ))}
-              <Button size="small" onClick={() => onChange({ ...field, options: [...field.options, ''] })}>
-                {t('add_option')}
+              <Button
+                size="small"
+                onClick={() =>
+                  onChange({ ...field, options: [...field.options, ""] })
+                }
+              >
+                {t("add_option")}
               </Button>
               <Button size="small" component="label" sx={{ ml: 1 }}>
-                {t('import_options')}
+                {t("import_options")}
                 <input
                   type="file"
                   hidden
@@ -126,13 +150,13 @@ function FieldEditor({ field, onChange, onDelete }) {
                     reader.onload = () => {
                       const text = reader.result;
                       const opts = text
-                        .split(';')
+                        .split(";")
                         .map((o) => o.trim())
                         .filter((o) => o);
                       onChange({ ...field, options: opts });
                     };
                     reader.readAsText(file);
-                    e.target.value = '';
+                    e.target.value = "";
                   }}
                 />
               </Button>
@@ -148,12 +172,12 @@ function FieldEditor({ field, onChange, onDelete }) {
                     name="multiline"
                   />
                 }
-                label={t('multiline')}
+                label={t("multiline")}
               />
               {field.multiline && (
                 <TextField
                   type="number"
-                  label={t('rows')}
+                  label={t("rows")}
                   name="rows"
                   value={field.rows}
                   onChange={handleChange}
@@ -166,7 +190,7 @@ function FieldEditor({ field, onChange, onDelete }) {
           {field.type === "html" && (
             <>
               <TextField
-                label={t('html_content')}
+                label={t("html_content")}
                 name="htmlContent"
                 multiline
                 value={field.htmlContent}
@@ -182,12 +206,12 @@ function FieldEditor({ field, onChange, onDelete }) {
                     name="withCheckbox"
                   />
                 }
-                label={t('include_checkbox')}
+                label={t("include_checkbox")}
               />
             </>
           )}
           <TextField
-            label={t('regex')}
+            label={t("regex")}
             name="regex"
             value={field.regex || ""}
             onChange={handleChange}
@@ -202,9 +226,11 @@ function FieldEditor({ field, onChange, onDelete }) {
                 name="required"
               />
             }
-            label={t('required')}
+            label={t("required")}
           />
-          {(field.type === 'text' || field.type === 'number' || field.type === 'datetime') && (
+          {(field.type === "text" ||
+            field.type === "number" ||
+            field.type === "datetime") && (
             <FormControlLabel
               control={
                 <Checkbox
@@ -213,7 +239,7 @@ function FieldEditor({ field, onChange, onDelete }) {
                   name="unique"
                 />
               }
-              label={t('unique')}
+              label={t("unique")}
             />
           )}
         </Grid>
@@ -293,7 +319,7 @@ export default function FormBuilder({ formId, onSaved }) {
   return (
     <Box>
       <TextField
-        label={t('form_name')}
+        label={t("form_name")}
         value={name}
         onChange={(e) => setName(e.target.value)}
         fullWidth
@@ -315,14 +341,14 @@ export default function FormBuilder({ formId, onSaved }) {
         </div>
       ))}
       <TextField
-        label={t('success_message')}
+        label={t("success_message")}
         value={successMessage}
         onChange={(e) => setSuccessMessage(e.target.value)}
         fullWidth
         sx={{ mt: 2 }}
       />
       <TextField
-        label={t('failure_message')}
+        label={t("failure_message")}
         value={failureMessage}
         onChange={(e) => setFailureMessage(e.target.value)}
         fullWidth
@@ -335,20 +361,20 @@ export default function FormBuilder({ formId, onSaved }) {
             onChange={(e) => setSendEmail(e.target.checked)}
           />
         }
-        label={t('send_email')}
+        label={t("send_email")}
       />
       {sendEmail && (
         <TextField
-          label={t('email_to')}
+          label={t("email_to")}
           value={emailTo}
           onChange={(e) => setEmailTo(e.target.value)}
           fullWidth
           sx={{ mt: 1 }}
         />
       )}
-      <Button onClick={addField}>{t('add_field')}</Button>
+      <Button onClick={addField}>{t("add_field")}</Button>
       <Button variant="contained" onClick={handleSave} sx={{ ml: 2 }}>
-        {t('save_form')}
+        {t("save_form")}
       </Button>
     </Box>
   );

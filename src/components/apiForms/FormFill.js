@@ -11,9 +11,65 @@ import {
   Alert,
   FormControl,
   InputLabel,
+  Typography,
 } from "@mui/material";
 import { getFormById, createSubmission } from "../../api";
 import { useParams } from "react-router-dom";
+
+function OptionsField({ field, value, setValue, isRadio }) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const options = field.options || [];
+  const shouldCollapse = options.length > 10;
+
+  const handleCheckbox = (opt, checked) => {
+    if (isRadio) {
+      if (checked) setValue(opt);
+    } else {
+      const arr = value ? [...value] : [];
+      if (checked) arr.push(opt);
+      else arr.splice(arr.indexOf(opt), 1);
+      setValue(arr);
+    }
+  };
+
+  const elements = [];
+  options.forEach((opt, idx) => {
+    if (idx === 2 && shouldCollapse) {
+      elements.push(
+        <Box key="toggle" sx={{ display: "flex", alignItems: "center" }}>
+          <Typography sx={{ mr: 1 }}>.........</Typography>
+          <Button size="small" onClick={() => setExpanded(!expanded)}>
+            {expanded ? t("hide") : t("show")}
+          </Button>
+        </Box>,
+      );
+      if (!expanded) return;
+    }
+    if (!expanded && shouldCollapse && idx >= 2 && idx < options.length - 3) {
+      return;
+    }
+    elements.push(
+      <FormControlLabel
+        key={opt}
+        control={
+          <Checkbox
+            checked={isRadio ? value === opt : (value || []).includes(opt)}
+            onChange={(e) => handleCheckbox(opt, e.target.checked)}
+          />
+        }
+        label={opt}
+      />,
+    );
+  });
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      {!isRadio && <InputLabel sx={{ mb: 1 }}>{field.label}</InputLabel>}
+      {elements}
+    </Box>
+  );
+}
 
 function replacePlaceholders(text, values) {
   return text.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? "");
@@ -74,44 +130,21 @@ function renderField(field, value, setValue, error) {
       );
     case "multiselect":
       return (
-        <Box sx={{ mb: 2 }}>
-          <InputLabel sx={{ mb: 1 }}>{field.label}</InputLabel>
-          {field.options.map((opt) => (
-            <FormControlLabel
-              key={opt}
-              control={
-                <Checkbox
-                  checked={(value || []).includes(opt)}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    const arr = value ? [...value] : [];
-                    if (checked) arr.push(opt);
-                    else arr.splice(arr.indexOf(opt), 1);
-                    setValue(arr);
-                  }}
-                />
-              }
-              label={opt}
-            />
-          ))}
-        </Box>
+        <OptionsField
+          field={field}
+          value={value}
+          setValue={setValue}
+          isRadio={false}
+        />
       );
     case "radio":
       return (
-        <Box sx={{ mb: 2 }}>
-          {field.options.map((opt) => (
-            <FormControlLabel
-              key={opt}
-              control={
-                <Checkbox
-                  checked={value === opt}
-                  onChange={() => setValue(opt)}
-                />
-              }
-              label={opt}
-            />
-          ))}
-        </Box>
+        <OptionsField
+          field={field}
+          value={value}
+          setValue={setValue}
+          isRadio={true}
+        />
       );
     case "date":
     case "datetime":
@@ -209,29 +242,48 @@ export default function FormFill() {
 
   if (!form) return null;
 
+  const groupMap = {};
+  const order = [];
+  form.fields.forEach((f) => {
+    let groups =
+      Array.isArray(f.groups) && f.groups.length ? f.groups : ["__ungrouped"];
+    groups.forEach((g) => {
+      if (!groupMap[g]) {
+        groupMap[g] = [];
+        order.push(g);
+      }
+      groupMap[g].push(f);
+    });
+  });
+
   return (
     <Box>
       <h2>{form.name}</h2>
-      {form.fields.map((f) => {
-        const value = values[f.name];
-        return (
-          <div key={f.name}>
-            {renderField(
-              f,
-              value,
-              (val) => setValues({ ...values, [f.name]: val }),
-              errors[f.name],
-            )}
-          </div>
-        );
-      })}
+      {order.map((g) => (
+        <Box key={g} sx={{ mb: 2 }}>
+          {g !== "__ungrouped" && <h3>{g}</h3>}
+          {groupMap[g].map((f) => {
+            const value = values[f.name];
+            return (
+              <div key={`${g}-${f.name}`}>
+                {renderField(
+                  f,
+                  value,
+                  (val) => setValues({ ...values, [f.name]: val }),
+                  errors[f.name],
+                )}
+              </div>
+            );
+          })}
+        </Box>
+      ))}
       {resultMsg && (
         <Alert severity={resultError ? "error" : "success"} sx={{ mb: 2 }}>
           {resultMsg}
         </Alert>
       )}
       <Button variant="contained" onClick={handleSubmit}>
-        {t('submit')}
+        {t("submit")}
       </Button>
     </Box>
   );
