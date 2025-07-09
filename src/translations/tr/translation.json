@@ -155,5 +155,9 @@
   "import_options": "Seçenekleri İçe Aktar",
   "groups": "Gruplar",
   "show": "Göster",
-  "hide": "Gizle"
+  "hide": "Gizle",
+  "helper_text": "Yardım Metni",
+  "helper_type": "Mesaj Tipi",
+  "info": "Bilgi",
+  "error": "Hata"
 }

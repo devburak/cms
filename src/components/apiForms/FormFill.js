@@ -11,6 +11,7 @@ import {
   Alert,
   FormControl,
   InputLabel,
+  FormHelperText,
   Typography,
 } from "@mui/material";
 import { getFormById, createSubmission } from "../../api";
@@ -42,7 +43,7 @@ function OptionsField({ field, value, setValue, isRadio }) {
           <Button size="small" onClick={() => setExpanded(!expanded)}>
             {expanded ? t("hide") : t("show")}
           </Button>
-        </Box>,
+        </Box>
       );
       if (!expanded) return;
     }
@@ -59,14 +60,19 @@ function OptionsField({ field, value, setValue, isRadio }) {
           />
         }
         label={opt}
-      />,
-    );
+      />
+      );
   });
 
   return (
     <Box sx={{ mb: 2 }}>
       {!isRadio && <InputLabel sx={{ mb: 1 }}>{field.label}</InputLabel>}
       {elements}
+      {field.helperText?.text && (
+        <FormHelperText error={field.helperText.type === 'error'}>
+          {field.helperText.text}
+        </FormHelperText>
+      )}
     </Box>
   );
 }
@@ -82,9 +88,20 @@ function renderField(field, value, setValue, error) {
     setValue(val);
   };
 
+  const wrap = (element) => (
+    <Box sx={{ mb: 2 }}>
+      {element}
+      {field.helperText?.text && (
+        <FormHelperText error={field.helperText.type === 'error'}>
+          {field.helperText.text}
+        </FormHelperText>
+      )}
+    </Box>
+  );
+
   switch (field.type) {
     case "text":
-      return (
+      return wrap(
         <TextField
           label={field.label}
           value={value || ""}
@@ -94,11 +111,10 @@ function renderField(field, value, setValue, error) {
           multiline={field.multiline}
           rows={field.multiline ? field.rows || 3 : undefined}
           fullWidth
-          sx={{ mb: 2 }}
         />
       );
     case "number":
-      return (
+      return wrap(
         <TextField
           type="number"
           label={field.label}
@@ -107,12 +123,11 @@ function renderField(field, value, setValue, error) {
           required={field.required}
           error={error}
           fullWidth
-          sx={{ mb: 2 }}
         />
       );
     case "select":
-      return (
-        <FormControl fullWidth sx={{ mb: 2 }} error={error}>
+      return wrap(
+        <FormControl fullWidth error={error}>
           <InputLabel>{field.label}</InputLabel>
           <Select
             value={value || ""}
@@ -129,7 +144,7 @@ function renderField(field, value, setValue, error) {
         </FormControl>
       );
     case "multiselect":
-      return (
+      return wrap(
         <OptionsField
           field={field}
           value={value}
@@ -138,7 +153,7 @@ function renderField(field, value, setValue, error) {
         />
       );
     case "radio":
-      return (
+      return wrap(
         <OptionsField
           field={field}
           value={value}
@@ -148,7 +163,7 @@ function renderField(field, value, setValue, error) {
       );
     case "date":
     case "datetime":
-      return (
+      return wrap(
         <TextField
           type="date"
           label={field.label}
@@ -157,13 +172,12 @@ function renderField(field, value, setValue, error) {
           required={field.required}
           error={error}
           fullWidth
-          sx={{ mb: 2 }}
           InputLabelProps={{ shrink: true }}
         />
       );
     case "html":
-      return (
-        <Box sx={{ mb: 2 }}>
+      return wrap(
+        <Box>
           {field.htmlContent && (
             <div dangerouslySetInnerHTML={{ __html: field.htmlContent }} />
           )}

@@ -35,6 +35,7 @@ const emptyField = {
   htmlContent: "",
   withCheckbox: false,
   groups: null,
+  helperText: { text: "", type: "info" },
 };
 
 const fieldTypes = [
@@ -75,6 +76,33 @@ function FieldEditor({ field, onChange, onDelete }) {
             fullWidth
             sx={{ mb: 1 }}
           />
+          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+            <TextField
+              label={t('helper_text')}
+              value={field.helperText?.text || ''}
+              onChange={(e) =>
+                onChange({
+                  ...field,
+                  helperText: { ...field.helperText, text: e.target.value },
+                })
+              }
+              fullWidth
+            />
+            <Select
+              value={field.helperText?.type || 'info'}
+              onChange={(e) =>
+                onChange({
+                  ...field,
+                  helperText: { ...field.helperText, type: e.target.value },
+                })
+              }
+              sx={{ width: 120 }}
+              size="small"
+            >
+              <MenuItem value="info">{t('info')}</MenuItem>
+              <MenuItem value="error">{t('error')}</MenuItem>
+            </Select>
+          </Box>
           <Select
             name="type"
             value={field.type}
