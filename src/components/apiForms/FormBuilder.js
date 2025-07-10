@@ -298,12 +298,13 @@ export default function FormBuilder({ formId, onSaved }) {
       setLoading(true);
       getFormById(formId)
         .then((data) => {
-          setName(data.name);
-          setFields(data.fields || []);
-          setSuccessMessage(data.successMessage || "");
-          setFailureMessage(data.failureMessage || "");
-          setSendEmail(data.sendEmail || false);
-          setEmailTo(data.emailTo || "");
+          const form = data.form || data;
+          setName(form.name || "");
+          setFields(form.fields || []);
+          setSuccessMessage(form.successMessage || "");
+          setFailureMessage(form.failureMessage || "");
+          setSendEmail(form.sendEmail || false);
+          setEmailTo(form.emailTo || "");
         })
         .finally(() => setLoading(false));
     }
