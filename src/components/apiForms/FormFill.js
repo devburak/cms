@@ -255,10 +255,12 @@ export default function FormFill({ submissionId }) {
     }
     switch (field.type) {
       case "text": {
-        if (field.minLength && val.length < Number(field.minLength)) {
+         
+        if (Number(field.minLength) > 0   && val.length < Number(field.minLength)) {
           return t("min_length", { count: field.minLength });
         }
-        if (field.maxLength && val.length > Number(field.maxLength)) {
+        if (Number(field.maxLength) > 0 && val.length > Number(field.maxLength)) {
+         
           return t("max_length", { count: field.maxLength });
         }
         if (field.regex) {
@@ -273,10 +275,10 @@ export default function FormFill({ submissionId }) {
       }
       case "number": {
         const num = parseFloat(val);
-        if (field.minValue !== "" && num < Number(field.minValue)) {
+        if (Number(field.minValue) > 0   && num < Number(field.minValue)) {
           return t("min_value", { count: field.minValue });
         }
-        if (field.maxValue !== "" && num > Number(field.maxValue)) {
+        if (Number(field.maxValue) > 0 && num > Number(field.maxValue)) {
           return t("max_value", { count: field.maxValue });
         }
         break;
