@@ -10,6 +10,7 @@ import {
   Select,
   MenuItem,
   Button,
+  IconButton,
   Box,
   Grid,
   Dialog,
@@ -17,9 +18,17 @@ import {
   DialogContent,
   LinearProgress,
 } from '@mui/material';
-import { getForms, getSubmissions, exportSubmissionsFile } from '../../api';
+import {
+  getForms,
+  getSubmissions,
+  exportSubmissionsFile,
+  deleteFormSubmission,
+} from '../../api';
 import { saveAs } from 'file-saver';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SubmissionList() {
   const [searchParams] = useSearchParams();
@@ -32,6 +41,8 @@ export default function SubmissionList() {
   const limit = 10;
   const [exporting, setExporting] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const navigate = useNavigate();
+  const { hasPermission } = useAuth();
 
   useEffect(() => { fetchForms(); }, []);
 
@@ -82,6 +93,12 @@ export default function SubmissionList() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete submission?')) return;
+    await deleteFormSubmission(selectedForm, id);
+    fetchSubmissions();
+  };
+
   const renderCell = (key, value) => {
     if(key === 'data' && typeof value === 'object' && value !== null) {
       const entries = Object.entries(value).slice(0,3).map(([k,v])=>`${k}: ${v}`);
@@ -92,6 +109,10 @@ export default function SubmissionList() {
     if(typeof value === 'object' && value !== null) return JSON.stringify(value);
     return String(value);
   };
+
+  const showActions =
+    hasPermission('updateFormSubmission') ||
+    hasPermission('deleteFormSubmission');
 
   return (
     <Box>
@@ -128,6 +149,7 @@ export default function SubmissionList() {
                 {getHeaders().map(key => (
                     <TableCell key={key}>{key}</TableCell>
                   ))}
+                {showActions && <TableCell>Actions</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -136,6 +158,22 @@ export default function SubmissionList() {
                     {getHeaders().map(k=> (
                       <TableCell key={k}>{renderCell(k, sub[k])}</TableCell>
                     ))}
+                    {showActions && (
+                      <TableCell>
+                        {hasPermission('updateFormSubmission') && (
+                          <IconButton onClick={() => navigate(`/form/${selectedForm}/fill/${sub._id}`)}>
+                            <EditIcon />
+                          </IconButton>
+                        )}
+                        {hasPermission('deleteFormSubmission') && (
+                          <IconButton
+                            onClick={() => handleDelete(sub._id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

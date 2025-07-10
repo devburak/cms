@@ -95,7 +95,7 @@ function App() {
                 <Route path='/form/:id?' element={<FormBuilderPage />} />
                 <Route path='/forms' element={<FormListPage />} />
                 <Route path='/submissions' element={<SubmissionListPage />} />
-                <Route path='/form/:id/fill' element={<FormFillPage />} />
+                <Route path='/form/:id/fill/:submissionId?' element={<FormFillPage />} />
                 <Route path="*" element={<UnderConstructionPage />} />
               </Route>
             </Routes>
