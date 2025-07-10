@@ -284,10 +284,10 @@ export default function FormFill({ submissionId }) {
       }
       case "multiselect": {
         const arr = val || [];
-        if (field.minChoices && arr.length < Number(field.minChoices)) {
+        if (field.minChoices > 0 && arr.length < Number(field.minChoices)) {
           return t("min_choices", { count: field.minChoices });
         }
-        if (field.maxChoices !== "" && arr.length > Number(field.maxChoices)) {
+        if (Number(field.maxChoices) > 0 && arr.length > Number(field.maxChoices)) {
           return t("max_choices", { count: field.maxChoices });
         }
         break;
