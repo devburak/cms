@@ -17,12 +17,7 @@ import {
   Step,
   StepLabel,
 } from "@mui/material";
-import {
-  getFormById,
-  createSubmission,
-  getSubmission,
-  updateFormSubmission,
-} from "../../api";
+import { getFormById, createSubmission } from "../../api";
 import { useParams } from "react-router-dom";
 
 function OptionsField({ field, value, setValue, isRadio, error }) {
@@ -212,7 +207,7 @@ function renderField(field, value, setValue, error) {
   }
 }
 
-export default function FormFill({ submissionId }) {
+export default function FormFill() {
   const { id } = useParams();
   const { t } = useTranslation();
   const [form, setForm] = useState(null);
@@ -225,16 +220,6 @@ export default function FormFill({ submissionId }) {
   useEffect(() => {
     getFormById(id).then((data) => setForm(data));
   }, [id]);
-
-  useEffect(() => {
-    if (submissionId) {
-      getSubmission(id, submissionId).then((data) => {
-        setValues(data.data || {});
-      });
-    } else {
-      setValues({});
-    }
-  }, [id, submissionId]);
 
   const validateField = (field, val) => {
     if (field.type === "html" && !field.withCheckbox) return "";
@@ -341,11 +326,7 @@ export default function FormFill({ submissionId }) {
           delete submitValues[f.name];
         }
       });
-      if (submissionId) {
-        await updateFormSubmission(id, submissionId, submitValues);
-      } else {
-        await createSubmission(id, submitValues);
-      }
+      await createSubmission(id, submitValues);
       const msg = form.successMessage || t("submitted");
       setResultMsg(replacePlaceholders(msg, submitValues));
       setResultError(false);
