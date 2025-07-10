@@ -12,6 +12,8 @@ import {
   Typography,
   Paper,
   Grid,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { createForm, updateForm, getFormById } from "../../api";
@@ -289,17 +291,21 @@ export default function FormBuilder({ formId, onSaved }) {
   const [failureMessage, setFailureMessage] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
   const [emailTo, setEmailTo] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (formId) {
-      getFormById(formId).then((data) => {
-        setName(data.name);
-        setFields(data.fields || []);
-        setSuccessMessage(data.successMessage || "");
-        setFailureMessage(data.failureMessage || "");
-        setSendEmail(data.sendEmail || false);
-        setEmailTo(data.emailTo || "");
-      });
+      setLoading(true);
+      getFormById(formId)
+        .then((data) => {
+          setName(data.name);
+          setFields(data.fields || []);
+          setSuccessMessage(data.successMessage || "");
+          setFailureMessage(data.failureMessage || "");
+          setSendEmail(data.sendEmail || false);
+          setEmailTo(data.emailTo || "");
+        })
+        .finally(() => setLoading(false));
     }
   }, [formId]);
 
@@ -346,6 +352,12 @@ export default function FormBuilder({ formId, onSaved }) {
 
   return (
     <Box>
+      <Backdrop
+        open={loading}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <TextField
         label={t("form_name")}
         value={name}
