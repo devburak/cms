@@ -157,5 +157,15 @@
   "helper_text": "Helper Text",
   "helper_type": "Helper Type",
   "info": "Info",
-  "error": "Error"
+  "error": "Error",
+  "next": "Next",
+  "back": "Back",
+  "min_length": "Minimum {{count}} characters",
+  "max_length": "Maximum {{count}} characters",
+  "min_value": "Minimum value is {{count}}",
+  "max_value": "Maximum value is {{count}}",
+  "min_choices": "Select at least {{count}}",
+  "max_choices": "Select at most {{count}}",
+  "regex_mismatch": "Invalid format",
+  "general": "General"
 }
