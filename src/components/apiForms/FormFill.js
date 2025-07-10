@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -13,11 +13,14 @@ import {
   InputLabel,
   FormHelperText,
   Typography,
+  Stepper,
+  Step,
+  StepLabel,
 } from "@mui/material";
 import { getFormById, createSubmission } from "../../api";
 import { useParams } from "react-router-dom";
 
-function OptionsField({ field, value, setValue, isRadio }) {
+function OptionsField({ field, value, setValue, isRadio, error }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const options = field.options || [];
@@ -43,7 +46,7 @@ function OptionsField({ field, value, setValue, isRadio }) {
           <Button size="small" onClick={() => setExpanded(!expanded)}>
             {expanded ? t("hide") : t("show")}
           </Button>
-        </Box>
+        </Box>,
       );
       if (!expanded) return;
     }
@@ -60,16 +63,17 @@ function OptionsField({ field, value, setValue, isRadio }) {
           />
         }
         label={opt}
-      />
-      );
+      />,
+    );
   });
 
   return (
     <Box sx={{ mb: 2 }}>
       {!isRadio && <InputLabel sx={{ mb: 1 }}>{field.label}</InputLabel>}
       {elements}
+      {error && <FormHelperText error>{error}</FormHelperText>}
       {field.helperText?.text && (
-        <FormHelperText error={field.helperText.type === 'error'}>
+        <FormHelperText error={field.helperText.type === "error"}>
           {field.helperText.text}
         </FormHelperText>
       )}
@@ -91,8 +95,9 @@ function renderField(field, value, setValue, error) {
   const wrap = (element) => (
     <Box sx={{ mb: 2 }}>
       {element}
+      {error && <FormHelperText error>{error}</FormHelperText>}
       {field.helperText?.text && (
-        <FormHelperText error={field.helperText.type === 'error'}>
+        <FormHelperText error={field.helperText.type === "error"}>
           {field.helperText.text}
         </FormHelperText>
       )}
@@ -107,11 +112,11 @@ function renderField(field, value, setValue, error) {
           value={value || ""}
           onChange={handleChange}
           required={field.required}
-          error={error}
+          error={Boolean(error)}
           multiline={field.multiline}
           rows={field.multiline ? field.rows || 3 : undefined}
           fullWidth
-        />
+        />,
       );
     case "number":
       return wrap(
@@ -121,13 +126,13 @@ function renderField(field, value, setValue, error) {
           value={value || ""}
           onChange={handleChange}
           required={field.required}
-          error={error}
+          error={Boolean(error)}
           fullWidth
-        />
+        />,
       );
     case "select":
       return wrap(
-        <FormControl fullWidth error={error}>
+        <FormControl fullWidth error={Boolean(error)}>
           <InputLabel>{field.label}</InputLabel>
           <Select
             value={value || ""}
@@ -141,7 +146,7 @@ function renderField(field, value, setValue, error) {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl>,
       );
     case "multiselect":
       return wrap(
@@ -150,7 +155,8 @@ function renderField(field, value, setValue, error) {
           value={value}
           setValue={setValue}
           isRadio={false}
-        />
+          error={error}
+        />,
       );
     case "radio":
       return wrap(
@@ -159,7 +165,8 @@ function renderField(field, value, setValue, error) {
           value={value}
           setValue={setValue}
           isRadio={true}
-        />
+          error={error}
+        />,
       );
     case "date":
     case "datetime":
@@ -170,10 +177,10 @@ function renderField(field, value, setValue, error) {
           value={value || ""}
           onChange={handleChange}
           required={field.required}
-          error={error}
+          error={Boolean(error)}
           fullWidth
           InputLabelProps={{ shrink: true }}
-        />
+        />,
       );
     case "html":
       return wrap(
@@ -193,7 +200,7 @@ function renderField(field, value, setValue, error) {
               label={field.label}
             />
           )}
-        </Box>
+        </Box>,
       );
     default:
       return null;
@@ -208,27 +215,105 @@ export default function FormFill() {
   const [errors, setErrors] = useState({});
   const [resultMsg, setResultMsg] = useState("");
   const [resultError, setResultError] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     getFormById(id).then((data) => setForm(data));
   }, [id]);
 
-  const handleSubmit = async () => {
-    const err = {};
-    form.fields.forEach((f) => {
-      if (f.required && !(f.type === "html" && !f.withCheckbox)) {
-        const val = values[f.name];
-        if (
-          val === undefined ||
-          val === "" ||
-          (Array.isArray(val) && val.length === 0)
-        ) {
-          err[f.name] = true;
-        }
+  const validateField = (field, val) => {
+    if (field.type === "html" && !field.withCheckbox) return "";
+    if (field.required) {
+      if (
+        val === undefined ||
+        val === "" ||
+        (Array.isArray(val) && val.length === 0)
+      ) {
+        return t("required");
       }
+    }
+    if (
+      val === undefined ||
+      val === "" ||
+      (Array.isArray(val) && val.length === 0)
+    ) {
+      return "";
+    }
+    switch (field.type) {
+      case "text": {
+        if (field.minLength && val.length < Number(field.minLength)) {
+          return t("min_length", { count: field.minLength });
+        }
+        if (field.maxLength && val.length > Number(field.maxLength)) {
+          return t("max_length", { count: field.maxLength });
+        }
+        if (field.regex) {
+          try {
+            const r = new RegExp(field.regex);
+            if (!r.test(val)) return t("regex_mismatch");
+          } catch (e) {
+            // ignore regex errors
+          }
+        }
+        break;
+      }
+      case "number": {
+        const num = parseFloat(val);
+        if (field.minValue !== "" && num < Number(field.minValue)) {
+          return t("min_value", { count: field.minValue });
+        }
+        if (field.maxValue !== "" && num > Number(field.maxValue)) {
+          return t("max_value", { count: field.maxValue });
+        }
+        break;
+      }
+      case "multiselect": {
+        const arr = val || [];
+        if (field.minChoices && arr.length < Number(field.minChoices)) {
+          return t("min_choices", { count: field.minChoices });
+        }
+        if (field.maxChoices !== "" && arr.length > Number(field.maxChoices)) {
+          return t("max_choices", { count: field.maxChoices });
+        }
+        break;
+      }
+      case "date":
+      case "datetime": {
+        const dt = new Date(val);
+        if (field.minValue && new Date(field.minValue) > dt) {
+          return t("min_value", { count: field.minValue });
+        }
+        if (field.maxValue && new Date(field.maxValue) < dt) {
+          return t("max_value", { count: field.maxValue });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return "";
+  };
+
+  const validateFields = (flds) => {
+    const err = {};
+    flds.forEach((f) => {
+      const msg = validateField(f, values[f.name]);
+      if (msg) err[f.name] = msg;
     });
+    return err;
+  };
+
+  const handleSubmit = async () => {
+    const err = validateFields(form.fields);
     setErrors(err);
-    if (Object.keys(err).length > 0) return;
+    if (Object.keys(err).length > 0) {
+      const first = Object.keys(err)[0];
+      const idx = order.findIndex((g) =>
+        groupMap[g].some((f) => f.name === first),
+      );
+      if (idx >= 0) setActiveStep(idx);
+      return;
+    }
 
     try {
       const submitValues = { ...values };
@@ -270,35 +355,72 @@ export default function FormFill() {
     });
   });
 
+  const handleNext = () => {
+    const err = validateFields(groupMap[order[activeStep]]);
+    if (Object.keys(err).length > 0) {
+      setErrors((prev) => ({ ...prev, ...err }));
+      return;
+    }
+    setErrors((prev) => {
+      const e = { ...prev };
+      groupMap[order[activeStep]].forEach((f) => delete e[f.name]);
+      return e;
+    });
+    setActiveStep((s) => s + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((s) => (s > 0 ? s - 1 : s));
+  };
+
   return (
     <Box>
       <h2>{form.name}</h2>
-      {order.map((g) => (
-        <Box key={g} sx={{ mb: 2 }}>
-          {g !== "__ungrouped" && <h3>{g}</h3>}
-          {groupMap[g].map((f) => {
-            const value = values[f.name];
-            return (
-              <div key={`${g}-${f.name}`}>
-                {renderField(
-                  f,
-                  value,
-                  (val) => setValues({ ...values, [f.name]: val }),
-                  errors[f.name],
-                )}
-              </div>
-            );
-          })}
-        </Box>
-      ))}
+      <Stepper activeStep={activeStep} sx={{ mb: 2 }}>
+        {order.map((g) => (
+          <Step key={g}>
+            <StepLabel>{g === "__ungrouped" ? t("general") : g}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      {order.map(
+        (g, idx) =>
+          idx === activeStep && (
+            <Box key={g} sx={{ mb: 2 }}>
+              {g !== "__ungrouped" && <h3>{g}</h3>}
+              {groupMap[g].map((f) => {
+                const value = values[f.name];
+                return (
+                  <div key={`${g}-${f.name}`}>
+                    {renderField(
+                      f,
+                      value,
+                      (val) => setValues({ ...values, [f.name]: val }),
+                      errors[f.name],
+                    )}
+                  </div>
+                );
+              })}
+            </Box>
+          ),
+      )}
       {resultMsg && (
         <Alert severity={resultError ? "error" : "success"} sx={{ mb: 2 }}>
           {resultMsg}
         </Alert>
       )}
-      <Button variant="contained" onClick={handleSubmit}>
-        {t("submit")}
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        {activeStep > 0 && <Button onClick={handleBack}>{t("back")}</Button>}
+        {activeStep < order.length - 1 ? (
+          <Button variant="contained" onClick={handleNext}>
+            {t("next")}
+          </Button>
+        ) : (
+          <Button variant="contained" onClick={handleSubmit}>
+            {t("submit")}
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 }

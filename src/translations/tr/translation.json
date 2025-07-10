@@ -159,5 +159,15 @@
   "helper_text": "Yardım Metni",
   "helper_type": "Mesaj Tipi",
   "info": "Bilgi",
-  "error": "Hata"
+  "error": "Hata",
+  "next": "İleri",
+  "back": "Geri",
+  "min_length": "Minimum {{count}} karakter",
+  "max_length": "Maksimum {{count}} karakter",
+  "min_value": "Minimum değer {{count}}",
+  "max_value": "Maksimum değer {{count}}",
+  "min_choices": "En az {{count}} seçim yapın",
+  "max_choices": "En fazla {{count}} seçim yapın",
+  "regex_mismatch": "Geçersiz format",
+  "general": "Genel"
 }
