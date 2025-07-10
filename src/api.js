@@ -1268,3 +1268,25 @@ export const exportSubmissionsFile = async (
   );
   return response.data;
 };
+
+export const getSubmission = async (formId, submissionId) => {
+  const response = await instance.get(
+    `/api/forms/${formId}/submissions/${submissionId}`,
+  );
+  return response.data;
+};
+
+export const updateFormSubmission = async (formId, submissionId, data) => {
+  const response = await instance.put(
+    `/api/forms/${formId}/submissions/${submissionId}`,
+    data,
+  );
+  return response.data;
+};
+
+export const deleteFormSubmission = async (formId, submissionId) => {
+  const response = await instance.delete(
+    `/api/forms/${formId}/submissions/${submissionId}`,
+  );
+  return response.data;
+};
