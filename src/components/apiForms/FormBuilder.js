@@ -38,6 +38,9 @@ const emptyField = {
   withCheckbox: false,
   groups: null,
   helperText: { text: "", type: "info" },
+  sendEmail: false,
+  emailTo: "",
+  notificationEmail: "",
 };
 
 const fieldTypes = [
