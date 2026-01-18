@@ -165,7 +165,7 @@ export const getFiles = async (searchTerm = '', page = 1, pageSize = 20, exclude
 };
 
 
-export const renameFile = async (oldFilePath ,oldFileName, newFilePath,newFileName, fileId) => {
+export const renameFile = async (oldFilePath, oldFileName, newFilePath, newFileName, fileId) => {
   try {
     const response = await instance.post('/api/files/rename', {
       oldFilePath,
@@ -335,33 +335,33 @@ export const deletePeriod = async (id) => {
 // Content ekleme
 export const createContent = async (contentData) => {
   try {
-      const response = await instance.post('/api/contents', contentData);
-      return response.data;
+    const response = await instance.post('/api/contents', contentData);
+    return response.data;
   } catch (error) {
-      console.error('Error creating content:', error);
-      throw error;
+    console.error('Error creating content:', error);
+    throw error;
   }
 };
 
 // Kategori adına göre contentleri getirme
 export const getContentsByCategoryName = async (categoryName) => {
   try {
-      const response = await instance.get(`/api/contents/byCategoryName/${categoryName}`);
-      return response.data;
+    const response = await instance.get(`/api/contents/byCategoryName/${categoryName}`);
+    return response.data;
   } catch (error) {
-      console.error('Error fetching contents by category name:', error);
-      throw error;
+    console.error('Error fetching contents by category name:', error);
+    throw error;
   }
 };
 
 // Kategori ID'sine göre contentleri getirme
 export const getContentsByCategoryId = async (categoryId) => {
   try {
-      const response = await instance.get(`/api/contents/byCategoryId/${categoryId}`);
-      return response.data;
+    const response = await instance.get(`/api/contents/byCategoryId/${categoryId}`);
+    return response.data;
   } catch (error) {
-      console.error('Error fetching contents by category ID:', error);
-      throw error;
+    console.error('Error fetching contents by category ID:', error);
+    throw error;
   }
 };
 
@@ -369,11 +369,11 @@ export const getContentsByCategoryId = async (categoryId) => {
 export const getAllContents = async (params = {}) => {
   const query = new URLSearchParams(params).toString();
   try {
-      const response = await instance.get(`/api/contents?${query}`);
-      return response.data;
+    const response = await instance.get(`/api/contents?${query}`);
+    return response.data;
   } catch (error) {
-      console.error('Error fetching all contents:', error);
-      throw error;
+    console.error('Error fetching all contents:', error);
+    throw error;
   }
 };
 
@@ -417,7 +417,7 @@ export const getContentById = async (id) => {
 export const searchTags = async (query) => {
   try {
     const response = await instance.get(`/api/tags/search?query=${query}`);
-   
+
     return response.data;
   } catch (error) {
     console.error('Error fetching tags:', error);
@@ -430,7 +430,7 @@ export const createTag = async (name) => {
     const response = await instance.post('/api/tags', {
       name
     });
-    return  response?.data || {}
+    return response?.data || {}
   } catch (error) {
     console.error('Error creating tag:', error);
     return null;
@@ -478,7 +478,7 @@ export const requestPasswordReset = async (email) => {
 };
 
 export const resetPassword = async (token, newPassword) => {
-  return await instance.post(`/api/users/reset-password/${token}`, { password:newPassword });
+  return await instance.post(`/api/users/reset-password/${token}`, { password: newPassword });
 };
 
 // Tüm kullanıcıları getiren fonksiyon
@@ -831,8 +831,8 @@ export const deleteCelebrationPublication = async (id) => {
 //Campaign services
 export const getAllCampaigns = async () => {
   try {
-  const response =  await instance.get('/api/campaigns');
-   return response.data;
+    const response = await instance.get('/api/campaigns');
+    return response.data;
   } catch (error) {
     console.error(`Error fetching:`, error);
     throw error;
@@ -1257,11 +1257,20 @@ export const exportSubmissionsFile = async (
   formId,
   format = 'csv',
   onDownloadProgress,
+  filters = {},
 ) => {
+  const params = { format };
+
+  // Add filters to params
+  if (filters.search) params.search = filters.search;
+  if (filters.startDate) params.startDate = filters.startDate;
+  if (filters.endDate) params.endDate = filters.endDate;
+  if (filters.sort) params.sort = filters.sort;
+
   const response = await instance.get(
     `/api/forms/${formId}/submissions/export`,
     {
-      params: { format },
+      params,
       responseType: 'blob',
       onDownloadProgress,
     },
