@@ -12,7 +12,12 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import CampaignIcon from '@mui/icons-material/Campaign';
-import SchoolIcon from '@mui/icons-material/School'; // Add an icon for expertise
+import SchoolIcon from '@mui/icons-material/School';
+import BusinessIcon from '@mui/icons-material/Business';
+import GroupsIcon from '@mui/icons-material/Groups';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -43,16 +48,16 @@ export function useMenuItems() {
             type: 'item',
             url: '/campaigns',
             target: true,
-            requiredPermission: [ 'updateCampaign', 'deleteCampaign'], // İzin gereksinimi
+            requiredPermission: ['updateCampaign', 'deleteCampaign'], // İzin gereksinimi
           },
         ],
       },
     ],
   };
-  
 
-  
-const dashboard = {
+
+
+  const dashboard = {
     id: 'dashboard',
     title: t('Dashboard'),
     type: 'group',
@@ -84,7 +89,7 @@ const dashboard = {
     ]
   };
 
-  const users ={
+  const users = {
     id: 'usersgruop',
     title: t('Users'),
     caption: t('user operations'),
@@ -110,15 +115,15 @@ const dashboard = {
             type: 'item',
             url: '/users',
             target: true,
-            requiredPermission: ["deleteUser","updateUser"]
+            requiredPermission: ["deleteUser", "updateUser"]
           },
           {
             id: 'roles',
             title: t('Roles'),
             type: 'item',
             url: '/role',
-            target: true ,
-            requiredPermission: ["deleteRole","updateRole","readRoles", "createRole"]
+            target: true,
+            requiredPermission: ["deleteRole", "updateRole", "readRoles", "createRole"]
           },
           {
             id: 'logs',
@@ -126,7 +131,7 @@ const dashboard = {
             type: 'item',
             url: '/logs',
             target: true,
-            requiredPermission: ["readLogs","deleteLog"]
+            requiredPermission: ["readLogs", "deleteLog"]
           }
         ]
       }
@@ -152,7 +157,7 @@ const dashboard = {
             type: 'item',
             url: '/content',
             target: true,
-            requiredPermission: ["updateContent","createContent"]
+            requiredPermission: ["updateContent", "createContent"]
           },
           {
             id: 'allstaticpages',
@@ -160,192 +165,249 @@ const dashboard = {
             type: 'item',
             url: '/allpages',
             target: true,
-            requiredPermission: ["createContent","viewContent","updateContent"]
+            requiredPermission: ["createContent", "viewContent", "updateContent"]
           }
         ]
       }
     ]
   };
 
-const products = {
-  id: 'product',
-  title: t('Products'),
-  caption: t('Product') +" "+t('Operation'),
-  type: 'group',
-  children: [
-    {
-      id: 'product',
-      title: t('Products'),
-      type: 'collapse',
-      icon: RestaurantIcon,
-      children: [
-        {
-          id: 'newProduct',
-          title: t('New Product'),
-          type: 'item',
-          url: '/product',
-          target: false
-        },
-        {
-          id: 'listProduct',
-          title: t('Products'),
-          type: 'item',
-          url: '/products',
-          target: false
-        }
-      ]
-    }
-  ]
+  const products = {
+    id: 'product',
+    title: t('Products'),
+    caption: t('Product') + " " + t('Operation'),
+    type: 'group',
+    children: [
+      {
+        id: 'product',
+        title: t('Products'),
+        type: 'collapse',
+        icon: RestaurantIcon,
+        children: [
+          {
+            id: 'newProduct',
+            title: t('New Product'),
+            type: 'item',
+            url: '/product',
+            target: false
+          },
+          {
+            id: 'listProduct',
+            title: t('Products'),
+            type: 'item',
+            url: '/products',
+            target: false
+          }
+        ]
+      }
+    ]
 
-}
+  }
 
-const events = {
-  id: 'events',
-  title: t('Events'),
-  caption: t('Events Caption'),
-  type: 'group',
-  children: [
-    {
-      id: 'event_pages',
-      title: t('Events'),
-      type: 'collapse',
-      icon: CalendarMonthIcon,
-      children: [
-        {
-          id: 'newevent',
-          title: t('New'),
-          type: 'item',
-          url: '/event',
-          target: true,
-          requiredPermission:["createEvent","updateEvent","deleteEvent"]
-        },
-        {
-          id: 'eventlist',
-          title: t('Events'),
-          type: 'item',
-          url: '/events',
-          target: true,
-          requiredPermission:["readEvent","updateEvent","deleteEvent"]
-        }
-      ]
-    }
-  ]
-};
+  const events = {
+    id: 'events',
+    title: t('Events'),
+    caption: t('Events Caption'),
+    type: 'group',
+    children: [
+      {
+        id: 'event_pages',
+        title: t('Events'),
+        type: 'collapse',
+        icon: CalendarMonthIcon,
+        children: [
+          {
+            id: 'newevent',
+            title: t('New'),
+            type: 'item',
+            url: '/event',
+            target: true,
+            requiredPermission: ["createEvent", "updateEvent", "deleteEvent"]
+          },
+          {
+            id: 'eventlist',
+            title: t('Events'),
+            type: 'item',
+            url: '/events',
+            target: true,
+            requiredPermission: ["readEvent", "updateEvent", "deleteEvent"]
+          }
+        ]
+      }
+    ]
+  };
 
-const settings = {
-  id: 'setting',
-  title: t('Settings'),
-  caption: t('Settings Caption'),
-  type: 'group',
-  children: [
-    {
-      id: 'settingPage',
-      title: t('Settings'),
-      type: 'collapse',
-      icon: SettingsSuggestIcon,
-      children: [
-        {
-          id: 'period',
-          title: t('Periods'),
-          type: 'item',
-          url: '/period',
-          target: true,
-          requiredPermission:["viewPeriods","viewPeriod","createPeriod","updatePeriod","deletePeriod"]
-        },
-        {
-          id: 'apptoken',
-          title: t('App Token'),
-          type: 'item',
-          url: '/apptoken',
-          target: true,
-          requiredPermission:["createAppToken","updateAppToken"]
-        },
-        {
-          id: 'logs',
-          title: t('Logs'),
-          type: 'item',
-          url: '/logs',
-          target: true,
-          requiredPermission:["readLogs"]
-        }
-      ]
-    }
-  ]
-};
+  const chambers = {
+    id: 'chambers',
+    title: t('Odalar'),
+    caption: t('Oda Yönetimi'),
+    type: 'group',
+    children: [
+      {
+        id: 'chamberPages',
+        title: t('Odalar'),
+        type: 'collapse',
+        icon: BusinessIcon,
+        children: [
+          {
+            id: 'chamberList',
+            title: t('Odalar'),
+            type: 'item',
+            url: '/chambers',
+            target: true,
+            requiredPermission: ['viewChambers', 'createChamber', 'updateChamber']
+          },
+          {
+            id: 'boards',
+            title: t('Yönetim Kurulları'),
+            type: 'item',
+            url: '/boards',
+            target: true,
+            requiredPermission: ['viewBoards', 'createBoard', 'updateBoard']
+          },
+          {
+            id: 'boardTypes',
+            title: t('Kurul Tipleri'),
+            type: 'item',
+            url: '/board-types',
+            target: true,
+            requiredPermission: ['viewBoardTypes', 'createBoardType', 'updateBoardType']
+          },
+          {
+            id: 'videos',
+            title: t('Videolar'),
+            type: 'item',
+            url: '/videos',
+            target: true,
+            requiredPermission: ['viewVideos', 'createVideo', 'updateVideo']
+          },
+          {
+            id: 'ikk',
+            title: t('İKK'),
+            type: 'item',
+            url: '/ikk',
+            target: true,
+            requiredPermission: ['viewIKK', 'createIKK', 'updateIKK']
+          }
+        ]
+      }
+    ]
+  };
 
-const celebration = {
-  id: 'celebration',
-  title: t('70. yıl içerikleri'),
-  caption: t('Celebration'),
-  type: 'group',
-  children: [
-    {
-      id: 'celebrationPage',
-      title: t('70. yıl'),
-      type: 'collapse',
-      icon: CelebrationIcon,
-      children: [
-        {
-          id: 'newCelebrationContent',
-          title: t('New'),
-          type: 'item',
-          url: '/celebration',
-          target: true,
-          requiredPermission:["createCelebration"]
-        },
-        {
-          id: 'celebrationContents',
-          title: t('List'),
-          type: 'item',
-          url: '/celebrations',
-          target: true,
-          requiredPermission:["deleteCelebration" , "updateCelebration"]
-        },
-        {
-          id: 'periodDocument',
-          title: t('New Period Documents'),
-          type: 'item',
-          url: '/period-document',
-          target: true,
-          requiredPermission:["createPeriodDocument"]
-        },
-        {
-          id: 'periodDocuments',
-          title: t('Period Documents'),
-          type: 'item',
-          url: '/period-documents',
-          target: true,
-          requiredPermission:["updatePeriodDocument","deletePeriodDocument"]
-        },
-        {
-          id: 'periodPublication',
-          title: t('Period Publication'),
-          type: 'item',
-          url: '/celebration-publication',
-          target: true,
-          requiredPermission:["createPublication","updatePublication","deletePublication"]
-        }
-       
-      ]
-    }
-  ]
-};
+  const settings = {
+    id: 'setting',
+    title: t('Settings'),
+    caption: t('Settings Caption'),
+    type: 'group',
+    children: [
+      {
+        id: 'settingPage',
+        title: t('Settings'),
+        type: 'collapse',
+        icon: SettingsSuggestIcon,
+        children: [
+          {
+            id: 'period',
+            title: t('Periods'),
+            type: 'item',
+            url: '/period',
+            target: true,
+            requiredPermission: ["viewPeriods", "viewPeriod", "createPeriod", "updatePeriod", "deletePeriod"]
+          },
+          {
+            id: 'apptoken',
+            title: t('App Token'),
+            type: 'item',
+            url: '/apptoken',
+            target: true,
+            requiredPermission: ["createAppToken", "updateAppToken"]
+          },
+          {
+            id: 'logs',
+            title: t('Logs'),
+            type: 'item',
+            url: '/logs',
+            target: true,
+            requiredPermission: ["readLogs"]
+          }
+        ]
+      }
+    ]
+  };
 
-const expertiseMenu = {
-  id: 'expertise',
-  title: t('Bilirkişilik Eğitimleri'),
-  type: 'group',
-  children: [
-    {
-      id: 'expertisePage',
-      title: t('Bilirkişilik Eğitimleri'),
-      type: 'item',
-      url: '/expertise',
-      icon: SchoolIcon,
-      target: true,
-    }
-  ]
-};
+  const celebration = {
+    id: 'celebration',
+    title: t('70. yıl içerikleri'),
+    caption: t('Celebration'),
+    type: 'group',
+    children: [
+      {
+        id: 'celebrationPage',
+        title: t('70. yıl'),
+        type: 'collapse',
+        icon: CelebrationIcon,
+        children: [
+          {
+            id: 'newCelebrationContent',
+            title: t('New'),
+            type: 'item',
+            url: '/celebration',
+            target: true,
+            requiredPermission: ["createCelebration"]
+          },
+          {
+            id: 'celebrationContents',
+            title: t('List'),
+            type: 'item',
+            url: '/celebrations',
+            target: true,
+            requiredPermission: ["deleteCelebration", "updateCelebration"]
+          },
+          {
+            id: 'periodDocument',
+            title: t('New Period Documents'),
+            type: 'item',
+            url: '/period-document',
+            target: true,
+            requiredPermission: ["createPeriodDocument"]
+          },
+          {
+            id: 'periodDocuments',
+            title: t('Period Documents'),
+            type: 'item',
+            url: '/period-documents',
+            target: true,
+            requiredPermission: ["updatePeriodDocument", "deletePeriodDocument"]
+          },
+          {
+            id: 'periodPublication',
+            title: t('Period Publication'),
+            type: 'item',
+            url: '/celebration-publication',
+            target: true,
+            requiredPermission: ["createPublication", "updatePublication", "deletePublication"]
+          }
+
+        ]
+      }
+    ]
+  };
+
+  const expertiseMenu = {
+    id: 'expertise',
+    title: t('Bilirkişilik Eğitimleri'),
+    type: 'group',
+    children: [
+      {
+        id: 'expertisePage',
+        title: t('Bilirkişilik Eğitimleri'),
+        type: 'item',
+        url: '/expertise',
+        icon: SchoolIcon,
+        target: true,
+      }
+    ]
+  };
 
   const formsMenu = {
     id: 'forms',
@@ -387,19 +449,20 @@ const expertiseMenu = {
     ]
   };
 
-const menuItems = {
-  items: [
-    dashboard,
-    pages,
-    users,
-    events,
-    formsMenu,
-    expertiseMenu,
-    settings,
-    celebration,
-    campaignsMenu,
-    
-  ]
-}
+  const menuItems = {
+    items: [
+      dashboard,
+      pages,
+      users,
+      events,
+      chambers,
+      formsMenu,
+      expertiseMenu,
+      settings,
+      celebration,
+      campaignsMenu,
+
+    ]
+  }
   return menuItems;
 }
