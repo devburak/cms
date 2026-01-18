@@ -513,6 +513,52 @@ export const createUser = async (userData) => {
   }
 };
 
+export const getProfile = async () => {
+  try {
+    const response = await instance.get('/api/users/profile');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
+  }
+};
+
+export const updateProfile = async (userData) => {
+  try {
+    const response = await instance.put('/api/users/profile', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw error;
+  }
+};
+
+// Webhooks
+export const getWebhooks = async () => {
+  const response = await instance.get('/api/webhooks');
+  return response.data;
+};
+
+export const createWebhook = async (data) => {
+  const response = await instance.post('/api/webhooks', data);
+  return response.data;
+};
+
+export const updateWebhook = async (id, data) => {
+  const response = await instance.put(`/api/webhooks/${id}`, data);
+  return response.data;
+};
+
+export const deleteWebhook = async (id) => {
+  const response = await instance.delete(`/api/webhooks/${id}`);
+  return response.data;
+};
+
+export const regenerateWebhookSecret = async (id) => {
+  const response = await instance.post(`/api/webhooks/${id}/regenerate-secret`);
+  return response.data;
+};
+
 // Kullanıcıyı güncelleyen fonksiyon
 export const updateUser = async (userId, userData) => {
   try {
@@ -1297,5 +1343,53 @@ export const deleteFormSubmission = async (formId, submissionId) => {
   const response = await instance.delete(
     `/api/forms/${formId}/submissions/${submissionId}`,
   );
+  return response.data;
+};
+
+// Logs
+export const getLogs = async (params = {}) => {
+  const response = await instance.get('/api/logs', { params });
+  return response.data;
+};
+
+export const deleteOldLogs = async (daysOld = 365) => {
+  const response = await instance.delete('/api/logs/old', {
+    params: { daysOld }
+  });
+  return response.data;
+};
+
+// System Information
+export const getSystemInformation = async () => {
+  const response = await instance.get('/api/system/information');
+  return response.data;
+};
+// Dashboard
+export const getDashboardStats = async () => {
+  const response = await instance.get('/api/dashboard/stats');
+  return response.data;
+};
+
+export const getRecentContent = async (limit = 5) => {
+  const response = await instance.get('/api/dashboard/recent-content', {
+    params: { limit }
+  });
+  return response.data;
+};
+
+export const getRecentUsers = async (limit = 5) => {
+  const response = await instance.get('/api/dashboard/recent-users', {
+    params: { limit }
+  });
+  return response.data;
+};
+
+export const changePassword = async (data) => {
+  const response = await instance.post('/api/users/change-password', data);
+  return response.data;
+};
+
+export const getMyLogs = async (params = {}) => {
+  const response = await instance.get('/api/logs/my', { params });
   return response.data;
 };

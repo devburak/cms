@@ -1,7 +1,7 @@
 // SystemContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios'; 
-import config from '../config';
+import { getSystemInformation } from '../api';
+
 const SystemContext = createContext();
 
 export const useSystem = () => {
@@ -9,38 +9,30 @@ export const useSystem = () => {
 }
 
 export const SystemProvider = ({ children }) => {
-    const [systemInfo, setSystemInfo] = useState({
-        languageList: [],
-        imageSizes: [],
-        userRoles: []
-    });
+    const [systemInfo, setSystemInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // Sistem bilgilerini API'den al
-        const fetchSystemInfo = async () => {
-            try {
-                const response = await axios.get(`${config.baseURL}api/system/information`);
-                const data = response.data;
-                // API'den dönen veriyi key değerlerine göre bir objede topla
-                let updatedSystemInfo = {};
-                data.forEach(item => {
-                    updatedSystemInfo[item.key] = item.value;
-                });
-
-                setSystemInfo(prevState => ({
-                    ...prevState,
-                    ...updatedSystemInfo
-                }));
-            } catch (error) {
-                console.error("System information fetch failed:", error);
-            }
-        };
-
-        fetchSystemInfo();
+    const fetchSystemInfo = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await getSystemInformation();
+            setSystemInfo(data);
+            setError(null);
+        } catch (error) {
+            console.error("System information fetch failed:", error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
+    useEffect(() => {
+        fetchSystemInfo();
+    }, [fetchSystemInfo]);
+
     return (
-        <SystemContext.Provider value={systemInfo}>
+        <SystemContext.Provider value={{ systemInfo, loading, error, refreshSystemInfo: fetchSystemInfo }}>
             {children}
         </SystemContext.Provider>
     );

@@ -9,8 +9,13 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
+    console.log('[Axios Interceptor] Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+    console.log('[Axios Interceptor] Request URL:', config.url);
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('[Axios Interceptor] Authorization header set');
+    } else {
+      console.warn('[Axios Interceptor] No token found in localStorage!');
     }
     return config;
   },

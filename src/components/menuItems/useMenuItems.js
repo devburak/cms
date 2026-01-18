@@ -18,6 +18,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -102,6 +103,13 @@ export function useMenuItems() {
         icon: PeopleIcon,
         children: [
           {
+            id: 'profile',
+            title: t('Profile') || 'Profile',
+            type: 'item',
+            url: '/profile',
+            target: true
+          },
+          {
             id: 'user',
             title: t('New user'),
             type: 'item',
@@ -168,6 +176,15 @@ export function useMenuItems() {
             requiredPermission: ["createContent", "viewContent", "updateContent"]
           }
         ]
+      },
+      {
+        id: 'publications',
+        title: t('Publications'),
+        type: 'item',
+        url: '/publication',
+        icon: NewspaperIcon,
+        target: true,
+        requiredPermission: ["createPublication", "updatePublication", "deletePublication"]
       }
     ]
   };
@@ -329,6 +346,14 @@ export function useMenuItems() {
             url: '/logs',
             target: true,
             requiredPermission: ["readLogs"]
+          },
+          {
+            id: 'webhooks',
+            title: t('Webhooks'),
+            type: 'item',
+            url: '/webhooks',
+            target: true,
+            // requiredPermission: ["manageWebhooks"] // TODO: Define permission
           }
         ]
       }
