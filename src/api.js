@@ -1393,3 +1393,19 @@ export const getMyLogs = async (params = {}) => {
   const response = await instance.get('/api/logs/my', { params });
   return response.data;
 };
+
+// Webhook Job Operations
+export const getWebhookJobs = async () => {
+  const response = await instance.get('/api/webhooks/jobs');
+  return response.data;
+};
+
+export const retryWebhookJob = async (id) => {
+  const response = await instance.post(`/api/webhooks/jobs/${id}/retry`);
+  return response.data;
+};
+
+export const cleanupWebhookJobs = async () => {
+  const response = await instance.delete('/api/webhooks/jobs/failed');
+  return response.data;
+};
