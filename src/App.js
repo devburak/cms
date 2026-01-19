@@ -52,6 +52,7 @@ const SubmissionListPage = lazy(() => import('./pages/SubmissionListPage'));
 const LogPage = lazy(() => import('./pages/LogPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const WebhookPage = lazy(() => import('./pages/settings/WebhookPage'));
+const DefaultPeriodPage = lazy(() => import('./pages/DefaultPeriodPage'));
 
 function App() {
   return (
@@ -102,6 +103,7 @@ function App() {
                   <Route path='/form/:id/fill/:submissionId?' element={<FormFillPage />} />
                   <Route path='/logs' element={<LogPage />} />
                   <Route path="/webhooks" element={<WebhookPage />} />
+                  <Route path="/default-period" element={<DefaultPeriodPage />} />
                   <Route path="*" element={<UnderConstructionPage />} />
                 </Route>
               </Routes>

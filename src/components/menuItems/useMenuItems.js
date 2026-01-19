@@ -411,6 +411,14 @@ export function useMenuItems() {
             url: '/celebration-publication',
             target: true,
             requiredPermission: ["createPublication", "updatePublication", "deletePublication"]
+          },
+          {
+            id: 'defaultPeriod',
+            title: t('Varsayılan Dönem'),
+            type: 'item',
+            url: '/default-period',
+            target: true,
+            requiredPermission: ["createPeriod", "updatePeriod"] // Using existing period permissions
           }
 
         ]

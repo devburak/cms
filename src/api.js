@@ -1,25 +1,6 @@
 import instance from './axiosConfig';
 import axios from 'axios';
 
-export const postSystemVariable = async (data) => {
-  try {
-    const response = await instance.post('/systemVariable', data);
-    return response.data;
-  } catch (error) {
-    console.error('Error posting system variable:', error);
-    throw error;
-  }
-};
-
-export const getSystemVariable = async (key) => {
-  try {
-    const response = await instance.get(`/api/system/${key}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error getting system variable:', error);
-    throw error;
-  }
-};
 
 export const getStorageVariables = async () => {
   try {
@@ -58,7 +39,7 @@ export const uploadFilesPresigned = async (files, onUploadProgress) => {
 
     // Gruplama: orijinal dosya ismi + thumbnail boyutu
     for (const file of files) {
-      const thumbMatch = file.name.match(/^(.*)\-(small|medium|large|x-large)\.webp$/);
+      const thumbMatch = file.name.match(/^(.*)-(small|medium|large|x-large)\.webp$/);
       if (thumbMatch) {
         const base = thumbMatch[1];
         const size = thumbMatch[2];
@@ -72,7 +53,7 @@ export const uploadFilesPresigned = async (files, onUploadProgress) => {
 
     const meta = [];
 
-    for (const [baseName, { original, thumbnails }] of Object.entries(uploads)) {
+    for (const { original, thumbnails } of Object.values(uploads)) {
       if (!original) continue; // güvenlik için
 
       // Orijinal dosya için presigned URL al
@@ -268,7 +249,13 @@ export const getAllCategories = async () => {
 
 // Period CRUD operasyonları için API servisleri
 
-// export const getPeriods = async () => {
+// Periods
+export const getPeriods = async (page = 1, pageSize = 10, search = '') => {
+  const response = await instance.get('/api/periods', {
+    params: { page, pageSize, search }
+  });
+  return response.data;
+};
 //   try {
 //     const response = await instance.get(`/api/period`);
 //     return response.data;
@@ -1407,5 +1394,21 @@ export const retryWebhookJob = async (id) => {
 
 export const cleanupWebhookJobs = async () => {
   const response = await instance.delete('/api/webhooks/jobs/failed');
+  return response.data;
+};
+
+// System Variables
+export const getSystemVariable = async (key) => {
+  const response = await instance.get(`/api/system/${key}`);
+  return response.data;
+};
+
+export const setSystemVariable = async (key, value, description = '') => {
+  const response = await instance.post(`/api/system/${key}`, { value, description });
+  return response.data;
+};
+
+export const getAllSystemVariables = async () => {
+  const response = await instance.get('/api/system/variables/all');
   return response.data;
 };
