@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import instance from '../axiosConfig';
+import { removeTokens } from '../services/authService';
 import config from '../config';
 
 const AuthContext = createContext();
@@ -9,36 +11,46 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true); // Yükleme durumu
 
-    useEffect(() => {
-        const checkAuthentication = async () => {
-            setLoading(true);
-            const token = localStorage.getItem('accessToken');
-            if (token) {
-                try {
-                    const response = await axios.get(`${config.baseURL}api/users/profile`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    setIsLoggedIn(true);
-                    console.log(response.data);
-                    setUser(response.data);
-                } catch (error) {
-                    console.error("Authentication check failed:", error);
-                    setIsLoggedIn(false);
-                    setUser(null);
-                }
-            } else {
-                setIsLoggedIn(false);
-                setUser(null);
-            }
+    const checkAuth = useCallback(async () => {
+        setLoading(true);
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            setIsLoggedIn(false);
+            setUser(null);
             setLoading(false);
-        };
-        checkAuthentication();
+            return false;
+        }
+
+        try {
+            const response = await instance.get('/api/users/profile');
+            setIsLoggedIn(true);
+            setUser(response.data);
+            return true;
+        } catch (error) {
+            removeTokens();
+            setIsLoggedIn(false);
+            setUser(null);
+            return false;
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    const logout = () => {
-        localStorage.removeItem('accessToken');
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
+
+    const logout = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+            try {
+                await axios.post(`${config.baseURL}api/users/logout`, { refreshToken });
+            } catch (error) {
+                // Logout endpoint is best-effort.
+            }
+        }
+        removeTokens();
         setIsLoggedIn(false);
         setUser(null);
     };
@@ -46,14 +58,15 @@ export const AuthProvider = ({ children }) => {
     // Kullanıcının gerekli izne sahip olup olmadığını kontrol eden fonksiyon
     const hasPermission = useCallback((requiredPermission) => {
         if (!requiredPermission) return true;
+        if (user?.role?.isSuperAdmin) return true;
         if (Array.isArray(requiredPermission)) {
             return requiredPermission.some((perm) => user?.role?.permissions?.includes(perm));
         }
         return user?.role?.permissions?.includes(requiredPermission);
-    }, [user?.role?.permissions]);
+    }, [user?.role?.isSuperAdmin, user?.role?.permissions]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, logout, loading, hasPermission }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, logout, loading, hasPermission, checkAuth }}>
             {children}
         </AuthContext.Provider>
     );

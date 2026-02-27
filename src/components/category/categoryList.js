@@ -3,9 +3,26 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const CategoryList = ({ categories=[], onEdit, page=0, rowsPerPage=0, handleChangePage, handleChangeRowsPerPage, total=0 }) => {
+const CategoryList = ({
+  categories = [],
+  onEdit,
+  onDelete,
+  canDelete = false,
+  page = 0,
+  rowsPerPage = 0,
+  handleChangePage,
+  handleChangeRowsPerPage,
+  total = 0
+}) => {
 
-  console.log(categories)
+  const handleDelete = (category) => {
+    if (!canDelete || !onDelete) return;
+    const confirmed = window.confirm(`"${category.name}" kategorisini silmek istediğinize emin misiniz?`);
+    if (confirmed) {
+      onDelete(category._id);
+    }
+  };
+
   return (
     <Paper>
       <TableContainer>
@@ -32,7 +49,7 @@ const CategoryList = ({ categories=[], onEdit, page=0, rowsPerPage=0, handleChan
                   </Tooltip>
                   <Tooltip title="Delete" aria-label="delete">
                     <span>
-                      <IconButton disabled>
+                      <IconButton disabled={!canDelete} onClick={() => handleDelete(category)}>
                         <DeleteIcon />
                       </IconButton>
                     </span>
@@ -43,7 +60,7 @@ const CategoryList = ({ categories=[], onEdit, page=0, rowsPerPage=0, handleChan
           </TableBody>
         </Table>
       </TableContainer>
-     { rowsPerPage==0 ?  <TablePagination
+     { rowsPerPage === 0 ?  <TablePagination
         component="div"
         count={total}
         page={page}

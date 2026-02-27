@@ -5,8 +5,9 @@ const ImageComponent = React.lazy(() => import('./ImageComponent'));
 
 function convertImageElement(domNode) {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width ="inherit", height="auto"} = domNode;
-    const node = $createImageNode({ altText, height, src, width });
+    const { alt: altText, src, width = 'inherit', height = 'auto' } = domNode;
+    const metaText = domNode.getAttribute('data-meta') || '';
+    const node = $createImageNode({ altText, height, src, width, metaText });
     return { node };
   }
   return null;
@@ -22,6 +23,7 @@ export class ImageNode extends DecoratorNode {
     showCaption = false,
     caption = createEditor(),
     captionsEnabled =  true,
+    metaText = '',
     key
   ) {
     super(key);
@@ -33,6 +35,7 @@ export class ImageNode extends DecoratorNode {
     this.__showCaption = showCaption;
     this.__caption = caption;
     this.__captionsEnabled = captionsEnabled;
+    this.__metaText = metaText;
   }
 
   static getType() {
@@ -49,19 +52,21 @@ export class ImageNode extends DecoratorNode {
       node.__showCaption,
       node.__caption,
       node.__captionsEnabled,
+      node.__metaText,
       node.__key
     );
   }
 
   static importJSON(serializedNode) {
-    const { altText, height="auto", width="inherit", maxWidth="600px", caption, src, showCaption } = serializedNode;
+    const { altText, height = 'auto', width = 'inherit', maxWidth = '600px', caption, src, showCaption, metaText = '' } = serializedNode;
     const node = $createImageNode({
       altText,
       height,
       maxWidth,
       showCaption,
       src,
-      width
+      width,
+      metaText
     });
     const nestedEditor = node.__caption;
     const editorState = nestedEditor.parseEditorState(caption.editorState);
@@ -79,6 +84,9 @@ export class ImageNode extends DecoratorNode {
     element.setAttribute('max-width', "600px");
     element.setAttribute('max-height', "960px");
     element.setAttribute('height', this.__height.toString());
+    if (this.__metaText) {
+      element.setAttribute('data-meta', this.__metaText);
+    }
     return { element };
   }
 
@@ -101,7 +109,8 @@ export class ImageNode extends DecoratorNode {
       src: this.getSrc(),
       type: 'image',
       version: 1,
-      width: this.__width === 'inherit' ? "100%" : this.__width
+      width: this.__width === 'inherit' ? "100%" : this.__width,
+      metaText: this.__metaText
     };
   }
 
@@ -152,6 +161,7 @@ export class ImageNode extends DecoratorNode {
           caption={this.__caption}
           captionsEnabled={this.__captionsEnabled}
           resizable={true}
+          metaText={this.__metaText}
         />
       </Suspense>
     );
@@ -167,6 +177,7 @@ export function $createImageNode({
   width ="inherit",
   showCaption,
   caption,
+  metaText = '',
   key
 }) {
   return $applyNodeReplacement(
@@ -179,6 +190,7 @@ export function $createImageNode({
       showCaption,
       caption,
       captionsEnabled,
+      metaText,
       key
     )
   );

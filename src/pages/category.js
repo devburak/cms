@@ -3,10 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Divider, Container, Grid } from '@mui/material';
 import CategoryForm from '../components/category/categoryForm';
 import CategoryList from '../components/category/categoryList';
-import { getCategories,createCategory ,updateCategory} from '../api'; // getCategories fonksiyonunun yolu doğru olmalı
+import { getCategories, createCategory, updateCategory, deleteCategory } from '../api';
+import { useAuth } from '../context/AuthContext';
+import { notifySuccess } from '../services/notificationBus';
 
 function CategoryPage() {
     const { t } = useTranslation();
+    const { hasPermission } = useAuth();
     const [categories, setCategories] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -56,6 +59,16 @@ function CategoryPage() {
         }
     };
 
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            await deleteCategory(categoryId);
+            notifySuccess('Kategori başarıyla silindi.');
+            await fetchCategories();
+        } catch (error) {
+            console.error('Error deleting category:', error);
+        }
+    };
+
     const handlePageChange = (event, newPage) => {
         setPage(newPage);
     };
@@ -84,6 +97,8 @@ function CategoryPage() {
                         categories={categories} 
                         page={page || 0} 
                         onEdit={setSelectedCategory} // Edit butonuna basıldığında seçilen kategoriyi ayarla
+                        onDelete={handleDeleteCategory}
+                        canDelete={hasPermission('deleteCategory')}
                         rowsPerPage={rowsPerPage||0} 
                         handleChangePage={handlePageChange} 
                         handleChangeRowsPerPage={handleRowsPerPageChange} 

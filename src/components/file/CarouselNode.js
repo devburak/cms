@@ -7,6 +7,22 @@ import {
 } from 'lexical';
 import Carousel from 'react-material-ui-carousel';
 
+const normalizeSlide = (slide, index) => {
+  if (typeof slide === 'string') {
+    return {
+      src: slide,
+      altText: `Slide ${index + 1}`,
+      metaText: ''
+    };
+  }
+
+  return {
+    src: slide?.src || slide?.url || '',
+    altText: slide?.altText || `Slide ${index + 1}`,
+    metaText: slide?.metaText || ''
+  };
+};
+
 // CarouselNode bileşeni
 class CarouselNode extends DecoratorNode {
   static getType() {
@@ -69,22 +85,32 @@ class CarouselNode extends DecoratorNode {
     innerDiv.style.width = `${this.__images.length * 100}%`;
     innerDiv.style.transition = 'transform 0.5s ease';
 
-    this.__images.forEach((src) => {
+    this.__images.forEach((slide, index) => {
+        const normalizedSlide = normalizeSlide(slide, index);
         const slideDiv = document.createElement('div');
         slideDiv.className = 'carousel-slide-div';
         slideDiv.style.flex = '0 0 100%';
         slideDiv.style.display = 'flex';
+        slideDiv.style.flexDirection = 'column';
         slideDiv.style.justifyContent = 'center';
         slideDiv.style.alignItems = 'center';
 
         const img = document.createElement('img');
-        img.src = src;
-        img.alt = 'Carousel Slide';
+        img.src = normalizedSlide.src;
+        img.alt = normalizedSlide.altText;
         img.style.width = '100%';
         img.style.height = 'auto';
         img.style.objectFit = 'contain';
 
         slideDiv.appendChild(img);
+        if (normalizedSlide.metaText) {
+          const meta = document.createElement('div');
+          meta.textContent = normalizedSlide.metaText;
+          meta.style.fontSize = '12px';
+          meta.style.color = '#6b7280';
+          meta.style.marginTop = '8px';
+          slideDiv.appendChild(meta);
+        }
         innerDiv.appendChild(slideDiv);
     });
 
@@ -173,21 +199,30 @@ function MaterialUiCarousel({ images }) {
         // Material UI Carousel'de height prop'unu ayarlayabilirsiniz
         height="400px"
       >
-        {images.map((src, index) => (
-          <img
-            key={index}
-            src={src}
-            alt={`Slide ${index + 1}`}
-            style={{
-              width: '100%',
-              height: 'auto',
-              objectFit: 'contain',
-              display: 'block',
-              maxHeight: '400px',
-              margin: '0 auto',
-            }}
-          />
-        ))}
+        {images.map((slide, index) => {
+          const normalizedSlide = normalizeSlide(slide, index);
+          return (
+            <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img
+                src={normalizedSlide.src}
+                alt={normalizedSlide.altText}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  display: 'block',
+                  maxHeight: '400px',
+                  margin: '0 auto',
+                }}
+              />
+              {normalizedSlide.metaText ? (
+                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                  {normalizedSlide.metaText}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
       </Carousel>
     </div>
   );

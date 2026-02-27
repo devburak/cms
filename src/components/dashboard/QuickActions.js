@@ -20,31 +20,31 @@ const QuickActions = () => {
         {
             label: t('Create Content'),
             icon: <AddIcon />,
-            path: '/contents/new',
+            path: '/content',
             show: true // All users can create content (usually)
         },
         {
             label: t('Upload File'),
             icon: <UploadFileIcon />,
             path: '/files',
-            show: hasPermission('createFile')
+            show: hasPermission('uploadFile')
         },
         {
             label: t('Create Event'),
             icon: <EventIcon />,
-            path: '/events/new',
+            path: '/event',
             show: hasPermission('createEvent')
         },
         {
             label: t('Create Form'),
             icon: <ListAltIcon />,
-            path: '/forms/builder',
+            path: '/form',
             show: hasPermission('createForm')
         },
         {
             label: t('Add User'),
             icon: <PersonAddIcon />,
-            path: '/users/new',
+            path: '/user',
             show: hasPermission('createUser')
         },
         {

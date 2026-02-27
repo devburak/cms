@@ -95,6 +95,7 @@ function LazyImage({
 export default function ImageComponent({
   src,
   altText,
+  metaText,
   nodeKey,
   width ='100%',
   height ='auto',
@@ -342,6 +343,9 @@ export default function ImageComponent({
             maxWidth={maxWidth}
           />
         </div>
+        {metaText ? (
+          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>{metaText}</div>
+        ) : null}
         {showCaption && (
           <div className="image-caption-container">
             <LexicalNestedComposer initialEditor={caption}>

@@ -1,6 +1,7 @@
 // SystemContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getSystemInformation } from '../api';
+import { useAuth } from './AuthContext';
 
 const SystemContext = createContext();
 
@@ -9,6 +10,7 @@ export const useSystem = () => {
 }
 
 export const SystemProvider = ({ children }) => {
+    const { isLoggedIn } = useAuth();
     const [systemInfo, setSystemInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,8 +30,15 @@ export const SystemProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
+        if (!isLoggedIn) {
+            setSystemInfo(null);
+            setError(null);
+            setLoading(false);
+            return;
+        }
+
         fetchSystemInfo();
-    }, [fetchSystemInfo]);
+    }, [isLoggedIn, fetchSystemInfo]);
 
     return (
         <SystemContext.Provider value={{ systemInfo, loading, error, refreshSystemInfo: fetchSystemInfo }}>

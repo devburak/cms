@@ -15,11 +15,12 @@ function Sidebar({ open, handleToggle }) {
 
     const hasPermission = useCallback((requiredPermission) => {
         if (!requiredPermission) return true;
+        if (user?.role?.isSuperAdmin) return true;
         if (Array.isArray(requiredPermission)) {
             return requiredPermission.some((perm) => user?.role?.permissions?.includes(perm));
         }
         return user?.role?.permissions?.includes(requiredPermission);
-    }, [user?.role?.permissions]);
+    }, [user?.role?.isSuperAdmin, user?.role?.permissions]);
 
     const filterItemsRecursively = useCallback((items) => {
         return items
@@ -39,13 +40,13 @@ function Sidebar({ open, handleToggle }) {
     }, [hasPermission]);
 
     useEffect(() => {
-        if (user?.role?.permissions) {
+        if (user?.role?.isSuperAdmin || user?.role?.permissions) {
             const filtered = filterItemsRecursively(menuItems.items);
             setFilteredMenu(filtered);
         } else {
             setFilteredMenu([]);
         }
-    }, [ filterItemsRecursively, user?.role?.permissions]);
+    }, [filterItemsRecursively, user?.role?.isSuperAdmin, user?.role?.permissions]);
 
     const handleToggleSide = useCallback((id) => {
         setOpenItems((prev) => ({

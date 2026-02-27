@@ -10,8 +10,8 @@ import * as ReactDOMServer from "react-dom/server";
  * $isDocumentNode:
  *  - Verilen node'un DocumentNode olup olmadığını kontrol eder.
  */
-export function $createDocumentNode(link, filename) {
-  return new DocumentNode(link, filename);
+export function $createDocumentNode(link, filename, metaText = '') {
+  return new DocumentNode(link, filename, metaText);
 }
 
 export function $isDocumentNode(node) {
@@ -29,21 +29,22 @@ export class DocumentNode extends DecoratorNode {
   }
 
   static clone(node) {
-    return new DocumentNode(node.__link, node.__filename, node.__key);
+    return new DocumentNode(node.__link, node.__filename, node.__metaText, node.__key);
   }
 
-  constructor(link, filename, key) {
+  constructor(link, filename, metaText = '', key) {
     super(key);
     this.__link = link;
     this.__filename = filename;
+    this.__metaText = metaText;
   }
 
   // -------------------------
   // 1) Serileştirme - JSON
   // -------------------------
   static importJSON(serializedNode) {
-    const { link, filename } = serializedNode;
-    return $createDocumentNode(link, filename);
+    const { link, filename, metaText = '' } = serializedNode;
+    return $createDocumentNode(link, filename, metaText);
   }
 
   exportJSON() {
@@ -52,6 +53,7 @@ export class DocumentNode extends DecoratorNode {
       version: 1,
       link: this.__link,
       filename: this.__filename,
+      metaText: this.__metaText
     };
   }
 
@@ -81,6 +83,7 @@ export class DocumentNode extends DecoratorNode {
       <DocumentComponent
         link={this.__link}
         filename={this.__filename}
+        metaText={this.__metaText}
       />
     );
   }
@@ -95,6 +98,7 @@ export class DocumentNode extends DecoratorNode {
       <DocumentComponent
         link={this.__link}
         filename={this.__filename}
+        metaText={this.__metaText}
       />
     );
 
@@ -117,25 +121,28 @@ export class DocumentNode extends DecoratorNode {
  * DocumentComponent:
  * - Ekranda beliren asıl React bileşeni.
  */
-function DocumentComponent({ link, filename }) {
+function DocumentComponent({ link, filename, metaText }) {
   const fileExtension = (filename || "").split(".").pop()?.toLowerCase() || "";
   const iconSrc = getFileIcon(fileExtension);
 
   return (
-    <div style={{ display: "flex", alignItems: "center", margin: "2px 0" }}>
-      <img
-        src={iconSrc}
-        alt="File Icon"
-        style={{ width: "24px", height: "24px", marginRight: "8px" }}
-      />
-      <a
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ textDecoration: "none", color: "blue" }}
-      >
-        {filename}
-      </a>
+    <div style={{ display: "flex", alignItems: "flex-start", margin: "2px 0" }}>
+      <img src={iconSrc} alt="File Icon" style={{ width: "24px", height: "24px", marginRight: "8px", marginTop: "2px" }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none", color: "blue" }}
+        >
+          {filename}
+        </a>
+        {metaText ? (
+          <span style={{ fontSize: "12px", color: "#6b7280" }}>
+            {metaText}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }

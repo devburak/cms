@@ -140,22 +140,60 @@ const [error, setError] = useState(null);
         }
     };
 
-    const checkSlugDebounced = useCallback(debounce(async (slugValue) => {
+    const findAvailableSlug = async (baseSlug) => {
+        // İlk önce orijinal slug'ı kontrol et
+        const { available } = await checkSlugAvailability(baseSlug);
+        if (available) {
+            return { slug: baseSlug, isOriginal: true };
+        }
+
+        // Orijinal slug kullanılıyorsa, -1, -2, -3... ile dene
+        // Önce baseSlug'dan mevcut numarayı çıkar (varsa)
+        const slugWithoutNumber = baseSlug.replace(/-\d+$/, '');
+        
+        for (let i = 1; i <= 100; i++) {
+            const newSlug = `${slugWithoutNumber}-${i}`;
+            try {
+                const { available: isAvailable } = await checkSlugAvailability(newSlug);
+                if (isAvailable) {
+                    return { slug: newSlug, isOriginal: false };
+                }
+            } catch (error) {
+                console.error(`Error checking slug ${newSlug}:`, error);
+            }
+        }
+        
+        return { slug: baseSlug, isOriginal: false };
+    };
+
+    const checkSlugDebounced = useCallback(debounce(async (slugValue, autoFix = true) => {
         try {
             const { available } = await checkSlugAvailability(slugValue);
-            setIsSlugValid(available);
+            if (available) {
+                setIsSlugValid(true);
+            } else if (autoFix && !isSlugEditable) {
+                // Slug kullanılıyorsa otomatik olarak uygun bir slug bul
+                const { slug: availableSlug, isOriginal } = await findAvailableSlug(slugValue);
+                if (!isOriginal) {
+                    setSlug(availableSlug);
+                }
+                setIsSlugValid(true);
+            } else {
+                setIsSlugValid(false);
+            }
         } catch (error) {
             console.error('Error checking slug:', error);
             setIsSlugValid(false);
         }
-    }, 500), []);
+    }, 500), [isSlugEditable]);
 
     const handleEditSlug = () => {
         setIsSlugEditable(true);
     };
 
     const handleSlugBlur = () => {
-        checkSlugDebounced(slug);
+        // Manuel düzenleme sonrası autoFix kapalı olmalı - kullanıcı hata mesajını görsün
+        checkSlugDebounced(slug, false);
         setIsSlugEditable(false);
     };
 

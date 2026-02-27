@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
     createCommand,
@@ -7,7 +7,7 @@ import {
     $isRangeSelection,
   } from "lexical";
 import { $getRoot } from "lexical";
-import { $createDocumentNode, DocumentNode } from "../../nodes/DocumentNode";
+import { $createDocumentNode } from "../../nodes/DocumentNode";
 
 // Komutu oluştur
 export const INSERT_DOCUMENT_COMMAND = createCommand("INSERT_DOCUMENT_COMMAND");
@@ -19,12 +19,12 @@ export default function DocumentsInlinePlugin() {
     useEffect(() => {
       return editor.registerCommand(
         INSERT_DOCUMENT_COMMAND,
-        ({ link, filename }) => {
+        ({ link, filename, metaText }) => {
           editor.update(() => {
             const selection = $getSelection();
             if ($isRangeSelection(selection)) {
               // Seçili yere ekle
-              const docNode = $createDocumentNode(link, filename);
+              const docNode = $createDocumentNode(link, filename, metaText);
               selection.insertNodes([docNode]);
             }
           });
@@ -44,10 +44,10 @@ export default function DocumentsInlinePlugin() {
 export function registerDocumentCommand(editor) {
     return editor.registerCommand(
       INSERT_DOCUMENT_COMMAND,
-      ({ link, filename }) => {
+      ({ link, filename, metaText }) => {
         editor.update(() => {
           const root = $getRoot();
-          const documentNode = $createDocumentNode(link, filename);
+          const documentNode = $createDocumentNode(link, filename, metaText);
           root.append(documentNode);
         });
         return true;

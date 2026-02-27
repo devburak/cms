@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { SystemProvider } from './context/SystemContext';
 import Playground from './components/lexical/playground';
+import GlobalNotificationModal from './components/informations/GlobalNotificationModal';
 import './App.css';
 import './index.css';
 import '../src/components/lexical/themes/CommentEditorTheme.css';
@@ -56,8 +57,8 @@ const DefaultPeriodPage = lazy(() => import('./pages/DefaultPeriodPage'));
 
 function App() {
   return (
-    <SystemProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <SystemProvider>
         <BrowserRouter>
           <LanguageProvider>
             <Suspense fallback={<div>Yükleniyor...</div>}>
@@ -107,13 +108,14 @@ function App() {
                   <Route path="*" element={<UnderConstructionPage />} />
                 </Route>
               </Routes>
+              <GlobalNotificationModal />
               <Footer />
             </Suspense>
           </LanguageProvider>
 
         </BrowserRouter>
-      </AuthProvider>
-    </SystemProvider>
+      </SystemProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import { Container, Box } from '@mui/material';
 import LoginForm from '../components/loginForm';
-import { login ,getProfile } from '../services/authService';
+import { login, getProfile } from '../services/authService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Notification from '../components/informations/notification';
@@ -22,18 +22,20 @@ const Login = () => {
     const loginSubmit = async (email, password) => {
         try {
             const data = await login(email, password);
-            if (data && data.accessToken && data.refreshToken) {
-                localStorage.setItem('accessToken', data.accessToken);
+            if (data?.accessToken) {
                 setIsLoggedIn(true);
-                const user = await getProfile(data.accessToken);
+                const user = await getProfile();
                 setUser(user);
                 navigate(redirectTo);
+                return;
             }
+
+            throw new Error('Giriş başarısız');
         } catch (error) {
-            console.error("Login failed:", error);
+            const errorMessage = error?.response?.data?.message || 'Bir hata oluştu! Tekrar deneyin.';
             setNotification({
                 open: true,
-                message: 'Bir hata oluştu! Tekrar deneyin.',
+                message: errorMessage,
                 severity: 'error',
             });
         }

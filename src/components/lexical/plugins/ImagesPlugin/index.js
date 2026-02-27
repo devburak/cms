@@ -273,7 +273,8 @@ function onDragStart(event) {
         maxWidth: node.__maxWidth || "600px",
         showCaption: node.__showCaption,
         src: node.__src,
-        width: node.__width
+        width: node.__width,
+        metaText: node.__metaText
       },
       type: "image"
     })

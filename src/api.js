@@ -162,6 +162,16 @@ export const renameFile = async (oldFilePath, oldFileName, newFilePath, newFileN
   }
 };
 
+export const updateFile = async (fileId, data) => {
+  try {
+    const response = await instance.put(`/api/files/${fileId}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating file:', error);
+    throw error;
+  }
+};
+
 export const deleteFile = async (fileId) => {
   try {
     console.log(fileId)
@@ -203,6 +213,16 @@ export const createCategory = async (data) => {
     return response.data;
   } catch (error) {
     console.error('Error creating category:', error);
+    throw error;
+  }
+};
+
+export const deleteCategory = async (id) => {
+  try {
+    const response = await instance.delete(`/api/category/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting category:', error);
     throw error;
   }
 };
@@ -862,9 +882,11 @@ export const deleteCelebrationPublication = async (id) => {
 };
 
 //Campaign services
-export const getAllCampaigns = async () => {
+export const getAllCampaigns = async (filters = {}, page = 1, limit = 20) => {
   try {
-    const response = await instance.get('/api/campaigns');
+    const response = await instance.get('/api/campaigns', {
+      params: { ...filters, page, limit }
+    });
     return response.data;
   } catch (error) {
     console.error(`Error fetching:`, error);

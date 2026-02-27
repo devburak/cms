@@ -125,6 +125,86 @@ export const getInlinePngIcon = (fileExtension) => {
   }
 };
 
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg', 'avif'];
+
+export const isImageFile = (file = {}) => {
+  const fileType = String(file?.fileType || '').toLowerCase();
+  const fileName = String(file?.filename || file?.originalName || file?.name || '').toLowerCase();
+  const extension = fileName.split('.').pop();
+  return fileType.startsWith('image/') || IMAGE_EXTENSIONS.includes(extension);
+};
+
+export const formatFileSizeKB = (bytes = 0) => {
+  const numericBytes = Number(bytes) || 0;
+  const kb = numericBytes / 1024;
+  const fractionDigits = kb >= 100 ? 0 : 1;
+  return `${kb.toFixed(fractionDigits)} KB`;
+};
+
+const gcd = (a, b) => {
+  if (!a || !b) return 1;
+  let x = Math.abs(Math.round(a));
+  let y = Math.abs(Math.round(b));
+  while (y) {
+    const temp = y;
+    y = x % y;
+    x = temp;
+  }
+  return x || 1;
+};
+
+export const formatAspectRatio = (width, height) => {
+  if (!width || !height) return '-';
+  const divisor = gcd(width, height);
+  return `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+};
+
+export const loadImageDimensions = (url) =>
+  new Promise((resolve, reject) => {
+    if (!url) {
+      reject(new Error('Image URL is required'));
+      return;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      resolve({
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      });
+    };
+    image.onerror = () => reject(new Error('Image dimensions could not be loaded'));
+    image.src = url;
+  });
+
+export const buildFileMeta = async (file = {}) => {
+  const sizeKb = formatFileSizeKB(file?.size);
+  let width = Number(file?.width) || null;
+  let height = Number(file?.height) || null;
+
+  if ((!width || !height) && isImageFile(file) && file?.url) {
+    try {
+      const dimensions = await loadImageDimensions(file.url);
+      width = dimensions.width;
+      height = dimensions.height;
+    } catch (error) {
+      // Keep metadata resilient: image can still be used without dimensions.
+    }
+  }
+
+  const dimensionText = width && height ? `${width} x ${height}px` : '-';
+  const ratioText = width && height ? formatAspectRatio(width, height) : '-';
+
+  return {
+    sizeKb,
+    width,
+    height,
+    dimensionText,
+    ratioText,
+    summary: `Boyut: ${sizeKb} | Dimension: ${dimensionText} | Ratio: ${ratioText}`
+  };
+};
+
 export const generateThumbnails = async (file) => {
   const sizes = [
     { size: 'small', width: 150, height: 150 },
