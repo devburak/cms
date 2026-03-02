@@ -19,6 +19,7 @@ import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 export function useMenuItems() {
   const { t } = useTranslation();
@@ -185,6 +186,24 @@ export function useMenuItems() {
         icon: NewspaperIcon,
         target: true,
         requiredPermission: ["createPublication", "updatePublication", "deletePublication"]
+      }
+    ]
+  };
+
+  const menusGroup = {
+    id: 'menus',
+    title: 'Menuler',
+    caption: 'Navigasyon Yonetimi',
+    type: 'group',
+    children: [
+      {
+        id: 'menusPage',
+        title: 'Menuler',
+        type: 'item',
+        url: '/menus',
+        icon: AccountTreeIcon,
+        target: true,
+        requiredPermission: ['viewMenus', 'createMenu', 'updateMenu', 'deleteMenu']
       }
     ]
   };
@@ -486,6 +505,7 @@ export function useMenuItems() {
     items: [
       dashboard,
       pages,
+      menusGroup,
       users,
       events,
       chambers,

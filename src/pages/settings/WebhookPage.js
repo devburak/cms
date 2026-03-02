@@ -34,7 +34,8 @@ const WebhookPage = () => {
         'content.created', 'content.updated', 'content.deleted',
         'form.created', 'form.updated', 'form.deleted', 'form.submitted',
         'event.created', 'event.updated', 'event.deleted',
-        'file.uploaded', 'file.deleted'
+        'file.uploaded', 'file.deleted',
+        'menu.created', 'menu.updated', 'menu.deleted'
     ];
 
     useEffect(() => {

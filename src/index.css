@@ -44,21 +44,49 @@ header h1 {
 }
 
 .editor-shell {
+  --editor-surface: #f8fafc;
+  --editor-surface-elevated: #ffffff;
+  --editor-border: rgba(15, 23, 42, 0.1);
+  --editor-border-strong: rgba(37, 99, 235, 0.28);
+  --editor-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
   margin: 20px auto;
-  border-radius: 2px;
+  border-radius: 12px;
   max-width: 1100px;
   color: #000;
   position: relative;
   line-height: 1.7;
   font-weight: 400;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(241, 245, 249, 0.72) 100%);
+  border: 1px solid var(--editor-border);
+  box-shadow: var(--editor-shadow);
+  overflow: hidden;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
 .editor-shell .editor-container {
-  background: #fff;
+  background: transparent;
   position: relative;
   display: block;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.editor-shell:focus-within {
+  border-color: var(--editor-border-strong);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08), var(--editor-shadow);
+}
+
+.editor-shell .editor-container::before {
+  content: 'Yazma alani';
+  display: block;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(51, 65, 85, 0.76);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 250, 252, 0.82) 100%);
 }
 
 .editor-shell .editor-container.tree-view {
@@ -79,13 +107,25 @@ header h1 {
   z-index: 0;
   overflow: auto;
   resize: vertical;
+  background: linear-gradient(180deg, var(--editor-surface-elevated) 0%, var(--editor-surface) 100%);
 }
 
 .editor {
   flex: auto;
   position: relative;
   resize: vertical;
-  z-index: -1;
+  z-index: 0;
+}
+
+.editor-shell .ContentEditable__root {
+  min-height: 220px;
+  padding-top: 18px;
+  padding-bottom: 48px;
+}
+
+.editor-shell .Placeholder__root {
+  top: 18px;
+  color: rgba(100, 116, 139, 0.9);
 }
 
 .test-recorder-output {

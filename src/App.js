@@ -54,6 +54,7 @@ const LogPage = lazy(() => import('./pages/LogPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const WebhookPage = lazy(() => import('./pages/settings/WebhookPage'));
 const DefaultPeriodPage = lazy(() => import('./pages/DefaultPeriodPage'));
+const MenuPage = lazy(() => import('./pages/MenuPage'));
 
 function App() {
   return (
@@ -105,6 +106,7 @@ function App() {
                   <Route path='/logs' element={<LogPage />} />
                   <Route path="/webhooks" element={<WebhookPage />} />
                   <Route path="/default-period" element={<DefaultPeriodPage />} />
+                  <Route path="/menus" element={<MenuPage />} />
                   <Route path="*" element={<UnderConstructionPage />} />
                 </Route>
               </Routes>

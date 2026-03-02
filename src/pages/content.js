@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {  useParams } from 'react-router-dom';
-import { Grid, TextField, Button, Autocomplete, Chip,Typography, FormControl, Select, InputLabel, MenuItem, Paper, Stack, Container } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import {
+    Grid,
+    TextField,
+    Button,
+    Autocomplete,
+    Chip,
+    Typography,
+    MenuItem,
+    Paper,
+    Stack,
+    Container,
+    Alert
+} from '@mui/material';
 import EditorWrapper from '../components/lexical/playground';
 import {
     checkSlugAvailability, getAllCategories, getAllPeriods, createContent, getContentById, updateContent,
@@ -13,21 +24,56 @@ import moment from 'moment';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { $generateNodesFromDOM } from "@lexical/html";
-import { createEditor } from "lexical";
-import { $getRoot } from 'lexical';
 import 'moment/locale/tr';
 
 import FeaturedImageUpload from '../components/file/featuredImage';
 import PreviewLink from '../components/PreviewLink';
+import ContentVersionPanel from '../components/content/ContentVersionPanel';
+import { useAuth } from '../context/AuthContext';
+import { notifyError, notifySuccess } from '../services/notificationBus';
+
+function getSeoDescriptionFromJson(jsonString) {
+    if (!jsonString) {
+        return '';
+    }
+
+    try {
+        const parsedContent = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+        if (!parsedContent?.root?.children?.length) {
+            return '';
+        }
+
+        const extractTextContent = (nodes) => {
+            let textContent = '';
+
+            for (const node of nodes) {
+                if (node.type === 'text') {
+                    textContent += node.text;
+                } else if (node.children?.length) {
+                    textContent += extractTextContent(node.children);
+                }
+
+                if (textContent.length >= 160) {
+                    break;
+                }
+            }
+
+            return textContent;
+        };
+
+        return extractTextContent(parsedContent.root.children).slice(0, 160);
+    } catch (error) {
+        return '';
+    }
+}
 
 const ContentPage = () => {
-    const { t } = useTranslation();
     const { id } = useParams();
+    const { hasPermission } = useAuth();
     const [contentId, setContentId] = useState(id || null);
-    const [content, setContent] = useState(''); // İçeriği JSON formatında saklar
     const [title, setTitle] = useState('');
     const [slug, setSlug] = useState('');
+    const [originalSlug, setOriginalSlug] = useState('');
     const [isSlugValid, setIsSlugValid] = useState(true);
     const [isSlugEditable, setIsSlugEditable] = useState(false);
     const [seoDescription, setSeoDescription] = useState('');
@@ -36,99 +82,64 @@ const ContentPage = () => {
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [periods, setPeriods] = useState([]);
-    const [selectedPeriod, setSelectedPeriod] = useState('');
+    const [selectedPeriod, setSelectedPeriod] = useState(null);
     const [spot, setSpot] = useState('');
     const [featuredMedia, setFeaturedMedia] = useState(null);
-    const [initialContent, setInitialContent] = useState(''); // İçeriği JSON formatında saklar
-    const [currentContent, setCurrentContent] = useState({ json: '', html: '' }); // İçeriği tutar
-    const [tags, setTags] = useState([]); // Seçilen etiketler
+    const [initialContent, setInitialContent] = useState('');
+    const [currentContent, setCurrentContent] = useState({ json: '', html: '' });
+    const [tags, setTags] = useState([]);
     const [availableTags, setAvailableTags] = useState([]);
-    const [inputValue, setInputValue] = useState(''); // Kullanıcının Autocomplete'e yazdığı değer
-  const [noOptions, setNoOptions] = useState(false);
-  const [loading, setLoading] = useState(false); // Button'u işlevsiz hale getirmek için state
-const [error, setError] = useState(null); 
+    const [inputValue, setInputValue] = useState('');
+    const [noOptions, setNoOptions] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [editorResetKey, setEditorResetKey] = useState(0);
+    const [versionRefreshKey, setVersionRefreshKey] = useState(0);
+
+    const canCreateContent = hasPermission('createContent');
+    const canUpdateContent = hasPermission('updateContent');
+    const canSaveContent = contentId ? canUpdateContent : canCreateContent;
+    const canViewVersions = hasPermission('viewContentVersions');
+
+    const fetchContentData = useCallback(async (targetContentId = contentId) => {
+        if (!targetContentId) {
+            return;
+        }
+
+        try {
+            const contentData = await getContentById(targetContentId);
+            setTitle(contentData.title || '');
+            setSlug(contentData.slug || '');
+            setOriginalSlug(contentData.slug || '');
+            setSeoDescription(contentData.metaDescription || '');
+            setPublishDate(contentData.publishDate ? moment(contentData.publishDate) : moment());
+            setPublicationStatus(contentData.status || 'published');
+            setSelectedCategories(contentData.categories || []);
+            setSpot(contentData.spot || '');
+            setTags(contentData.tags || []);
+            setFeaturedMedia(contentData.featuredMedia || null);
+            setSelectedPeriod(contentData.period || null);
+
+            const nextInitialContent = contentData.bodyJson || contentData.bodyHtml || '';
+            setInitialContent(nextInitialContent);
+            setCurrentContent({
+                json: contentData.bodyJson || '',
+                html: contentData.bodyHtml || ''
+            });
+            setEditorResetKey((prev) => prev + 1);
+        } catch (fetchError) {
+            console.error('Error fetching content:', fetchError);
+        }
+    }, [contentId]);
 
     useEffect(() => {
-        const fetchContent = async () => {
-            if (contentId) {
-                try {
-                    const contentData = await getContentById(contentId);
-                    console.log(contentData)
-                    setTitle(contentData.title);
-                    setSlug(contentData.slug);
-                    setSeoDescription(contentData.metaDescription);
-                    setPublishDate(moment(contentData.publishDate));
-                    setPublicationStatus(contentData.status);
-                    setSelectedCategories(contentData.categories);
-                    setSpot(contentData.spot);
-                    // setSelectedPeriod(contentData.period || {});
-                    // İçeriğin mevcut etiketlerini setTags'e kaydet
-                    setTags(contentData.tags);
-
-                    if (contentData.bodyJson) {
-                        const parsedContent = JSON.parse(contentData.bodyJson);
-                        setInitialContent(parsedContent); // İlk içeriği ayarla
-                    } else if (contentData.bodyHtml) {
-                        setInitialContent(contentData.bodyHtml)
-                        // const editor = createEditor();
-                        //  const parser = new DOMParser();
-                        // const dom = parser.parseFromString(contentData.bodyHtml, "text/html");
-                        // // Yalnızca body içeriğini kullan
-                    //      const body = dom.body;
-                    //      console.log("dom:",body )
-                    //     editor.update(() => {
-                    //         const nodes = $generateNodesFromDOM(editor, dom);
-                    //         console.log(nodes)
-                    //         // Kök düğüm yapısını oluşturun
-                    //         const rootNode = {
-                    //             root: {
-                    //                 children: nodes,  // Düğümleri JSON formatında ekle
-                    //                 direction: "ltr",  // Yön
-                    //                 format: "",        // Biçim
-                    //                 indent: 0,         // Girinti
-                    //                 type: "root",      // Düğüm tipi
-                    //                 version: 1         // Versiyon
-                    //             }
-                    // };
-                    //         // const jsonContent = editor.getEditorState().toJSON();
-                    //         console.log("json:" , JSON.stringify(rootNode))
-                    //         setInitialContent(JSON.stringify(rootNode));
-                    //     },{ discrete: true });
-
-                           // HTML içeriği varsa, bunu Lexical JSON'a dönüştür
-                        // Create a parser function.
-                        // const dom = new JSDOM(contentData.bodyHtml);
-                        // const editor = createHeadlessEditor();
-                        // const parser = new DOMParser();
-                        // const dom = parser.parseFromString(contentData.bodyHtml, "text/html" );
-                        // console.log(dom.body)
-                        // // Once you have the DOM instance it's easy to generate LexicalNodes.
-                        // const nodes = $generateNodesFromDOM(editor, dom.body);
-
-                        // console.log(nodes)
-
-                    } else {
-                        setInitialContent(''); // Hiçbir içerik yoksa boş string olarak ayarla
-                    }
-
-                    if (contentData.featuredMedia) {
-                        setFeaturedMedia(contentData.featuredMedia);
-                    }
-                    if (contentData.period) {
-                        setSelectedPeriod(contentData.period);
-                    }
-                } catch (error) {
-                    console.error('Error fetching content:', error);
-                }
-            }
-        };
-
         getAllCategories().then(setCategories).catch(console.error);
         getAllPeriods().then((periodsData)=>setPeriods(periodsData.periods || [])).catch(console.error);
-        fetchContent();
-       
+    }, []);
 
-    }, [contentId]);
+    useEffect(() => {
+        fetchContentData();
+    }, [fetchContentData]);
 
     const handleTitleChange = (event) => {
         const newTitle = event.target.value;
@@ -141,16 +152,13 @@ const [error, setError] = useState(null);
     };
 
     const findAvailableSlug = async (baseSlug) => {
-        // İlk önce orijinal slug'ı kontrol et
         const { available } = await checkSlugAvailability(baseSlug);
         if (available) {
             return { slug: baseSlug, isOriginal: true };
         }
 
-        // Orijinal slug kullanılıyorsa, -1, -2, -3... ile dene
-        // Önce baseSlug'dan mevcut numarayı çıkar (varsa)
         const slugWithoutNumber = baseSlug.replace(/-\d+$/, '');
-        
+
         for (let i = 1; i <= 100; i++) {
             const newSlug = `${slugWithoutNumber}-${i}`;
             try {
@@ -167,12 +175,16 @@ const [error, setError] = useState(null);
     };
 
     const checkSlugDebounced = useCallback(debounce(async (slugValue, autoFix = true) => {
+        if (contentId && slugValue === originalSlug) {
+            setIsSlugValid(true);
+            return;
+        }
+
         try {
             const { available } = await checkSlugAvailability(slugValue);
             if (available) {
                 setIsSlugValid(true);
             } else if (autoFix && !isSlugEditable) {
-                // Slug kullanılıyorsa otomatik olarak uygun bir slug bul
                 const { slug: availableSlug, isOriginal } = await findAvailableSlug(slugValue);
                 if (!isOriginal) {
                     setSlug(availableSlug);
@@ -185,37 +197,41 @@ const [error, setError] = useState(null);
             console.error('Error checking slug:', error);
             setIsSlugValid(false);
         }
-    }, 500), [isSlugEditable]);
+    }, 500), [contentId, isSlugEditable, originalSlug]);
 
     const handleEditSlug = () => {
         setIsSlugEditable(true);
     };
 
     const handleSlugBlur = () => {
-        // Manuel düzenleme sonrası autoFix kapalı olmalı - kullanıcı hata mesajını görsün
         checkSlugDebounced(slug, false);
         setIsSlugEditable(false);
     };
 
     const handlePublishClick = async () => {
+        if (!canSaveContent) {
+            notifyError(contentId ? 'Bu icerigi guncelleme yetkiniz yok.' : 'Yeni icerik olusturma yetkiniz yok.');
+            return;
+        }
+
         setLoading(true);
-        setError(null); // Hata mesajını sıfırla
+        setError(null);
         const formData = {
             title,
             slug,
-            bodyJson: JSON.stringify(currentContent.json), // JSON string olarak saklanacak
-            bodyHtml: currentContent.html,
+            bodyJson: currentContent.json || '',
+            bodyHtml: currentContent.html || '',
             metaDescription: seoDescription,
             spot,
             status: publicationStatus,
-            publishDate: publishDate.toISOString(),
+            publishDate: publishDate?.toISOString?.() || new Date().toISOString(),
             categories: selectedCategories.map(category => category._id),
             tags: tags.map(tag => tag._id),
             featuredMedia,
         };
 
         if (selectedPeriod) {
-            formData.period = selectedPeriod;
+            formData.period = selectedPeriod._id || selectedPeriod;
         }
 
         try {
@@ -228,108 +244,61 @@ const [error, setError] = useState(null);
 
             if (response && response._id) {
                 setContentId(response._id);
+                setOriginalSlug(response.slug || slug);
             }
-        }catch (error) {
-            console.error('Error saving content:', error);
-            setError(error.message || 'Bir hata oluştu.');
+            setVersionRefreshKey((prev) => prev + 1);
+            notifySuccess(contentId ? 'Icerik guncellendi.' : 'Icerik olusturuldu.');
+        } catch (saveError) {
+            console.error('Error saving content:', saveError);
+            const message = saveError?.response?.data?.message || saveError?.message || 'Bir hata olustu.';
+            setError(message);
+            notifyError(message);
         } finally {
-            setLoading(false); // İşlem tamamlanınca loading'i kapat
+            setLoading(false);
         }
     };
-
-    // const handleContentChange = (jsonContent) => {
-    //     setContent(jsonContent);
-    // };
 
     const handleCategoryChange = (event, newValue) => {
         setSelectedCategories(newValue);
     };
 
-    // Öne çıkarılmış görsel seçme fonksiyonu
     const handleFeaturedImageSelect = (image) => {
-        console.log(image)
         setFeaturedMedia(image);
-    };
-
-    const extractTextContent = (nodes) => {
-        let textContent = '';
-        for (const node of nodes) {
-            if (node.type === 'text') {
-                textContent += node.text;
-            } else if (node.children && node.children.length > 0) {
-                textContent += extractTextContent(node.children);
-            }
-            if (textContent.length >= 160) {
-                break; // 160 karaktere ulaşıldığında döngüyü durdur
-            }
-        }
-        return textContent;
-    };
-
-    const handleContentChange = (newContent) => {
-        // Yeni içeriği state'e kaydet veya gereken işlemleri yap
-        // console.log("New content: ", newContent);
-        // setContent(newContent);
-
-        // Yeni içeriği JSON olarak parse et
-        const parsedContent = JSON.parse(newContent);
-
-        // İlk 160 karakteri alacak şekilde metni topla
-        let first160Chars = '';
-        if (parsedContent.root && parsedContent.root.children.length > 0) {
-            first160Chars = extractTextContent(parsedContent.root.children).slice(0, 160);
-        }
-
-        // SEO açıklamasını güncelle
-        setSeoDescription(first160Chars);
     };
 
     const getContent = (content) => {
         setCurrentContent(content);
-        // SEO açıklaması için 160 karakterlik içeriği ayarla
-        const parsedContent = JSON.parse(content.json);
-        let first160Chars = '';
-        if (parsedContent.root && parsedContent.root.children.length > 0) {
-            first160Chars = extractTextContent(parsedContent.root.children).slice(0, 160);
+
+        const nextSeoDescription = getSeoDescriptionFromJson(content?.json);
+        if (nextSeoDescription) {
+            setSeoDescription(nextSeoDescription);
         }
-        setSeoDescription(first160Chars);
     };
 
     const handleTagChange = async (event, newValue) => {
-        const lastTag = newValue[newValue.length - 1];
-
-        // // Yeni bir tag girildiyse ve mevcut tag'ler arasında yoksa oluştur
-        // if (lastTag && typeof lastTag === 'string') {
-        //     const createdTag = await createTag(lastTag);
-        //     if (createdTag) {
-        //         newValue[newValue.length - 1] = createdTag; // Yeni oluşturulan tag'ı değere ekle
-        //     }
-        // }
-
-        setTags(newValue); // Seçilen tag'leri güncelle
+        setTags(newValue);
     };
 
     const handleTagSearch = async (query) => {
         if (query) {
           const results = await searchTags(query);
           setAvailableTags(results);
-          setNoOptions(results.length === 0); // Eğer sonuç yoksa noOptions true olur
+          setNoOptions(results.length === 0);
         } else {
           setAvailableTags([]);
           setNoOptions(false);
         }
-      };
+    };
 
     const handleCreateTag = async () => {
         const createdTag = await createTag(inputValue);
         if (createdTag) {
           setTags([...tags, createdTag]);
           setAvailableTags([...availableTags, createdTag]);
-          console.log([...tags, createdTag])
-          setInputValue(''); // Girdi alanını temizle
-          setNoOptions(false); // No options durumunu sıfırla
+          setInputValue('');
+          setNoOptions(false);
         }
-      };
+    };
     return (
         <Container maxWidth="lg">
         <Grid container spacing={2} sx={{ marginTop: 4 }}>
@@ -352,7 +321,11 @@ const [error, setError] = useState(null);
                     rows={3}
                     sx={{ mt: 2 }}
                 />
-                <EditorWrapper initialContent={initialContent} getContent={getContent} />
+                <EditorWrapper
+                    key={`content-editor-${contentId || 'new'}-${editorResetKey}`}
+                    initialContent={initialContent}
+                    getContent={getContent}
+                />
                 <TextField
                     label={`Özet/description ${160 }`}
                     variant="outlined"
@@ -374,10 +347,18 @@ const [error, setError] = useState(null);
                         onClick={handlePublishClick}
                         fullWidth
                         sx={{ mb: 3 }}
-                        disabled={loading} // loading sırasında button işlevsiz
+                        disabled={loading || !canSaveContent}
                     >
                         {loading ? 'İşlem Yapılıyor...' : contentId ? 'Güncelle' : 'Yayınla'}
                     </Button>
+
+                    {!canSaveContent ? (
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            {contentId
+                                ? 'Bu icerigi guncelleme yetkiniz yok.'
+                                : 'Yeni icerik olusturma yetkiniz yok.'}
+                        </Alert>
+                    ) : null}
 
                     {error && (
                         <Typography color="error" variant="body2" sx={{ mt: 2 }}>
@@ -530,6 +511,16 @@ const [error, setError] = useState(null);
                         </Grid>
                     </Grid>
                 </Paper>
+                {canViewVersions ? (
+                    <ContentVersionPanel
+                        contentId={contentId}
+                        refreshKey={versionRefreshKey}
+                        onRestored={async () => {
+                            await fetchContentData(contentId);
+                            setVersionRefreshKey((prev) => prev + 1);
+                        }}
+                    />
+                ) : null}
             </Grid>
         </Grid>
         </Container>

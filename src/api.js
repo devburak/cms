@@ -374,12 +374,32 @@ export const getContentsByCategoryId = async (categoryId) => {
 
 // Tüm contentleri getirme (Filtreleme ile)
 export const getAllContents = async (params = {}) => {
-  const query = new URLSearchParams(params).toString();
+  const queryParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return;
+    }
+
+    queryParams.append(key, value);
+  });
+
+  const query = queryParams.toString();
   try {
-    const response = await instance.get(`/api/contents?${query}`);
+    const response = await instance.get(query ? `/api/contents?${query}` : '/api/contents');
     return response.data;
   } catch (error) {
     console.error('Error fetching all contents:', error);
+    throw error;
+  }
+};
+
+export const getContentFilterOptions = async () => {
+  try {
+    const response = await instance.get('/api/contents/filters');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching content filter options:', error);
     throw error;
   }
 };
@@ -402,6 +422,26 @@ export const updateContent = async (id, contentData) => {
     return response.data;
   } catch (error) {
     console.error('Error updating content:', error);
+    throw error;
+  }
+};
+
+export const getContentVersions = async (id) => {
+  try {
+    const response = await instance.get(`/api/contents/${id}/versions`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching content versions:', error);
+    throw error;
+  }
+};
+
+export const restoreContentVersion = async (contentId, versionId) => {
+  try {
+    const response = await instance.post(`/api/contents/${contentId}/versions/${versionId}/restore`);
+    return response.data;
+  } catch (error) {
+    console.error('Error restoring content version:', error);
     throw error;
   }
 };
@@ -563,6 +603,52 @@ export const deleteWebhook = async (id) => {
 
 export const regenerateWebhookSecret = async (id) => {
   const response = await instance.post(`/api/webhooks/${id}/regenerate-secret`);
+  return response.data;
+};
+
+// Menus
+export const getMenus = async (params = {}) => {
+  const response = await instance.get('/api/menus', { params });
+  return response.data;
+};
+
+export const getMenuById = async (id) => {
+  const response = await instance.get(`/api/menus/${id}`);
+  return response.data;
+};
+
+export const createMenu = async (data) => {
+  const response = await instance.post('/api/menus', data);
+  return response.data;
+};
+
+export const updateMenu = async (id, data) => {
+  const response = await instance.put(`/api/menus/${id}`, data);
+  return response.data;
+};
+
+export const deleteMenu = async (id) => {
+  const response = await instance.delete(`/api/menus/${id}`);
+  return response.data;
+};
+
+export const createMenuItem = async (menuId, data) => {
+  const response = await instance.post(`/api/menus/${menuId}/items`, data);
+  return response.data;
+};
+
+export const updateMenuItem = async (menuId, itemId, data) => {
+  const response = await instance.put(`/api/menus/${menuId}/items/${itemId}`, data);
+  return response.data;
+};
+
+export const deleteMenuItem = async (menuId, itemId) => {
+  const response = await instance.delete(`/api/menus/${menuId}/items/${itemId}`);
+  return response.data;
+};
+
+export const getPublicMenuBySlug = async (slug) => {
+  const response = await instance.get(`/api/public/menus/slug/${slug}`);
   return response.data;
 };
 
