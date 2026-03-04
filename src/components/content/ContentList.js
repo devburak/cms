@@ -73,6 +73,19 @@ const formatDateTime = (value) => {
   return parsedDate.toLocaleString('tr-TR');
 };
 
+const formatDateOnly = (value) => {
+  if (!value) {
+    return '';
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return '';
+  }
+
+  return parsedDate.toLocaleDateString('tr-TR');
+};
+
 const normalizeSearchText = (value) =>
   String(value || '')
     .toLocaleLowerCase('tr')
@@ -167,6 +180,57 @@ const filterCategoryOptions = createFilterOptions({
     normalizeSearchText([option?.name, option?.slug].filter(Boolean).join(' '))
 });
 
+const getPeriodOptionLabel = (period) => {
+  if (!period) {
+    return '';
+  }
+
+  const name = period?.name || '';
+  const startDate = formatDateOnly(period?.startDate);
+  const endDate = formatDateOnly(period?.endDate);
+  const dateRange = [startDate, endDate].filter(Boolean).join(' - ');
+
+  return dateRange ? `${name} (${dateRange})` : name;
+};
+
+const getAuthorOptionLabel = (author) => {
+  if (!author) {
+    return '';
+  }
+
+  const name = author?.name || '';
+  const email = author?.email || '';
+
+  if (name && email) {
+    return `${name} (${email})`;
+  }
+
+  return name || email;
+};
+
+const filterPeriodOptions = createFilterOptions({
+  stringify: (option) => normalizeSearchText(getPeriodOptionLabel(option))
+});
+
+const filterAuthorOptions = createFilterOptions({
+  stringify: (option) => normalizeSearchText(getAuthorOptionLabel(option))
+});
+
+const mergeUniqueById = (items) => {
+  const map = new Map();
+
+  (items || []).forEach((item) => {
+    const id = item?._id ? String(item._id) : '';
+    if (!id || map.has(id)) {
+      return;
+    }
+
+    map.set(id, item);
+  });
+
+  return Array.from(map.values());
+};
+
 const ContentList = () => {
   const [contents, setContents] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -208,6 +272,12 @@ const ContentList = () => {
       const data = await getAllContents(params);
       setContents(data.contents || []);
       setTotalCount(data.totalDocuments || 0);
+
+      const derivedPeriods = mergeUniqueById((data.contents || []).map((content) => content?.period).filter(Boolean));
+      const derivedAuthors = mergeUniqueById((data.contents || []).map((content) => content?.author).filter(Boolean));
+
+      setPeriods((prev) => mergeUniqueById([...prev, ...derivedPeriods]));
+      setAuthors((prev) => mergeUniqueById([...prev, ...derivedAuthors]));
     } catch (error) {
       console.error('Error fetching contents:', error);
       setLoadError(buildLoadErrorState(error));
@@ -469,8 +539,8 @@ const ContentList = () => {
                 <Grid item xs={12} md={4}>
                   <TextField
                     label="Slug"
-                    placeholder="tam-eslesen-slug"
-                    helperText="Tam eşleşme ile çalışır"
+                    placeholder="slug icinde ara"
+                    helperText="Kismi slug ile de filtreleyebilirsiniz"
                     variant="outlined"
                     fullWidth
                     size="small"
@@ -488,7 +558,8 @@ const ContentList = () => {
                       setFilters((prev) => ({ ...prev, periodId: value?._id || '' }))
                     }
                     isOptionEqualToValue={(option, value) => String(option._id) === String(value?._id)}
-                    getOptionLabel={(option) => option?.name || ''}
+                    getOptionLabel={getPeriodOptionLabel}
+                    filterOptions={filterPeriodOptions}
                     noOptionsText="Dönem bulunamadı"
                     loadingText="Dönemler yükleniyor"
                     renderInput={(params) => (
@@ -511,7 +582,8 @@ const ContentList = () => {
                       setFilters((prev) => ({ ...prev, authorId: value?._id || '' }))
                     }
                     isOptionEqualToValue={(option, value) => String(option._id) === String(value?._id)}
-                    getOptionLabel={(option) => option?.name || option?.email || ''}
+                    getOptionLabel={getAuthorOptionLabel}
+                    filterOptions={filterAuthorOptions}
                     noOptionsText="Kullanıcı bulunamadı"
                     loadingText="Kullanıcılar yükleniyor"
                     renderInput={(params) => (

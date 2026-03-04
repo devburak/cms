@@ -118,6 +118,7 @@ const LogPage = () => {
     };
 
     const getActionColor = (action) => {
+        if (action?.includes('rate_limit') || action?.includes('RATE_LIMIT')) return 'warning';
         if (action?.includes('CREATE')) return 'success';
         if (action?.includes('UPDATE')) return 'info';
         if (action?.includes('DELETE')) return 'error';
@@ -185,6 +186,7 @@ const LogPage = () => {
                                     <MenuItem value="form">{t('form')}</MenuItem>
                                     <MenuItem value="publication">{t('publication')}</MenuItem>
                                     <MenuItem value="user">{t('user')}</MenuItem>
+                                    <MenuItem value="security">Security</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -252,7 +254,9 @@ const LogPage = () => {
                                                 />
                                             </TableCell>
                                             <TableCell>
-                                                {log.resource ? t(log.resource) : '-'}
+                                                {log.resource
+                                                    ? `${t(log.resource)}${log.resourceName ? ` / ${log.resourceName}` : ''}`
+                                                    : '-'}
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" noWrap sx={{ maxWidth: 300 }}>

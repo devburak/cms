@@ -32,6 +32,8 @@ import ContentVersionPanel from '../components/content/ContentVersionPanel';
 import { useAuth } from '../context/AuthContext';
 import { notifyError, notifySuccess } from '../services/notificationBus';
 
+const MAX_META_DESCRIPTION_LENGTH = 160;
+
 function getSeoDescriptionFromJson(jsonString) {
     if (!jsonString) {
         return '';
@@ -53,7 +55,7 @@ function getSeoDescriptionFromJson(jsonString) {
                     textContent += extractTextContent(node.children);
                 }
 
-                if (textContent.length >= 160) {
+                if (textContent.length >= MAX_META_DESCRIPTION_LENGTH) {
                     break;
                 }
             }
@@ -61,7 +63,7 @@ function getSeoDescriptionFromJson(jsonString) {
             return textContent;
         };
 
-        return extractTextContent(parsedContent.root.children).slice(0, 160);
+        return extractTextContent(parsedContent.root.children).slice(0, MAX_META_DESCRIPTION_LENGTH);
     } catch (error) {
         return '';
     }
@@ -75,6 +77,7 @@ const ContentPage = () => {
     const [slug, setSlug] = useState('');
     const [originalSlug, setOriginalSlug] = useState('');
     const [isSlugValid, setIsSlugValid] = useState(true);
+    const [slugConflict, setSlugConflict] = useState(null);
     const [isSlugEditable, setIsSlugEditable] = useState(false);
     const [seoDescription, setSeoDescription] = useState('');
     const [publishDate, setPublishDate] = useState(moment());
@@ -111,7 +114,8 @@ const ContentPage = () => {
             setTitle(contentData.title || '');
             setSlug(contentData.slug || '');
             setOriginalSlug(contentData.slug || '');
-            setSeoDescription(contentData.metaDescription || '');
+            setSlugConflict(null);
+            setSeoDescription((contentData.metaDescription || '').slice(0, MAX_META_DESCRIPTION_LENGTH));
             setPublishDate(contentData.publishDate ? moment(contentData.publishDate) : moment());
             setPublicationStatus(contentData.status || 'published');
             setSelectedCategories(contentData.categories || []);
@@ -177,25 +181,30 @@ const ContentPage = () => {
     const checkSlugDebounced = useCallback(debounce(async (slugValue, autoFix = true) => {
         if (contentId && slugValue === originalSlug) {
             setIsSlugValid(true);
+            setSlugConflict(null);
             return;
         }
 
         try {
-            const { available } = await checkSlugAvailability(slugValue);
+            const { available, conflict } = await checkSlugAvailability(slugValue);
             if (available) {
                 setIsSlugValid(true);
+                setSlugConflict(null);
             } else if (autoFix && !isSlugEditable) {
                 const { slug: availableSlug, isOriginal } = await findAvailableSlug(slugValue);
                 if (!isOriginal) {
                     setSlug(availableSlug);
                 }
                 setIsSlugValid(true);
+                setSlugConflict(null);
             } else {
                 setIsSlugValid(false);
+                setSlugConflict(conflict || null);
             }
         } catch (error) {
             console.error('Error checking slug:', error);
             setIsSlugValid(false);
+            setSlugConflict(null);
         }
     }, 500), [contentId, isSlugEditable, originalSlug]);
 
@@ -221,7 +230,7 @@ const ContentPage = () => {
             slug,
             bodyJson: currentContent.json || '',
             bodyHtml: currentContent.html || '',
-            metaDescription: seoDescription,
+            metaDescription: seoDescription.slice(0, MAX_META_DESCRIPTION_LENGTH),
             spot,
             status: publicationStatus,
             publishDate: publishDate?.toISOString?.() || new Date().toISOString(),
@@ -327,13 +336,15 @@ const ContentPage = () => {
                     getContent={getContent}
                 />
                 <TextField
-                    label={`Özet/description ${160 }`}
+                    label={`Özet/description ${MAX_META_DESCRIPTION_LENGTH}`}
                     variant="outlined"
                     value={seoDescription}
-                    onChange={(e) => setSeoDescription(e.target.value)}
+                    onChange={(e) => setSeoDescription(e.target.value.slice(0, MAX_META_DESCRIPTION_LENGTH))}
                     multiline
                     minRows={3}
                     fullWidth
+                    inputProps={{ maxLength: MAX_META_DESCRIPTION_LENGTH }}
+                    helperText={`${seoDescription.length}/${MAX_META_DESCRIPTION_LENGTH}`}
                     sx={{ mt: 2 }}
                 />
 
@@ -392,7 +403,15 @@ const ContentPage = () => {
                                 onBlur={handleSlugBlur}
                                 disabled={!isSlugEditable}
                                 error={!isSlugValid}
-                                helperText={!isSlugValid && "Bu slug zaten kullanılıyor."}
+                                helperText={
+                                    !isSlugValid
+                                        ? slugConflict?.type === 'category'
+                                            ? `Bu slug bir kategori tarafindan kullaniliyor: ${slugConflict.label}`
+                                            : slugConflict?.type === 'content'
+                                                ? `Bu slug baska bir sayfada kullaniliyor: ${slugConflict.label}`
+                                                : 'Bu slug zaten kullaniliyor.'
+                                        : ''
+                                }
                                 InputProps={{
                                     endAdornment: (
                                         <Button onClick={handleEditSlug}>Düzenle</Button>

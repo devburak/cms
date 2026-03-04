@@ -16,7 +16,7 @@ const CategoryList = ({
 }) => {
 
   const handleDelete = (category) => {
-    if (!canDelete || !onDelete) return;
+    if (!canDelete || !onDelete || Number(category?.contentCount || 0) > 0) return;
     const confirmed = window.confirm(`"${category.name}" kategorisini silmek istediğinize emin misiniz?`);
     if (confirmed) {
       onDelete(category._id);
@@ -36,27 +36,35 @@ const CategoryList = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {categories.map((category) => (
-              <TableRow key={category._id}>
-                <TableCell>{category.name}</TableCell>
-                <TableCell>{category.slug}</TableCell>
-                <TableCell>{category.description ? `${category.description.substring(0, 30)}...` : ''}</TableCell>
-                <TableCell>
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => onEdit(category)}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete" aria-label="delete">
-                    <span>
-                      <IconButton disabled={!canDelete} onClick={() => handleDelete(category)}>
-                        <DeleteIcon />
+            {categories.map((category) => {
+              const hasLinkedContent = Number(category?.contentCount || 0) > 0;
+              const deleteDisabled = !canDelete || hasLinkedContent;
+              const deleteTooltip = hasLinkedContent
+                ? `Bu kategoriye bagli ${category.contentCount} icerik oldugu icin silinemez`
+                : 'Delete';
+
+              return (
+                <TableRow key={category._id}>
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell>{category.slug}</TableCell>
+                  <TableCell>{category.description ? `${category.description.substring(0, 30)}...` : ''}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Edit">
+                      <IconButton onClick={() => onEdit(category)}>
+                        <EditIcon />
                       </IconButton>
-                    </span>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
+                    </Tooltip>
+                    <Tooltip title={deleteTooltip} aria-label="delete">
+                      <span>
+                        <IconButton disabled={deleteDisabled} onClick={() => handleDelete(category)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

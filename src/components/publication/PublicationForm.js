@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next';
 import { createPublication, updatePublication, getAllPeriods, getAllCategories } from '../../api'; // Import getAllCategories
 import FeaturedImage from '../file/featuredImage';
 import FileViewer from '../file/fileviewer'; // Dosyaları gösteren bileşen
-import { useAuth } from '../../context/AuthContext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -25,24 +24,33 @@ import 'moment/locale/tr';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
+const EMPTY_FILE_ROW = { _id: undefined, label: '', link: '', type: '' };
+
+const createInitialFormData = () => ({
+  title: '',
+  bodyText: '',
+  coverFile: null,
+  files: [{ ...EMPTY_FILE_ROW }],
+  period: null,
+  categories: [],
+  publishDate: moment()
+});
+
 const FileInsertModal = ({ open, onClose, onInsert }) => {
-  // Seçilen dosyayı tutmak için state ekliyoruz.
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState(null);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Select File</DialogTitle>
+      <DialogTitle>{t('Select File')}</DialogTitle>
       <DialogContent>
-        {/* FileViewer'a gerekli prop'ları veriyoruz */}
         <FileViewer
           onFileSelect={(file) => setSelectedFile(file)}
           onUpload={() => {
-            /* Upload işlemleri için gerekli kod buraya eklenebilir */
           }}
-          funcButton={{ onClick: () => {}, text: "Upload File" }}
-          initialSelectedFiles={[]}
-          initialFile={{}}
+          funcButton={{ onClick: () => {}, text: t('Upload File') }}
           multiSelect={false}
+          showInfoButton={false}
         />
       </DialogContent>
       <DialogActions>
@@ -56,10 +64,10 @@ const FileInsertModal = ({ open, onClose, onInsert }) => {
           color="primary"
           disabled={!selectedFile}
         >
-          Insert
+          {t('Insert')}
         </Button>
         <Button onClick={onClose} variant="outlined">
-          Cancel
+          {t('Cancel')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -67,8 +75,7 @@ const FileInsertModal = ({ open, onClose, onInsert }) => {
 };
 
 const PublicationForm = ({ publication, onSuccess, onError }) => {
-  const { t } = useTranslation();
-  const { hasPermission } = useAuth();
+  const { t, i18n } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [periods, setPeriods] = useState([]); // Dönemler için
   const [categories, setCategories] = useState([]); // Kategoriler için
@@ -76,41 +83,36 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
   const [fileModalOpen, setFileModalOpen] = useState(false);
   const [activeFileIndex, setActiveFileIndex] = useState(null);
   const [publishDate, setPublishDate] = useState(moment()); // Yayın tarihi için
+  const dateLocale = i18n.language === 'tr' ? 'tr-TR' : 'en-US';
+  const pickerLocale = i18n.language === 'tr' ? 'tr' : 'en';
 
-  // files alanını başlangıçta boş bir nesneyle başlatıyoruz.
-  const [formData, setFormData] = useState({
-    title: '',
-    bodyText: '',
-    coverFile: null, // Kapak resmi için File id referansı
-    files: [{ _id:undefined, label: '', link: '', type: '' }], // File insert alanları
-    period: null,
-    categories:[], // Kategori (backend entegrasyonu sonradan yapılacak),
-    publishDate:moment()
-  });
+  const [formData, setFormData] = useState(createInitialFormData);
 
   useEffect(() => {
     fetchPeriods();
     fetchCategories();
     if (publication) {
       setFormData({
-        title: publication.title,
-        bodyText: publication.bodyText,
-        coverFile: publication.coverFile, // backend'den gelen kapak dosyası id
-        files: publication.files && publication.files.length > 0 
-                ? publication.files 
-                : [{  _id: undefined,label: '', link: '', type: '' }],
+        ...createInitialFormData(),
+        title: publication.title || '',
+        bodyText: publication.bodyText || '',
+        coverFile: publication.coverFile || null,
+        files: publication.files && publication.files.length > 0 ? publication.files : [{ ...EMPTY_FILE_ROW }],
         period: publication?.period || null,
-        categories: publication.category || []
+        categories: publication.categories || []
       });
       setSelectedCategories(publication.categories || []); // Seçilen kategorileri ayarla
-      setPublishDate(moment(publication.publishDate)); // Yayın tarihini ayarla
+      setPublishDate(publication.publishDate ? moment(publication.publishDate) : moment());
+      return;
     }
+    setFormData(createInitialFormData());
+    setSelectedCategories([]);
+    setPublishDate(moment());
   }, [publication]);
 
   const fetchPeriods = async () => {
     try {
       const periodsData = await getAllPeriods();
-      console.log(periodsData);
       setPeriods(periodsData.periods || []); // Eğer boşsa, boş dizi ayarla
     } catch (error) {
       console.error('Error fetching periods:', error);
@@ -134,7 +136,6 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
   };
 
   const handleCoverFileSelect = (file) => {
-    // FeaturedImage bileşeninden seçilen dosya bilgisi
     setFormData(prev => ({ ...prev, coverFile: file }));
   };
 
@@ -149,7 +150,6 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
   // --- FILE INSERT İŞLEMLERİ ---
   // Label alanındaki değişiklikleri güncelleme
   const handleFileFieldChange = (index, field, value) => {
-    console.log("handleFileFieldChange:",value)
     const newFiles = [...formData.files];
     newFiles[index] = {
       ...newFiles[index],
@@ -166,7 +166,6 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
 
   // Modal'dan dosya seçildiğinde ilgili satır güncellenir.
   const handleFileInsert = (fileData) => {
-    console.log('fileData' , fileData)
     if (activeFileIndex === null) return;
     const newFiles = [...formData.files];
     newFiles[activeFileIndex] = {
@@ -178,13 +177,11 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
 
     // Eğer seçilen satır listenin son elemanı ise, yeni boş bir satır ekle.
     if (activeFileIndex === newFiles.length - 1) {
-      newFiles.push({ _id: undefined, label: '', link: '', type: '' });
+      newFiles.push({ ...EMPTY_FILE_ROW });
     }
     
     setFormData(prev => ({ ...prev, files: newFiles }));
     setFileModalOpen(false);
-    console.log("newFiles",newFiles)
-    console.log("formData.files", formData.files)
     setActiveFileIndex(null);
   };
 
@@ -192,7 +189,7 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
   const addFileRow = () => {
     setFormData(prev => ({
       ...prev,
-      files: [...prev.files, { _id: undefined, label: '', link: '', type: '' }]
+      files: [...prev.files, { ...EMPTY_FILE_ROW }]
     }));
   };
 
@@ -207,27 +204,27 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
     e.preventDefault();
     setIsSubmitting(true);
     const filteredFiles = formData.files.filter(file => file.link);
-
-console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, categories: selectedCategories, publishDate } )
     try {
       if (publication) {
-        await updatePublication(publication._id, { ...formData, files:filteredFiles, categories: selectedCategories, publishDate });
+        await updatePublication(publication._id, {
+          ...formData,
+          files: filteredFiles,
+          categories: selectedCategories,
+          period: formData.period || null,
+          publishDate
+        });
         onSuccess(t('publicationUpdated'));
       } else {
-       
-        await createPublication({ ...formData, files:filteredFiles, categories: selectedCategories, publishDate });
+        await createPublication({
+          ...formData,
+          files: filteredFiles,
+          categories: selectedCategories,
+          period: formData.period || null,
+          publishDate
+        });
         onSuccess(t('publicationCreated'));
       }
-      // Formu resetleyelim
-      setFormData({
-        title: '',
-        bodyText: '',
-        coverFile: null,
-        files: [{_id:undefined, label: '', link: '', type: '' }],
-        period: null,
-        categories:[],
-        publishDate:moment()
-      });
+      setFormData(createInitialFormData());
       setSelectedCategories([]); // Seçilen kategorileri sıfırla
       setPublishDate(moment()); // Yayın tarihini sıfırla
     } catch (error) {
@@ -282,14 +279,14 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                   options={periods}
                   getOptionLabel={(option) => {
                     const startDateFormatted = option.startDate
-                      ? new Date(option.startDate).toLocaleDateString('tr-TR', {
+                      ? new Date(option.startDate).toLocaleDateString(dateLocale, {
                           day: '2-digit',
                           month: 'long',
                           year: 'numeric',
                         })
                       : '';
                     const endDateFormatted = option.endDate
-                      ? new Date(option.endDate).toLocaleDateString('tr-TR', {
+                      ? new Date(option.endDate).toLocaleDateString(dateLocale, {
                           day: '2-digit',
                           month: 'long',
                           year: 'numeric',
@@ -302,7 +299,14 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                   onChange={handlePeriodChange}
                   isOptionEqualToValue={(option, value) => option?._id === value?._id}
                   value={formData?.period}
-                  renderInput={(params) => <TextField {...params} label={t('Period')} variant="outlined" />}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t('Publication Period')}
+                      placeholder={t('Publication Period')}
+                      variant="outlined"
+                    />
+                  )}
                   fullWidth
                 />
               </Grid>
@@ -320,8 +324,8 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                     <TextField
                       {...params}
                       variant="outlined"
-                      label={t('Category')}
-                      placeholder={t('Category')}
+                      label={t('Publication Categories')}
+                      placeholder={t('Publication Categories')}
                     />
                   )}
                   fullWidth
@@ -329,11 +333,11 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                 />
               </Grid>
               <Grid item xs={12}>
-                <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr">
+                <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={pickerLocale}>
                   <Stack spacing={3} sx={{ minWidth: "100%" }}>
                     <DateTimePicker
                     slotProps={{ textField: { size: 'small' } }}
-                      label="Yayın Tarihi ve Saati"
+                      label={t('Publication Date and Time')}
                       value={publishDate}
                       onChange={(value) => setPublishDate(value)}
                       ampm={false}
@@ -349,7 +353,7 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
           <Grid item xs={12}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <strong>{t('Files')}</strong>
+                <strong>{t('Publication Files')}</strong>
                 <IconButton onClick={addFileRow} color="primary">
                   <AddIcon />
                 </IconButton>
@@ -358,7 +362,7 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                 <Grid container spacing={2} alignItems="center" key={index} sx={{marginLeft:"4px"}}>
                   <Grid item xs={4} >
                     <TextField
-                      label={t('Text')}
+                      label={t('File Label')}
                       value={fileEntry.label}
                       onChange={(e) => handleFileFieldChange(index, 'label', e.target.value)}
                       fullWidth
@@ -375,7 +379,7 @@ console.log("formDataBefore submission:" , { ...formData, files:filteredFiles, c
                       }}
                       fullWidth
                       size="small"
-                      placeholder={t('clickToSelectFile')}
+                      placeholder={t('Click to select file')}
                     />
                   </Grid>
                   <Grid item xs={1}>

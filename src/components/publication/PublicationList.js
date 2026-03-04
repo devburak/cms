@@ -9,10 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import moment from 'moment';
 
-const PublicationList = ({ onEdit, onNotify }) => {
-  const { t } = useTranslation();
+const PublicationList = ({ onEdit, onNotify, reloadKey = 0 }) => {
+  const { t, i18n } = useTranslation();
   const { hasPermission } = useAuth();
   const [publications, setPublications] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +23,7 @@ const PublicationList = ({ onEdit, onNotify }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const pickerLocale = i18n.language === 'tr' ? 'tr' : 'en';
 
   const fetchPublications = useCallback(async () => {
     try {
@@ -33,11 +33,11 @@ const PublicationList = ({ onEdit, onNotify }) => {
     } catch (error) {
       onNotify(t('errorLoadingPublications'), 'error');
     }
-  }, [page, searchTerm, selectedPeriod, selectedCategory, startDate, endDate, t]);
+  }, [page, searchTerm, selectedPeriod, selectedCategory, startDate, endDate, onNotify, t]);
 
   useEffect(() => {
     fetchPublications();
-  }, [fetchPublications]);
+  }, [fetchPublications, reloadKey]);
 
   useEffect(() => {
     const fetchPeriodsAndCategories = async () => {
@@ -70,7 +70,7 @@ const PublicationList = ({ onEdit, onNotify }) => {
       <Grid container spacing={2} alignItems="center" style={{ padding: '16px' }}>
         <Grid item xs={6} sm={4}>
           <TextField 
-            label={t('search')}
+            label={t('Search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             variant="outlined"
@@ -106,8 +106,8 @@ const PublicationList = ({ onEdit, onNotify }) => {
               <TextField
                 {...params}
                 variant="outlined"
-                label={t('Category')}
-                placeholder={t('Category')}
+                label={t('Publication Categories')}
+                placeholder={t('Publication Categories')}
                 size="small"
                 fullWidth
               />
@@ -115,7 +115,7 @@ const PublicationList = ({ onEdit, onNotify }) => {
           />
         </Grid>
         <Grid item xs={6} sm={6}>
-          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr">
+          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={pickerLocale}>
             <DatePicker
              slotProps={{ textField: { size: 'small' ,fullWidth:true} }}
               label={t('Start Date')}
@@ -126,7 +126,7 @@ const PublicationList = ({ onEdit, onNotify }) => {
           </LocalizationProvider>
         </Grid>
         <Grid item xs={6} sm={6}>
-          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr">
+          <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={pickerLocale}>
             <DatePicker
              slotProps={{ textField: { size: 'small' ,fullWidth:true} }}
               label={t('End Date')}
@@ -141,17 +141,17 @@ const PublicationList = ({ onEdit, onNotify }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t('title')}</TableCell>
-              <TableCell>{t('period')}</TableCell>
+              <TableCell>{t('Title')}</TableCell>
+              <TableCell>{t('Period')}</TableCell>
               <TableCell>{t('categories')}</TableCell>
-              <TableCell>{t('actions')}</TableCell>
+              <TableCell>{t('Actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {publications.map((pub) => (
               <TableRow key={pub._id}>
                 <TableCell>{pub.title}</TableCell>
-                <TableCell>{pub.period ? pub.period.name : t('noPeriod')}</TableCell>
+                <TableCell>{pub.period ? pub.period.name : t('No Period')}</TableCell>
                 <TableCell>{pub?.categories?.map(x => x.name).join(', ') || '-'}</TableCell>
                 <TableCell>
                   {hasPermission('updatePublication') && (

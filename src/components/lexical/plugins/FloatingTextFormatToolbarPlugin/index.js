@@ -25,10 +25,10 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import * as React from "react"
 import { createPortal } from "react-dom"
 
+import { clearFormattingSelection } from "../../utils/clearFormatting"
 import { getDOMRangeRect } from "../../utils/getDOMRangeRect"
 import { getSelectedNode } from "../../utils/getSelectedNode"
 import { setFloatingElemPosition } from "../../utils/setFloatingElemPosition"
-import { INSERT_INLINE_COMMAND } from "../CommentPlugin"
 
 function TextFormatFloatingToolbar({
   editor,
@@ -52,9 +52,9 @@ function TextFormatFloatingToolbar({
     }
   }, [editor, isLink])
 
-  const insertComment = () => {
-    editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined)
-  }
+  const clearFormatting = useCallback(() => {
+    clearFormattingSelection(editor)
+  }, [editor])
 
   function mouseMoveListener(e) {
     if (
@@ -249,16 +249,17 @@ function TextFormatFloatingToolbar({
           >
             <i className="format link" />
           </button>
+          <button
+            type="button"
+            onClick={clearFormatting}
+            className="popup-item spaced"
+            aria-label="Clear all text formatting"
+            title="Clear formatting"
+          >
+            <i className="format clear" />
+          </button>
         </>
       )}
-      <button
-        type="button"
-        onClick={insertComment}
-        className={"popup-item spaced insert-comment"}
-        aria-label="Insert comment"
-      >
-        <i className="format add-comment" />
-      </button>
     </div>
   )
 }

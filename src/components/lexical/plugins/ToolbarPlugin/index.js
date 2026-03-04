@@ -24,13 +24,11 @@ import {
 } from "@lexical/list"
 import { INSERT_EMBED_COMMAND } from "@lexical/react/LexicalAutoEmbedPlugin"
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
-import { $isDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode"
 import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode"
 import {
   $createHeadingNode,
   $createQuoteNode,
-  $isHeadingNode,
-  $isQuoteNode
+  $isHeadingNode
 } from "@lexical/rich-text"
 import {
   $getSelectionStyleValueForProperty,
@@ -41,7 +39,6 @@ import {
 import { $isTableNode } from "@lexical/table"
 import {
   $findMatchingParent,
-  $getNearestBlockElementAncestorOrThrow,
   $getNearestNodeOfType,
   mergeRegister
 } from "@lexical/utils"
@@ -53,7 +50,6 @@ import {
   $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
-  $isTextNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
@@ -77,6 +73,7 @@ import catTypingGif from "../../images/cat-typing.gif"
 import { $createStickyNode } from "../../nodes/StickyNode"
 import DropDown, { DropDownItem } from "../../ui/DropDown"
 import DropdownColorPicker from "../../ui/DropdownColorPicker"
+import { clearFormattingSelection } from "../../utils/clearFormatting"
 import { getSelectedNode } from "../../utils/getSelectedNode"
 import { sanitizeUrl } from "../../utils/url"
 import { EmbedConfigs } from "../AutoEmbedPlugin"
@@ -717,43 +714,7 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
   )
 
   const clearFormatting = useCallback(() => {
-    activeEditor.update(() => {
-      const selection = $getSelection()
-      if ($isRangeSelection(selection)) {
-        const anchor = selection.anchor
-        const focus = selection.focus
-        const nodes = selection.getNodes()
-
-        if (anchor.key === focus.key && anchor.offset === focus.offset) {
-          return
-        }
-
-        nodes.forEach((node, idx) => {
-          // We split the first and last node by the selection
-          // So that we don't format unselected text inside those nodes
-          if ($isTextNode(node)) {
-            if (idx === 0 && anchor.offset !== 0) {
-              node = node.splitText(anchor.offset)[1] || node
-            }
-            if (idx === nodes.length - 1) {
-              node = node.splitText(focus.offset)[0] || node
-            }
-
-            if (node.__style !== "") {
-              node.setStyle("")
-            }
-            if (node.__format !== 0) {
-              node.setFormat(0)
-              $getNearestBlockElementAncestorOrThrow(node).setFormat("")
-            }
-          } else if ($isHeadingNode(node) || $isQuoteNode(node)) {
-            node.replace($createParagraphNode(), true)
-          } else if ($isDecoratorBlockNode(node)) {
-            node.setFormat("")
-          }
-        })
-      }
-    })
+    clearFormattingSelection(activeEditor)
   }, [activeEditor])
 
   const insertHtmlEditorNode = () => {
@@ -943,6 +904,16 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
           >
             <i className="format link" />
           </button>
+          <button
+            disabled={!isEditable}
+            onClick={clearFormatting}
+            className="toolbar-item spaced"
+            title="Clear formatting"
+            type="button"
+            aria-label="Clear all text formatting"
+          >
+            <i className="format clear" />
+          </button>
           <DropdownColorPicker
             disabled={!isEditable}
             buttonClassName="toolbar-item color-picker"
@@ -1003,15 +974,6 @@ export default function ToolbarPlugin({ setIsLinkEditMode }) {
             >
               <i className="icon superscript" />
               <span className="text">Superscript</span>
-            </DropDownItem>
-            <DropDownItem
-              onClick={clearFormatting}
-              className="item"
-              title="Clear text formatting"
-              aria-label="Clear all text formatting"
-            >
-              <i className="icon clear" />
-              <span className="text">Clear Formatting</span>
             </DropDownItem>
           </DropDown>
           <Divider />

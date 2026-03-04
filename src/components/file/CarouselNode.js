@@ -23,6 +23,54 @@ const normalizeSlide = (slide, index) => {
   };
 };
 
+const isCarouselRootElement = (domNode) => {
+  if (!domNode || typeof domNode.getAttribute !== 'function') {
+    return false;
+  }
+
+  const isWrapper =
+    domNode.hasAttribute('data-carousel-root') ||
+    domNode.id === 'carousel-wrapper';
+
+  if (isWrapper) {
+    return true;
+  }
+
+  const isContainer =
+    domNode.hasAttribute('data-carousel-container') ||
+    domNode.id === 'carousel-container';
+
+  if (!isContainer) {
+    return false;
+  }
+
+  const parentWrapper = domNode.parentElement?.closest?.('[data-carousel-root], #carousel-wrapper');
+  return !parentWrapper;
+};
+
+function convertCarouselElement(domNode) {
+  const images = Array.from(
+    domNode.querySelectorAll('.carousel-slide-div img, [data-carousel-slides] img, .field-slideshow-slide img, img')
+  )
+    .map((img, index) =>
+      normalizeSlide(
+        {
+          src: img.getAttribute('src') || '',
+          altText: img.getAttribute('alt') || `Slide ${index + 1}`,
+          metaText: ''
+        },
+        index
+      )
+    )
+    .filter((slide) => Boolean(slide.src));
+
+  if (images.length === 0) {
+    return null;
+  }
+
+  return { node: $createCarouselNode(images) };
+}
+
 // CarouselNode bileşeni
 class CarouselNode extends DecoratorNode {
   static getType() {
@@ -51,6 +99,21 @@ class CarouselNode extends DecoratorNode {
     return new CarouselNode(images);
   }
 
+  static importDOM() {
+    return {
+      div: (domNode) => {
+        if (!isCarouselRootElement(domNode)) {
+          return null;
+        }
+
+        return {
+          conversion: convertCarouselElement,
+          priority: 2
+        };
+      }
+    };
+  }
+
   /**
    * 1) exportDOM metodunu ekliyoruz.
    *    $generateHtmlFromNodes() bu metodu çağıracak ve
@@ -59,19 +122,24 @@ class CarouselNode extends DecoratorNode {
   exportDOM() {
     const wrapperDiv = document.createElement('div');
     wrapperDiv.id = 'carousel-wrapper';
+    wrapperDiv.setAttribute('data-carousel-root', 'lexical-carousel');
     wrapperDiv.style.display = 'flex';
+    wrapperDiv.style.flexDirection = 'column';
+    wrapperDiv.style.gap = '12px';
     wrapperDiv.style.justifyContent = 'center';
     wrapperDiv.style.alignItems = 'center';
     wrapperDiv.style.position = 'relative';
     wrapperDiv.style.width = '100%';
     wrapperDiv.style.maxWidth = '690px';
-    wrapperDiv.style.margin = '0 auto';
-    // wrapperDiv.style.overflow = 'hidden';
+    wrapperDiv.style.margin = '0 auto 28px';
+    wrapperDiv.style.padding = '8px 0 16px';
 
     const containerDiv = document.createElement('div');
     containerDiv.id = 'carousel-container';
+    containerDiv.setAttribute('data-carousel-container', 'lexical-carousel');
     containerDiv.style.display = 'inline-block';
     containerDiv.style.position = 'relative';
+    containerDiv.style.overflow = 'hidden';
     containerDiv.style.maxWidth = '690px';
     containerDiv.style.maxHeight = '400px';
     containerDiv.style.width = '100%';
@@ -79,6 +147,7 @@ class CarouselNode extends DecoratorNode {
     containerDiv.style.verticalAlign = 'middle';
 
     const innerDiv = document.createElement('div');
+    innerDiv.setAttribute('data-carousel-slides', '');
     innerDiv.style.display = 'flex';
     innerDiv.style.flexWrap = 'nowrap';
     innerDiv.style.height = '400px';
@@ -118,6 +187,7 @@ class CarouselNode extends DecoratorNode {
 
     const prevButton = document.createElement('button');
     prevButton.id = 'carousel-prev';
+    prevButton.setAttribute('data-carousel-prev', '');
     prevButton.innerHTML = '‹';
     prevButton.style.position = 'absolute';
     prevButton.style.top = '50%';
@@ -134,6 +204,7 @@ class CarouselNode extends DecoratorNode {
 
     const nextButton = document.createElement('button');
     nextButton.id = 'carousel-next';
+    nextButton.setAttribute('data-carousel-next', '');
     nextButton.innerHTML = '›';
     nextButton.style.position = 'absolute';
     nextButton.style.top = '50%';

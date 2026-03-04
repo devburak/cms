@@ -3,11 +3,10 @@ import React, { useState } from 'react';
 import { Grid, Snackbar, Alert, Container } from '@mui/material'; // Import Container
 import PublicationList from '../components/publication/PublicationList';
 import PublicationForm from '../components/publication/PublicationForm';
-import { useTranslation } from 'react-i18next';
 
 const PublicationsPage = () => {
-  const { t } = useTranslation();
   const [selectedPublication, setSelectedPublication] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
 
   const handleNotification = (message, severity = 'success') => {
@@ -27,12 +26,14 @@ const PublicationsPage = () => {
             onSuccess={(msg) => {
               handleNotification(msg, 'success');
               setSelectedPublication(null);
+              setReloadKey((value) => value + 1);
             }}
             onError={(msg) => handleNotification(msg, 'error')}
           />
         </Grid>
         <Grid item xs={12} sx={{marginTop:4}}>
           <PublicationList 
+            reloadKey={reloadKey}
             onEdit={(pub) => setSelectedPublication(pub)}
             onNotify={handleNotification}
           />

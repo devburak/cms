@@ -40,6 +40,11 @@ const CelebrationPublicationPage = lazy(() => import('./pages/celebrationPublica
 const CampaignFormPage = lazy(() => import('./pages/CampaignFormPage'));
 const CampaignListPage = lazy(() => import('./pages/CampaignListPage'));
 const PublicationsPage = lazy(() => import('./pages/PublicationsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const ReportCategoriesPage = lazy(() => import('./pages/ReportCategoriesPage'));
+const WorkGroupsPage = lazy(() => import('./pages/WorkGroupsPage'));
+const DecisionsPage = lazy(() => import('./pages/DecisionsPage'));
+const DecisionCategoriesPage = lazy(() => import('./pages/DecisionCategoriesPage'));
 const ChamberPage = lazy(() => import('./pages/ChamberPage'));
 const BoardPage = lazy(() => import('./pages/BoardPage'));
 const BoardTypesPage = lazy(() => import('./pages/BoardTypesPage'));
@@ -93,6 +98,11 @@ function App() {
                   <Route path='/campaign/:id?' element={<CampaignFormPage />} />
                   <Route path='/campaigns' element={<CampaignListPage />} />
                   <Route path='/publication/:id?' element={<PublicationsPage />} />
+                  <Route path='/reports' element={<ReportsPage />} />
+                  <Route path='/report-categories' element={<ReportCategoriesPage />} />
+                  <Route path='/work-groups' element={<WorkGroupsPage />} />
+                  <Route path='/decisions' element={<DecisionsPage />} />
+                  <Route path='/decision-categories' element={<DecisionCategoriesPage />} />
                   <Route path='/chambers' element={<ChamberPage />} />
                   <Route path='/boards' element={<BoardPage />} />
                   <Route path='/videos' element={<VideosPage />} />

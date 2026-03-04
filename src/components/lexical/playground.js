@@ -30,10 +30,9 @@ function Playground({ initialContent, getContent }) {
              const parser = new DOMParser();
              const dom = parser.parseFromString(initialContent, 'text/html'); // HTML string'i parse et
              const nodes = $generateNodesFromDOM(editor, dom); // Lexical düğümleri oluştur
-            // Select the root
-            $getRoot().select();
-
-            // Insert them at a selection.
+            const root = $getRoot();
+            root.clear();
+            root.select();
             $insertNodes(nodes);
           }
            else {

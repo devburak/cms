@@ -103,6 +103,7 @@ function InsertFilePlugin({ onClose }) {
       <FileViewer
         onFileSelect={handleFileSelect}
         multiSelect={true}
+        showInfoButton={false}
         funcButton={{
           text: 'Dosya(lar) Ekle',
           onClick: insertContent

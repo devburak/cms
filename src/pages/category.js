@@ -5,7 +5,7 @@ import CategoryForm from '../components/category/categoryForm';
 import CategoryList from '../components/category/categoryList';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { notifySuccess } from '../services/notificationBus';
+import { notifyError, notifySuccess } from '../services/notificationBus';
 
 function CategoryPage() {
     const { t } = useTranslation();
@@ -66,6 +66,7 @@ function CategoryPage() {
             await fetchCategories();
         } catch (error) {
             console.error('Error deleting category:', error);
+            notifyError(error?.response?.data?.message || 'Kategori silinemedi.');
         }
     };
 

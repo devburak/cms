@@ -21,7 +21,9 @@ import {
   Typography,
   Chip,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Skeleton,
+  Alert
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { uploadFilesPresigned, updateFile, deleteFile, getFiles } from '../../api';
@@ -33,7 +35,140 @@ import CloseIcon from '@mui/icons-material/Close';
 import { notifyError, notifySuccess } from '../../services/notificationBus';
 import _ from 'lodash';
 
-function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles = [], initialFile = {}, multiSelect = false }) {
+const EMPTY_INITIAL_SELECTED_FILES = Object.freeze([]);
+const EMPTY_INITIAL_FILE = Object.freeze({});
+
+const FILE_VIEWER_TOKENS = {
+  surface: 'rgba(248, 250, 252, 0.96)',
+  surfaceAlt: 'rgba(237, 242, 247, 0.92)',
+  elevated: '#ffffff',
+  border: 'rgba(15, 23, 42, 0.1)',
+  ink: '#172033',
+  inkMuted: '#5c667a',
+  accent: '#0f6cbd',
+  shadow: '0 18px 40px rgba(15, 23, 42, 0.08)'
+};
+
+function FileTileSkeleton() {
+  return (
+    <ImageListItem
+      sx={{
+        overflow: 'hidden',
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: FILE_VIEWER_TOKENS.border,
+        bgcolor: FILE_VIEWER_TOKENS.elevated,
+        boxShadow: FILE_VIEWER_TOKENS.shadow
+      }}
+    >
+      <Skeleton
+        variant="rectangular"
+        animation="wave"
+        sx={{
+          width: '100%',
+          aspectRatio: '1 / 1',
+          transform: 'none',
+          bgcolor: FILE_VIEWER_TOKENS.surfaceAlt
+        }}
+      />
+      <Box sx={{ px: 1.5, py: 1.25 }}>
+        <Skeleton variant="text" width="78%" height={24} sx={{ bgcolor: FILE_VIEWER_TOKENS.surfaceAlt }} />
+        <Skeleton variant="text" width="44%" height={18} sx={{ bgcolor: FILE_VIEWER_TOKENS.surfaceAlt }} />
+      </Box>
+    </ImageListItem>
+  );
+}
+
+function FilePreviewImage({ src, alt, onClick, isSelectedFile, lazy = true, objectFit = 'cover', maxHeight }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src]);
+
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        width: '100%',
+        aspectRatio: maxHeight ? undefined : '1 / 1',
+        minHeight: maxHeight || undefined,
+        bgcolor: FILE_VIEWER_TOKENS.surface,
+        overflow: 'hidden'
+      }}
+    >
+      {!isLoaded && !hasError && (
+        <Skeleton
+          variant="rectangular"
+          animation="wave"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            transform: 'none',
+            bgcolor: FILE_VIEWER_TOKENS.surfaceAlt
+          }}
+        />
+      )}
+
+      <Box
+        component="img"
+        src={src}
+        alt={alt}
+        loading={lazy ? 'lazy' : 'eager'}
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={() => {
+          setHasError(true);
+          setIsLoaded(true);
+        }}
+        onClick={onClick}
+        sx={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          minHeight: maxHeight || undefined,
+          objectFit,
+          cursor: onClick ? 'pointer' : 'default',
+          opacity: isLoaded ? 1 : 0,
+          filter: isSelectedFile ? 'brightness(60%)' : 'none',
+          transition: 'opacity 180ms ease, filter 180ms ease'
+        }}
+      />
+
+      {hasError && (
+        <Stack
+          spacing={0.5}
+          alignItems="center"
+          justifyContent="center"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            px: 2,
+            textAlign: 'center',
+            color: FILE_VIEWER_TOKENS.inkMuted
+          }}
+        >
+          <Typography variant="body2" fontWeight={600}>
+            Onizleme hazir degil
+          </Typography>
+          <Typography variant="caption">Dosya bilgilerini sag panelden acabilirsiniz.</Typography>
+        </Stack>
+      )}
+    </Box>
+  );
+}
+
+function FileViewer({
+  onFileSelect,
+  onUpload,
+  funcButton,
+  initialSelectedFiles = EMPTY_INITIAL_SELECTED_FILES,
+  initialFile = EMPTY_INITIAL_FILE,
+  multiSelect = false,
+  showInfoButton = true
+}) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,6 +179,8 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
   const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [drawerMeta, setDrawerMeta] = useState(null);
   const [isMetaLoading, setIsMetaLoading] = useState(false);
+  const [isFilesLoading, setIsFilesLoading] = useState(true);
+  const [fileFetchError, setFileFetchError] = useState('');
 
   const [fileTypeFilter, setFileTypeFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,12 +219,17 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
       }
 
       try {
+        setIsFilesLoading(true);
+        setFileFetchError('');
         const filesData = await getFiles(search, currentPage, itemsPerPage, excludeIds, fileTypeFilter);
         combinedFiles = [...combinedFiles, ...(filesData?.files || [])];
         setFiles(combinedFiles);
         setTotalPages(Math.max(1, Math.ceil((filesData?.totalFiles || 0) / itemsPerPage)));
       } catch (error) {
         console.error('Dosyaları çekerken hata oluştu:', error);
+        setFileFetchError('Dosyalar yuklenemedi. Baglantiyi kontrol edip tekrar deneyin.');
+      } finally {
+        setIsFilesLoading(false);
       }
     },
     [initialFile, initialSelectedFiles, currentPage, itemsPerPage, fileTypeFilter]
@@ -266,14 +408,25 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
     const isSelectedFile = isSelected(file);
 
     return (
-      <ImageListItem key={file._id + index} sx={{ position: 'relative' }}>
+      <ImageListItem
+        key={file._id + index}
+        sx={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: FILE_VIEWER_TOKENS.border,
+          bgcolor: FILE_VIEWER_TOKENS.elevated,
+          boxShadow: FILE_VIEWER_TOKENS.shadow
+        }}
+      >
         {isSelectedFile && (
           <IconButton
             sx={{
               position: 'absolute',
               top: 8,
               left: 8,
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              backgroundColor: 'rgba(255, 255, 255, 0.84)',
               padding: '2px',
               '&:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 0.95)'
@@ -284,54 +437,86 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
             <CheckCircleOutlineIcon sx={{ color: 'green' }} />
           </IconButton>
         )}
-        <img
+
+        <FilePreviewImage
           src={imgSrc}
-          alt={file.originalName}
+          alt={file.altText || file.originalName}
           onClick={() => handleFileSelect(file)}
-          style={isSelectedFile ? { filter: 'brightness(60%)', cursor: 'pointer' } : { cursor: 'pointer' }}
+          isSelectedFile={isSelectedFile}
+          lazy={isImageFile(file)}
         />
+
         {isSelectedFile && (
-          <div
+          <Box
             onClick={() => handleFileSelect(file)}
-            style={{
+            sx={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
-              backgroundColor: 'rgba(0, 123, 255, 0.28)'
+              backgroundColor: 'rgba(15, 108, 189, 0.24)'
             }}
           />
         )}
         <ImageListItemBar
           title={file.originalName || ''}
+          subtitle={isImageFile(file) ? 'Gorsel' : 'Dosya'}
+          sx={{
+            '& .MuiImageListItemBar-title': {
+              fontWeight: 600
+            },
+            '& .MuiImageListItemBar-subtitle': {
+              color: 'rgba(255, 255, 255, 0.78)'
+            }
+          }}
           actionIcon={
-            <IconButton
-              onClick={() => handleInfoClick(file)}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
-              aria-label={`info about ${file.fileName || file.originalName}`}
-            >
-              <InfoIcon />
-            </IconButton>
+            showInfoButton ? (
+              <IconButton
+                onClick={() => handleInfoClick(file)}
+                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                aria-label={`info about ${file.fileName || file.originalName}`}
+              >
+                <InfoIcon />
+              </IconButton>
+            ) : null
           }
         />
       </ImageListItem>
     );
   };
 
+  const loadingSkeletons = Array.from({ length: isLargeScreen ? 16 : 6 }, (_, index) => index);
+  const showInitialSkeletons = isFilesLoading && files.length === 0;
+
   return (
-    <Grid container style={{ height: '100%', paddingTop: 10 }} spacing={2}>
-      <Grid container spacing={2} style={{ margin: 10 }}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        height: '100%',
+        pt: 1.25,
+        color: FILE_VIEWER_TOKENS.ink,
+        '--files-surface': FILE_VIEWER_TOKENS.surface,
+        '--files-surface-alt': FILE_VIEWER_TOKENS.surfaceAlt,
+        '--files-elevated': FILE_VIEWER_TOKENS.elevated,
+        '--files-border': FILE_VIEWER_TOKENS.border,
+        '--files-ink': FILE_VIEWER_TOKENS.ink,
+        '--files-ink-muted': FILE_VIEWER_TOKENS.inkMuted,
+        '--files-accent': FILE_VIEWER_TOKENS.accent
+      }}
+    >
+      <Grid container spacing={2} sx={{ m: 1.25 }}>
         <Grid item xs={12} sm={4}>
           {funcButton && <Button onClick={funcButton.onClick}>{funcButton.text}</Button>}
         </Grid>
-        <Grid item xs={12} sm={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Grid item xs={12} sm={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <TextField label="Ara" variant="outlined" size="small" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </Grid>
-        <Grid item xs={12} sm={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <FormControl variant="outlined" fullWidth style={{ minWidth: 140 }} size="small">
+        <Grid item xs={12} sm={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <FormControl variant="outlined" fullWidth sx={{ minWidth: 140 }} size="small">
             <InputLabel>Filtrele</InputLabel>
-            <Select value={fileTypeFilter} onChange={(e) => setFileTypeFilter(e.target.value)} size="small" label="Filtrele" style={{ minWidth: 140 }}>
+            <Select value={fileTypeFilter} onChange={(e) => setFileTypeFilter(e.target.value)} size="small" label="Filtrele" sx={{ minWidth: 140 }}>
               <MenuItem value="">
                 <em>Hepsi</em>
               </MenuItem>
@@ -342,22 +527,114 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
         </Grid>
       </Grid>
 
-      <Grid item xs={12} style={{ overflowY: 'auto' }}>
-        <div style={{ width: '100%', margin: '0 auto' }}>
-          <Paper {...getRootProps()} style={isDragActive ? { ...fileInputStyle, borderColor: '#111', color: '#111' } : fileInputStyle}>
+      <Grid item xs={12} sx={{ overflowY: 'auto' }}>
+        <Box sx={{ width: '100%', mx: 'auto' }}>
+          <Paper
+            {...getRootProps()}
+            sx={
+              isDragActive
+                ? {
+                    ...fileInputStyle,
+                    borderColor: FILE_VIEWER_TOKENS.accent,
+                    color: FILE_VIEWER_TOKENS.ink,
+                    background:
+                      'linear-gradient(135deg, rgba(15, 108, 189, 0.08) 0%, rgba(255, 255, 255, 0.96) 100%)',
+                    boxShadow: FILE_VIEWER_TOKENS.shadow
+                  }
+                : {
+                    ...fileInputStyle,
+                    color: FILE_VIEWER_TOKENS.inkMuted,
+                    borderColor: FILE_VIEWER_TOKENS.border,
+                    background:
+                      'linear-gradient(135deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%)'
+                  }
+            }
+          >
             <input {...getInputProps()} />
             <p>Dosyalarınızı buraya sürükleyin veya seçmek için tıklayın</p>
           </Paper>
-          {isUploading && <LinearProgress variant="determinate" value={uploadProgress} />}
+          {isUploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ mt: 1.5 }} />}
 
-          <ImageList cols={cols}>{files.map((file, index) => renderFileItem(file, index))}</ImageList>
+          {fileFetchError && (
+            <Alert
+              severity="error"
+              sx={{ mt: 2, borderRadius: 3 }}
+              action={
+                <Button color="inherit" size="small" onClick={() => fetchFiles(searchTerm)}>
+                  Tekrar dene
+                </Button>
+              }
+            >
+              {fileFetchError}
+            </Alert>
+          )}
+
+          <Box sx={{ position: 'relative', mt: 2 }} aria-busy={isFilesLoading}>
+            {showInitialSkeletons ? (
+              <ImageList cols={cols} gap={16}>
+                {loadingSkeletons.map((item) => (
+                  <FileTileSkeleton key={`file-skeleton-${item}`} />
+                ))}
+              </ImageList>
+            ) : (
+              <>
+                <ImageList cols={cols} gap={16}>
+                  {files.map((file, index) => renderFileItem(file, index))}
+                </ImageList>
+
+                {!isFilesLoading && files.length === 0 && (
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      mt: 1,
+                      p: 4,
+                      borderRadius: 3,
+                      textAlign: 'center',
+                      bgcolor: FILE_VIEWER_TOKENS.surface,
+                      borderColor: FILE_VIEWER_TOKENS.border
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: FILE_VIEWER_TOKENS.ink }}>
+                      Dosya bulunamadi
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1, color: FILE_VIEWER_TOKENS.inkMuted }}>
+                      Aramayi daraltin ya da yeni bir dosya yukleyin.
+                    </Typography>
+                  </Paper>
+                )}
+              </>
+            )}
+
+            {isFilesLoading && files.length > 0 && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 3,
+                  backdropFilter: 'blur(6px)',
+                  background: 'rgba(255, 255, 255, 0.42)',
+                  pointerEvents: 'none'
+                }}
+              >
+                <Stack spacing={1} alignItems="center">
+                  <CircularProgress size={24} sx={{ color: FILE_VIEWER_TOKENS.accent }} />
+                  <Typography variant="body2" sx={{ color: FILE_VIEWER_TOKENS.ink, fontWeight: 600 }}>
+                    Dosyalar yenileniyor
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+          </Box>
 
           <Pagination
             count={totalPages}
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
-            sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
+            sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}
           />
 
           <Drawer anchor="right" open={drawerOpen} onClose={handleCloseDrawer}>
@@ -379,19 +656,12 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
                   </Typography>
 
                   {isImageFile(fileDetails) && (
-                    <Box
-                      component="img"
+                    <FilePreviewImage
                       src={determineImageSource(fileDetails)}
                       alt={fileDetails.altText || fileDetails.originalName}
-                      sx={{
-                        width: '100%',
-                        maxHeight: 200,
-                        objectFit: 'contain',
-                        borderRadius: 1,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'background.default'
-                      }}
+                      lazy={false}
+                      objectFit="contain"
+                      maxHeight={200}
                     />
                   )}
 
@@ -443,7 +713,7 @@ function FileViewer({ onFileSelect, onUpload, funcButton, initialSelectedFiles =
               )}
             </Box>
           </Drawer>
-        </div>
+        </Box>
       </Grid>
     </Grid>
   );

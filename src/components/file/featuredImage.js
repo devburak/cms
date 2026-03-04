@@ -9,12 +9,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import FileViewer from './fileviewer';
 import CustomImageButton from '../button/imageButton';
+import { useTranslation } from 'react-i18next';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
 function FeaturedImageUpload({ handleFeaturedImage, initialFile, sx }) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [selectedMedia, setSelectedMedia] = useState({
         mediaId: '',
@@ -67,8 +69,8 @@ function FeaturedImageUpload({ handleFeaturedImage, initialFile, sx }) {
                 image={getImageOrVideoThumbnail()}
                 title={
                     selectedMedia.mediaType === 'image'
-                        ? 'Görsel Seç'
-                        : 'Video Seç'
+                        ? t('Select Image')
+                        : t('Select Video')
                 }
                 onClick={handleClickOpen}
                 sx={sx} // sx propunu CustomImageButton'a geçir
@@ -80,18 +82,19 @@ function FeaturedImageUpload({ handleFeaturedImage, initialFile, sx }) {
                             <CloseIcon />
                         </IconButton>
                         <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                            Dosya Yöneticisi
+                            {t('File Manager')}
                         </Typography>
                     </Toolbar>
                 </AppBar>
                 <FileViewer
                     onFileSelect={handleFileSelect}
                     initialFile={selectedMedia}
+                    showInfoButton={false}
                     funcButton={{
                         text:
                             selectedMedia.mediaType === 'image'
-                                ? 'Seçilen Resmi Ekle'
-                                : 'Seçilen Videoyu Ekle',
+                                ? t('Insert Selected Image')
+                                : t('Insert Selected Video'),
                         onClick: () => console.log('Medya eklendi', selectedMedia),
                     }}
                 />

@@ -1045,6 +1045,215 @@ export const deletePublication = async (id) => {
   }
 };
 
+// report categories
+export const getReportCategories = async (search = '') => {
+  try {
+    const response = await instance.get('/api/report-categories', {
+      params: search ? { search } : {},
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching report categories:', error);
+    throw error;
+  }
+};
+
+export const createReportCategory = async (data) => {
+  try {
+    const response = await instance.post('/api/report-categories', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating report category:', error);
+    throw error;
+  }
+};
+
+export const updateReportCategory = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/report-categories/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating report category:', error);
+    throw error;
+  }
+};
+
+export const deleteReportCategory = async (id) => {
+  try {
+    const response = await instance.delete(`/api/report-categories/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting report category:', error);
+    throw error;
+  }
+};
+
+// reports
+export const getReports = async (params) => {
+  try {
+    const response = await instance.get('/api/reports', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    throw error;
+  }
+};
+
+export const createReport = async (data) => {
+  try {
+    const response = await instance.post('/api/reports', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating report:', error);
+    throw error;
+  }
+};
+
+export const updateReport = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/reports/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating report:', error);
+    throw error;
+  }
+};
+
+export const deleteReport = async (id) => {
+  try {
+    const response = await instance.delete(`/api/reports/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    throw error;
+  }
+};
+
+// work groups
+export const getWorkGroups = async (params = {}) => {
+  try {
+    const response = await instance.get('/api/work-groups', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching work groups:', error);
+    throw error;
+  }
+};
+
+export const createWorkGroup = async (data) => {
+  try {
+    const response = await instance.post('/api/work-groups', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating work group:', error);
+    throw error;
+  }
+};
+
+export const updateWorkGroup = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/work-groups/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating work group:', error);
+    throw error;
+  }
+};
+
+export const deleteWorkGroup = async (id) => {
+  try {
+    const response = await instance.delete(`/api/work-groups/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting work group:', error);
+    throw error;
+  }
+};
+
+// decision categories
+export const getDecisionCategories = async (search = '') => {
+  try {
+    const response = await instance.get('/api/decision-categories', {
+      params: search ? { search } : {},
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching decision categories:', error);
+    throw error;
+  }
+};
+
+export const createDecisionCategory = async (data) => {
+  try {
+    const response = await instance.post('/api/decision-categories', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating decision category:', error);
+    throw error;
+  }
+};
+
+export const updateDecisionCategory = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/decision-categories/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating decision category:', error);
+    throw error;
+  }
+};
+
+export const deleteDecisionCategory = async (id) => {
+  try {
+    const response = await instance.delete(`/api/decision-categories/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting decision category:', error);
+    throw error;
+  }
+};
+
+// decisions
+export const getDecisions = async (params = {}) => {
+  try {
+    const response = await instance.get('/api/decisions', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching decisions:', error);
+    throw error;
+  }
+};
+
+export const createDecision = async (data) => {
+  try {
+    const response = await instance.post('/api/decisions', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating decision:', error);
+    throw error;
+  }
+};
+
+export const updateDecision = async (id, data) => {
+  try {
+    const response = await instance.put(`/api/decisions/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating decision:', error);
+    throw error;
+  }
+};
+
+export const deleteDecision = async (id) => {
+  try {
+    const response = await instance.delete(`/api/decisions/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting decision:', error);
+    throw error;
+  }
+};
+
 // Real getChambers function
 export const getChambers = async (params = {}) => {
   try {

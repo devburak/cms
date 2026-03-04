@@ -16,7 +16,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import BusinessIcon from '@mui/icons-material/Business';
 import GroupsIcon from '@mui/icons-material/Groups';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -186,6 +185,55 @@ export function useMenuItems() {
         icon: NewspaperIcon,
         target: true,
         requiredPermission: ["createPublication", "updatePublication", "deletePublication"]
+      },
+      {
+        id: 'reportsAndDecisions',
+        title: t('Reports and Decisions'),
+        type: 'collapse',
+        icon: AccountBalanceIcon,
+        children: [
+          {
+            id: 'reports',
+            title: t('Reports'),
+            type: 'item',
+            url: '/reports',
+            target: true,
+            requiredPermission: ["createReport", "updateReport", "deleteReport"]
+          },
+          {
+            id: 'reportCategories',
+            title: t('Report Categories'),
+            type: 'item',
+            url: '/report-categories',
+            target: true,
+            requiredPermission: ["createReportCategory", "updateReportCategory", "deleteReportCategory"]
+          },
+          {
+            id: 'decisions',
+            title: t('Decisions'),
+            type: 'item',
+            url: '/decisions',
+            target: true,
+            requiredPermission: ["createDecision", "updateDecision", "deleteDecision"]
+          },
+          {
+            id: 'decisionCategories',
+            title: t('Decision Categories'),
+            type: 'item',
+            url: '/decision-categories',
+            target: true,
+            requiredPermission: ["createDecisionCategory", "updateDecisionCategory", "deleteDecisionCategory"]
+          }
+        ]
+      },
+      {
+        id: 'workGroups',
+        title: t('Work Groups'),
+        type: 'item',
+        url: '/work-groups',
+        icon: GroupsIcon,
+        target: true,
+        requiredPermission: ["createWorkGroup", "updateWorkGroup", "deleteWorkGroup"]
       }
     ]
   };
