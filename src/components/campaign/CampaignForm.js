@@ -68,6 +68,7 @@ const normalizeCampaignFromApi = (data = {}) => {
     horizontalMedia: data.horizontalMedia || { mediaType: 'image', url: '', mediaId: null },
     squareMedia: data.squareMedia || { mediaType: 'image', url: '', mediaId: null },
     placement: data.placement || 'banner',
+    priority: typeof data.priority === 'number' ? data.priority : 0,
     targetPages: toTargetPages(data),
     popupFrequency: data.popupFrequency || 'every_login',
     isActive: typeof data.isActive === 'boolean' ? data.isActive : true
@@ -81,6 +82,7 @@ const CampaignForm = () => {
     horizontalMedia: { mediaType: 'image', url: '', mediaId: null },
     squareMedia: { mediaType: 'image', url: '', mediaId: null },
     placement: 'banner',
+    priority: 0,
     targetPages: [],
     popupFrequency: 'every_login',
     isActive: true
@@ -143,6 +145,7 @@ const CampaignForm = () => {
       horizontalMedia: campaign.horizontalMedia,
       squareMedia: campaign.squareMedia,
       placement: campaign.placement,
+      priority: campaign.priority,
       targetPages: normalizedTargetPages,
       popupFrequency: campaign.placement === 'popup' ? campaign.popupFrequency : 'every_login',
       displayOnHome: includesAll || normalizedTargetPages.includes('home'),
@@ -231,6 +234,22 @@ const CampaignForm = () => {
                 : 'Bu alan sadece popup konumu seçildiğinde aktiftir.'}
             </FormHelperText>
           </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Öncelik Sırası"
+            name="priority"
+            type="number"
+            value={campaign.priority}
+            onChange={handleChange}
+            fullWidth
+            inputProps={{ min: 0 }}
+            helperText={campaign.placement === 'left_menu' 
+              ? 'Sol menüde sıralama için kullanılır. Düşük sayı üstte görünür.'
+              : 'Banner için yalnızca 1 aktif kampanya olabilir.'}
+            disabled={campaign.placement === 'banner'}
+          />
         </Grid>
 
         <Grid item xs={12}>
