@@ -4,6 +4,9 @@ import {
     Grid,
     TextField,
     Button,
+    IconButton,
+    InputAdornment,
+    Tooltip,
     Autocomplete,
     Chip,
     Typography,
@@ -25,6 +28,8 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import 'moment/locale/tr';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import FeaturedImageUpload from '../components/file/featuredImage';
 import PreviewLink from '../components/PreviewLink';
@@ -210,6 +215,42 @@ const ContentPage = () => {
 
     const handleEditSlug = () => {
         setIsSlugEditable(true);
+    };
+
+    const handleCopySlug = async () => {
+        const normalizedSlug = String(slug || '').trim().replace(/^\/+/, '');
+        if (!normalizedSlug) {
+            notifyError('Kopyalanacak bir slug bulunamadi.');
+            return;
+        }
+
+        const slugPath = `/${normalizedSlug}`;
+
+        try {
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(slugPath);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = slugPath;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'absolute';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+
+                const copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                if (!copied) {
+                    throw new Error('execCommand failed');
+                }
+            }
+
+            notifySuccess('Slug kopyalandi.');
+        } catch (copyError) {
+            console.error('Error copying slug:', copyError);
+            notifyError('Slug kopyalanamadi.');
+        }
     };
 
     const handleSlugBlur = () => {
@@ -414,7 +455,34 @@ const ContentPage = () => {
                                 }
                                 InputProps={{
                                     endAdornment: (
-                                        <Button onClick={handleEditSlug}>Düzenle</Button>
+                                        <InputAdornment position="end">
+                                            <Tooltip title="Slug kopyala">
+                                                <span>
+                                                    <IconButton
+                                                        onClick={handleCopySlug}
+                                                        edge="end"
+                                                        size="small"
+                                                        aria-label="slug-kopyala"
+                                                        disabled={!String(slug || '').trim()}
+                                                    >
+                                                        <ContentCopyIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                            <Tooltip title={isSlugEditable ? 'Slug duzenleniyor' : 'Slug duzenle'}>
+                                                <span>
+                                                    <IconButton
+                                                        onClick={handleEditSlug}
+                                                        edge="end"
+                                                        size="small"
+                                                        aria-label="slug-duzenle"
+                                                        disabled={isSlugEditable}
+                                                    >
+                                                        <EditOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </InputAdornment>
                                     ),
                                 }}
                                 fullWidth
