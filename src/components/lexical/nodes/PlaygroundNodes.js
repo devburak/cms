@@ -27,6 +27,7 @@ import { StickyNode } from "./StickyNode"
 import { TableNode as NewTableNode } from "./TableNode"
 import { TweetNode } from "./TweetNode"
 import { YouTubeNode } from "./YouTubeNode"
+import { VimeoNode } from "./VimeoNode"
 import {FileInputNode} from './FileInputNode'
 import { HtmlEditorNode } from "./HtmlEditorNode"
 import CarouselNode from "../../file/CarouselNode"
@@ -59,6 +60,7 @@ const PlaygroundNodes = [
   HorizontalRuleNode,
   TweetNode,
   YouTubeNode,
+  VimeoNode,
   MarkNode,
   CollapsibleContainerNode,
   CollapsibleContentNode,

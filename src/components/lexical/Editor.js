@@ -43,6 +43,7 @@ import LinkPlugin from './plugins/LinkPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
+import VimeoPlugin from './plugins/VimeoPlugin';
 import HtmlEditorPlugin from './plugins/HtmlEditorPlugin';
 import EquationsPlugin from './plugins/EquationsPlugin';
 import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
@@ -185,6 +186,7 @@ const Editor = React.forwardRef((props, ref) => {
             <PollPlugin />
             <TwitterPlugin />
             <YouTubePlugin />
+            <VimeoPlugin />
             <HtmlEditorPlugin />
             {!isEditable && <LexicalClickableLinkPlugin />}
             <HorizontalRulePlugin />
