@@ -7,6 +7,23 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useTranslation } from 'react-i18next';
 import { getAllPeriods, getAllChambers, getAllBoardTypes, createBoard, updateBoard } from '../../api';
 
+const toSortWeight = (value) => {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+};
+
+const sortBoardTypesByWeight = (items = []) =>
+    [...items].sort((left, right) => {
+        const leftWeight = toSortWeight(left?.sortWeight);
+        const rightWeight = toSortWeight(right?.sortWeight);
+
+        if (leftWeight !== rightWeight) {
+            return leftWeight - rightWeight;
+        }
+
+        return String(left?.name || '').localeCompare(String(right?.name || ''), 'tr', { sensitivity: 'base' });
+    });
+
 const BoardForm = ({ board, onSuccess, onError }) => {
     const { t } = useTranslation();
     const [periods, setPeriods] = useState([]);
@@ -36,7 +53,7 @@ const BoardForm = ({ board, onSuccess, onError }) => {
         const fetchBoardTypes = async () => {
             try {
                 const data = await getAllBoardTypes();
-                setBoardTypes(data);
+                setBoardTypes(sortBoardTypesByWeight(Array.isArray(data) ? data : []));
             } catch (error) {
                 console.error('Error fetching board types:', error);
             }

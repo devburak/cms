@@ -5,10 +5,29 @@ import { getAllBoardTypes, createBoardType, updateBoardType, deleteBoardType } f
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
+const DEFAULT_SORT_WEIGHT = 100;
+
+const toSortWeight = (value) => {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : DEFAULT_SORT_WEIGHT;
+};
+
+const sortBoardTypesByWeight = (items = []) =>
+    [...items].sort((left, right) => {
+        const leftWeight = toSortWeight(left?.sortWeight);
+        const rightWeight = toSortWeight(right?.sortWeight);
+
+        if (leftWeight !== rightWeight) {
+            return leftWeight - rightWeight;
+        }
+
+        return String(left?.name || '').localeCompare(String(right?.name || ''), 'tr', { sensitivity: 'base' });
+    });
+
 const BoardTypeForm = () => {
     const { t } = useTranslation();
     const [boardTypes, setBoardTypes] = useState([]);
-    const [formData, setFormData] = useState({ name: '', description: '' });
+    const [formData, setFormData] = useState({ name: '', description: '', sortWeight: DEFAULT_SORT_WEIGHT });
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
@@ -18,7 +37,7 @@ const BoardTypeForm = () => {
     const fetchBoardTypes = async () => {
         try {
             const data = await getAllBoardTypes();
-            setBoardTypes(data);
+            setBoardTypes(sortBoardTypesByWeight(Array.isArray(data) ? data : []));
         } catch (error) {
             console.error('Error fetching board types:', error);
         }
@@ -31,13 +50,18 @@ const BoardTypeForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const payload = {
+            ...formData,
+            sortWeight: toSortWeight(formData.sortWeight),
+        };
+
         try {
             if (editingId) {
-                await updateBoardType(editingId, formData);
+                await updateBoardType(editingId, payload);
             } else {
-                await createBoardType(formData);
+                await createBoardType(payload);
             }
-            setFormData({ name: '', description: '' });
+            setFormData({ name: '', description: '', sortWeight: DEFAULT_SORT_WEIGHT });
             setEditingId(null);
             fetchBoardTypes();
         } catch (error) {
@@ -46,7 +70,11 @@ const BoardTypeForm = () => {
     };
 
     const handleEdit = (boardType) => {
-        setFormData({ name: boardType.name, description: boardType.description });
+        setFormData({
+            name: boardType.name || '',
+            description: boardType.description || '',
+            sortWeight: toSortWeight(boardType.sortWeight),
+        });
         setEditingId(boardType._id);
     };
 
@@ -63,7 +91,7 @@ const BoardTypeForm = () => {
         <Paper sx={{ p: 2 }}>
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} md={4}>
                         <TextField
                             label={t('Board Type Name')}
                             name="name"
@@ -73,13 +101,24 @@ const BoardTypeForm = () => {
                             required
                         />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} md={4}>
                         <TextField
                             label={t('Description')}
                             name="description"
                             value={formData.description}
                             onChange={handleInputChange}
                             fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <TextField
+                            label={t('Sort Weight')}
+                            name="sortWeight"
+                            type="number"
+                            value={formData.sortWeight}
+                            onChange={handleInputChange}
+                            fullWidth
+                            inputProps={{ step: 1 }}
                         />
                     </Grid>
                     <Grid item xs={12} container justifyContent="flex-end">
@@ -93,7 +132,10 @@ const BoardTypeForm = () => {
             <List>
                 {boardTypes.map((boardType) => (
                     <ListItem key={boardType._id}>
-                        <ListItemText primary={boardType.name} secondary={boardType.description} />
+                        <ListItemText
+                            primary={boardType.name}
+                            secondary={`${boardType.description || '-'} • ${t('Sort Weight')}: ${toSortWeight(boardType.sortWeight)}`}
+                        />
                         <ListItemSecondaryAction>
                             <IconButton onClick={() => handleEdit(boardType)} color="primary">
                                 <EditIcon />
