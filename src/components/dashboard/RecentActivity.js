@@ -18,7 +18,13 @@ const RecentActivity = ({ recentContent, recentUsers, recentErrors, user }) => {
         setTabIndex(newValue);
     };
 
-    const formatDate = (date) => moment(date).format('DD.MM.YYYY HH:mm');
+    const formatDate = (date) => {
+        if (!date) {
+            return '-';
+        }
+        const parsed = moment(date);
+        return parsed.isValid() ? parsed.format('DD.MM.YYYY HH:mm') : '-';
+    };
 
     return (
         <Paper sx={{ height: '100%' }}>
