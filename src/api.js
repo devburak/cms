@@ -1650,6 +1650,14 @@ export const deleteFormSubmission = async (formId, submissionId) => {
   return response.data;
 };
 
+export const deleteFormSubmissions = async (formId, payload) => {
+  const response = await instance.delete(
+    `/api/forms/${formId}/submissions/bulk`,
+    { data: payload },
+  );
+  return response.data;
+};
+
 // Logs
 export const getLogs = async (params = {}) => {
   const response = await instance.get('/api/logs', { params });

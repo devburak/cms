@@ -21,6 +21,8 @@ import {
   InputAdornment,
   FormControl,
   InputLabel,
+  Checkbox,
+  Alert,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -33,13 +35,16 @@ import {
   getSubmissions,
   exportSubmissionsFile,
   deleteFormSubmission,
+  deleteFormSubmissions,
 } from '../../api';
 import { saveAs } from 'file-saver';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { notifySuccess } from '../../services/notificationBus';
 
 export default function SubmissionList() {
   const { t } = useTranslation();
@@ -58,6 +63,9 @@ export default function SubmissionList() {
   const [sortOrder, setSortOrder] = useState('newest');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState(new Set());
+  const [allMatchingSelected, setAllMatchingSelected] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
 
@@ -72,25 +80,29 @@ export default function SubmissionList() {
     if (selectedForm) fetchSubmissions();
   }, [selectedForm, page, searchQuery, sortOrder, startDate, endDate]);
 
+  useEffect(() => {
+    setSelectedSubmissionIds(new Set());
+    setAllMatchingSelected(false);
+  }, [selectedForm]);
+
+  useEffect(() => {
+    setAllMatchingSelected(false);
+  }, [searchQuery, startDate, endDate]);
+
   const fetchForms = async () => {
     const data = await getForms({ page: 1, limit: 1000 });
     setForms(data.forms || []);
   };
 
-  const fetchSubmissions = async () => {
-    const params = {
-      page,
-      limit,
+  const getCurrentFilters = () => {
+    const filters = {
       search: searchQuery || undefined,
-      sort: sortOrder === 'newest' ? '-createdAt' : 'createdAt',
     };
 
-    // Add date range if set and valid
-    // Convert moment to Date if needed
     if (startDate) {
       const dateObj = startDate.toDate ? startDate.toDate() : startDate;
       if (dateObj instanceof Date && !isNaN(dateObj)) {
-        params.startDate = dateObj.toISOString();
+        filters.startDate = dateObj.toISOString();
       }
     }
     if (endDate) {
@@ -98,9 +110,20 @@ export default function SubmissionList() {
       if (dateObj instanceof Date && !isNaN(dateObj)) {
         const endOfDay = new Date(dateObj);
         endOfDay.setHours(23, 59, 59, 999);
-        params.endDate = endOfDay.toISOString();
+        filters.endDate = endOfDay.toISOString();
       }
     }
+
+    return filters;
+  };
+
+  const fetchSubmissions = async () => {
+    const params = {
+      page,
+      limit,
+      ...getCurrentFilters(),
+      sort: sortOrder === 'newest' ? '-createdAt' : 'createdAt',
+    };
 
     const data = await getSubmissions(selectedForm, params);
     setSubmissions(data.submissions || []);
@@ -122,25 +145,9 @@ export default function SubmissionList() {
     try {
       // Build filters object matching current view
       const filters = {
-        search: searchQuery || undefined,
+        ...getCurrentFilters(),
         sort: sortOrder === 'newest' ? '-createdAt' : 'createdAt',
       };
-
-      // Add date filters if set and valid
-      if (startDate) {
-        const dateObj = startDate.toDate ? startDate.toDate() : startDate;
-        if (dateObj instanceof Date && !isNaN(dateObj)) {
-          filters.startDate = dateObj.toISOString();
-        }
-      }
-      if (endDate) {
-        const dateObj = endDate.toDate ? endDate.toDate() : endDate;
-        if (dateObj instanceof Date && !isNaN(dateObj)) {
-          const endOfDay = new Date(dateObj);
-          endOfDay.setHours(23, 59, 59, 999);
-          filters.endDate = endOfDay.toISOString();
-        }
-      }
 
       const blob = await exportSubmissionsFile(
         selectedForm,
@@ -163,7 +170,92 @@ export default function SubmissionList() {
   const handleDelete = async (id) => {
     if (!window.confirm(t('Delete submission?'))) return;
     await deleteFormSubmission(selectedForm, id);
+    setSelectedSubmissionIds((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
     fetchSubmissions();
+  };
+
+  const visibleSubmissionIds = submissions.map((submission) => submission._id);
+  const allVisibleSelected = visibleSubmissionIds.length > 0 && (
+    allMatchingSelected || visibleSubmissionIds.every((id) => selectedSubmissionIds.has(id))
+  );
+  const someVisibleSelected = !allMatchingSelected && visibleSubmissionIds.some(
+    (id) => selectedSubmissionIds.has(id)
+  );
+  const selectedCount = allMatchingSelected ? total : selectedSubmissionIds.size;
+
+  const handleToggleSubmission = (id) => {
+    if (allMatchingSelected) {
+      setAllMatchingSelected(false);
+      setSelectedSubmissionIds(new Set(visibleSubmissionIds.filter((visibleId) => visibleId !== id)));
+      return;
+    }
+
+    setSelectedSubmissionIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleVisible = () => {
+    if (allMatchingSelected) {
+      setAllMatchingSelected(false);
+      setSelectedSubmissionIds(new Set());
+      return;
+    }
+
+    setSelectedSubmissionIds((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) {
+        visibleSubmissionIds.forEach((id) => next.delete(id));
+      } else {
+        visibleSubmissionIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAllMatching = () => {
+    setAllMatchingSelected(true);
+    setSelectedSubmissionIds(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedCount || deleting) return;
+
+    const confirmationMessage = t('Delete selected submissions?', { count: selectedCount });
+    if (!window.confirm(confirmationMessage)) return;
+
+    setDeleting(true);
+    try {
+      const payload = allMatchingSelected
+        ? { allMatching: true, filters: getCurrentFilters() }
+        : { submissionIds: Array.from(selectedSubmissionIds) };
+      const result = await deleteFormSubmissions(selectedForm, payload);
+      const deletedCount = result.deletedCount || 0;
+
+      setSelectedSubmissionIds(new Set());
+      setAllMatchingSelected(false);
+      notifySuccess(t('Submissions deleted successfully', { count: deletedCount }));
+
+      const remainingTotal = Math.max(0, total - deletedCount);
+      const lastRemainingPage = Math.max(1, Math.ceil(remainingTotal / limit));
+      if (page > lastRemainingPage) {
+        setPage(lastRemainingPage);
+      } else {
+        await fetchSubmissions();
+      }
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleClearFilters = () => {
@@ -172,6 +264,8 @@ export default function SubmissionList() {
     setEndDate(null);
     setSortOrder('newest');
     setPage(1);
+    setSelectedSubmissionIds(new Set());
+    setAllMatchingSelected(false);
   };
 
   const renderCell = (key, value) => {
@@ -318,9 +412,63 @@ export default function SubmissionList() {
             </Grid>
 
             <TableContainer>
+              {hasPermission('deleteFormSubmission') && total > 0 && selectedCount === 0 && (
+                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<SelectAllIcon />}
+                    onClick={handleSelectAllMatching}
+                  >
+                    {t('Select all matching submissions', { count: total })}
+                  </Button>
+                </Box>
+              )}
+              {hasPermission('deleteFormSubmission') && selectedCount > 0 && (
+                <Alert
+                  severity="info"
+                  sx={{ mb: 2 }}
+                  action={(
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      {!allMatchingSelected && selectedCount < total && (
+                        <Button
+                          color="inherit"
+                          size="small"
+                          onClick={handleSelectAllMatching}
+                        >
+                          {t('Select all matching submissions', { count: total })}
+                        </Button>
+                      )}
+                      <Button
+                        color="error"
+                        variant="contained"
+                        size="small"
+                        startIcon={<DeleteIcon />}
+                        disabled={deleting}
+                        onClick={handleBulkDelete}
+                      >
+                        {t('Delete selected', { count: selectedCount })}
+                      </Button>
+                    </Box>
+                  )}
+                >
+                  {allMatchingSelected
+                    ? t('All matching submissions selected', { count: total })
+                    : t('Selected submissions', { count: selectedCount })}
+                </Alert>
+              )}
               <Table>
                 <TableHead>
                   <TableRow>
+                    {hasPermission('deleteFormSubmission') && (
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={allVisibleSelected}
+                          indeterminate={someVisibleSelected && !allVisibleSelected}
+                          onChange={handleToggleVisible}
+                          inputProps={{ 'aria-label': t('Select submissions on this page') }}
+                        />
+                      </TableCell>
+                    )}
                     {getHeaders().map(key => (
                       <TableCell key={key}>{key}</TableCell>
                     ))}
@@ -329,7 +477,19 @@ export default function SubmissionList() {
                 </TableHead>
                 <TableBody>
                   {submissions.map((sub, idx) => (
-                    <TableRow key={sub._id || idx}>
+                    <TableRow
+                      key={sub._id || idx}
+                      selected={allMatchingSelected || selectedSubmissionIds.has(sub._id)}
+                    >
+                      {hasPermission('deleteFormSubmission') && (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={allMatchingSelected || selectedSubmissionIds.has(sub._id)}
+                            onChange={() => handleToggleSubmission(sub._id)}
+                            inputProps={{ 'aria-label': t('Select submission') }}
+                          />
+                        </TableCell>
+                      )}
                       {getHeaders().map(k => (
                         <TableCell key={k}>{renderCell(k, sub[k])}</TableCell>
                       ))}
