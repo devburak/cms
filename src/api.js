@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export const getStorageVariables = async () => {
   try {
-    const response = await instance.get('/api/system/storage');
+    const response = await instance.get('/api/system/variables/storage');
     return response.data;
   } catch (error) {
     console.error('Error getting storage variables:', error);
@@ -447,9 +447,14 @@ export const restoreContentVersion = async (contentId, versionId) => {
 };
 
 // ID ile içerik getirme
+export const createContentPreviewToken = async (id) => {
+    const response = await instance.post(`/api/contents/${id}/preview-token`);
+    return response.data;
+};
+
 export const getContentById = async (id) => {
   try {
-    const response = await instance.get(`/api/contents/${id}`);
+    const response = await instance.get(`/api/contents/manage/${id}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching content by ID:', error);
@@ -1724,7 +1729,7 @@ export const cleanupWebhookJobs = async () => {
 
 // System Variables
 export const getSystemVariable = async (key) => {
-  const response = await instance.get(`/api/system/${key}`);
+  const response = await instance.get(`/api/system/variables/${key}`);
   return response.data;
 };
 
