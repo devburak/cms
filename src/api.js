@@ -1742,3 +1742,9 @@ export const getAllSystemVariables = async () => {
   const response = await instance.get('/api/system/variables/all');
   return response.data;
 };
+
+// Yalnız seçilen odanın kendi dönemleri; TMMOB Period servisi kullanılmaz.
+export const getBoardTerms = async (chamber) => {
+  const response = await instance.get('/api/boards/terms', { params: { chamber } });
+  return response.data;
+};
