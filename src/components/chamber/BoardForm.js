@@ -7,6 +7,8 @@ import {
   Button,
   IconButton,
   Alert,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -50,6 +52,7 @@ const BoardForm = ({ board, onSuccess, onError }) => {
 
   const [formData, setFormData] = useState({
     name: "",
+    isArchived: false,
     type: null,
     chamber: null,
     term: { name: "", startDate: "", endDate: "" },
@@ -79,6 +82,7 @@ const BoardForm = ({ board, onSuccess, onError }) => {
     if (board) {
       setFormData({
         name: board.name,
+        isArchived: Boolean(board.isArchived),
         type: board.type || null,
         chamber: board.chamber || null,
         term: {
@@ -175,6 +179,7 @@ const BoardForm = ({ board, onSuccess, onError }) => {
       // Reset form data
       setFormData({
         name: "",
+        isArchived: false,
         type: null,
         chamber: null,
         term: { name: "", startDate: "", endDate: "" },
@@ -190,6 +195,22 @@ const BoardForm = ({ board, onSuccess, onError }) => {
     <Paper sx={{ p: 2 }}>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(formData.isArchived)}
+                  onChange={(event) =>
+                    setFormData((previous) => ({
+                      ...previous,
+                      isArchived: event.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="Yalnız geçmiş kurullarda göster"
+            />
+          </Grid>
           <Grid item xs={12}>
             <TextField
               label={t("Board Name")}

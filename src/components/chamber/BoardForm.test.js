@@ -69,6 +69,7 @@ test("legacy records allow member edits with no name or dates", async () => {
       board={{
         _id: "b",
         name: "Arşiv",
+        isArchived: true,
         chamber,
         type,
         members: [{ name: "Üye" }],
@@ -78,10 +79,12 @@ test("legacy records allow member edits with no name or dates", async () => {
     />,
   );
   await screen.findByText(/eski kayıt/);
+  expect(screen.getByLabelText("Yalnız geçmiş kurullarda göster").checked).toBe(true);
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Update Board" }));
   });
   await waitFor(() => expect(updateBoard).toHaveBeenCalled());
+  expect(updateBoard.mock.calls[0][1].isArchived).toBe(true);
   expect(updateBoard.mock.calls[0][1].term).toEqual({
     name: "",
     startDate: null,
