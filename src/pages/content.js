@@ -19,7 +19,7 @@ import {
 import EditorWrapper from '../components/lexical/playground';
 import {
     checkSlugAvailability, getAllCategories, getAllPeriods, createContent, getContentById, updateContent,
-    searchTags, createTag
+    searchTags, createTag, getWorkGroups
 } from '../api';
 import slugify from 'slugify';
 import { debounce } from 'lodash';
@@ -89,6 +89,8 @@ const ContentPage = () => {
     const [publicationStatus, setPublicationStatus] = useState('published');
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [workGroups, setWorkGroups] = useState([]);
+    const [selectedWorkGroups, setSelectedWorkGroups] = useState([]);
     const [periods, setPeriods] = useState([]);
     const [selectedPeriod, setSelectedPeriod] = useState(null);
     const [spot, setSpot] = useState('');
@@ -124,6 +126,7 @@ const ContentPage = () => {
             setPublishDate(contentData.publishDate ? moment(contentData.publishDate) : moment());
             setPublicationStatus(contentData.status || 'published');
             setSelectedCategories(contentData.categories || []);
+            setSelectedWorkGroups(contentData.workGroups || []);
             setSpot(contentData.spot || '');
             setTags(contentData.tags || []);
             setFeaturedMedia(contentData.featuredMedia || null);
@@ -143,7 +146,8 @@ const ContentPage = () => {
 
     useEffect(() => {
         getAllCategories().then(setCategories).catch(console.error);
-        getAllPeriods().then((periodsData)=>setPeriods(periodsData.periods || [])).catch(console.error);
+        getWorkGroups().then(setWorkGroups).catch(console.error);
+        getAllPeriods(1, 100).then((periodsData)=>setPeriods(periodsData.periods || [])).catch(console.error);
     }, []);
 
     useEffect(() => {
@@ -276,6 +280,7 @@ const ContentPage = () => {
             status: publicationStatus,
             publishDate: publishDate?.toISOString?.() || new Date().toISOString(),
             categories: selectedCategories.map(category => category._id),
+            workGroups: selectedWorkGroups.map(group => group._id),
             tags: tags.map(tag => tag._id),
             featuredMedia,
         };
@@ -531,6 +536,20 @@ const ContentPage = () => {
                                     />
                                 )}
                                 sx={{ mt: 2 }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Autocomplete
+                                multiple
+                                options={workGroups}
+                                value={selectedWorkGroups}
+                                onChange={(event, value) => setSelectedWorkGroups(value)}
+                                isOptionEqualToValue={(option, value) => String(option._id) === String(value._id)}
+                                getOptionLabel={(group) => {
+                                    const period = typeof group.period === 'object' ? group.period : periods.find(p => String(p._id) === String(group.period));
+                                    return `${group.name}${period?.name ? ` (${period.name.trim()})` : ''}`;
+                                }}
+                                renderInput={(params) => <TextField {...params} label="İlgili çalışma grupları" placeholder="Grup veya dönem adıyla ara" helperText="İçeriğin ilgili olduğu grupları dönemleriyle birlikte seçebilirsiniz." />}
                             />
                         </Grid>
                         <Grid item xs={12}>

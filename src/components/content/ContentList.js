@@ -44,6 +44,7 @@ const createInitialFilters = () => ({
   category: null,
   slug: '',
   periodId: '',
+  workGroupId: '',
   status: '',
   authorId: '',
   publishStartDate: null,
@@ -119,6 +120,7 @@ const hasActiveAdvancedFilters = (filters) =>
   Boolean(
     filters.slug ||
       filters.periodId ||
+      filters.workGroupId ||
       filters.status ||
       filters.authorId ||
       filters.publishStartDate ||
@@ -131,6 +133,7 @@ const getAdvancedFilterCount = (filters) =>
   [
     filters.slug,
     filters.periodId,
+    filters.workGroupId,
     filters.status,
     filters.authorId,
     filters.publishStartDate,
@@ -236,6 +239,7 @@ const ContentList = () => {
   const [categories, setCategories] = useState([]);
   const [periods, setPeriods] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [workGroups, setWorkGroups] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
@@ -259,6 +263,7 @@ const ContentList = () => {
         category: nextFilters.category?._id || '',
         slug: nextFilters.slug.trim().replace(/^\/+|\/+$/g, ''),
         periodId: nextFilters.periodId,
+        workGroupId: nextFilters.workGroupId,
         status: nextFilters.status,
         author: nextFilters.authorId,
         publishStartDate: formatDateForQuery(nextFilters.publishStartDate),
@@ -306,6 +311,7 @@ const ContentList = () => {
           const data = filterOptionsResult.value || {};
           setPeriods(Array.isArray(data.periods) ? data.periods : []);
           setAuthors(Array.isArray(data.authors) ? data.authors : []);
+          setWorkGroups(Array.isArray(data.workGroups) ? data.workGroups : []);
 
           if (Array.isArray(data.categories) && data.categories.length > 0) {
             setCategories(data.categories);
@@ -573,6 +579,16 @@ const ContentList = () => {
                   />
                 </Grid>
 
+                <Grid item xs={12} md={4}>
+                  <Autocomplete
+                    options={workGroups}
+                    value={workGroups.find(group => String(group._id) === filters.workGroupId) || null}
+                    onChange={(event, value) => setFilters(prev => ({ ...prev, workGroupId: value?._id || '' }))}
+                    isOptionEqualToValue={(option, value) => String(option._id) === String(value._id)}
+                    getOptionLabel={(group) => `${group.name}${group.period?.name ? ` (${group.period.name.trim()})` : ''}`}
+                    renderInput={(params) => <TextField {...params} label="İlgili çalışma grubu" size="small" />}
+                  />
+                </Grid>
                 <Grid item xs={12} md={4}>
                   <Autocomplete
                     options={authors}
