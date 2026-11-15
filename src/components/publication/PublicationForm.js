@@ -12,7 +12,7 @@ import {
   IconButton
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { createPublication, updatePublication, getAllPeriods, getAllCategories } from '../../api'; // Import getAllCategories
+import { createPublication, updatePublication, getAllPeriods, getPublicationCategories } from '../../api'; // Import getPublicationCategories
 import FeaturedImage from '../file/featuredImage';
 import FileViewer from '../file/fileviewer'; // Dosyaları gösteren bileşen
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -122,7 +122,7 @@ const PublicationForm = ({ publication, onSuccess, onError }) => {
 
   const fetchCategories = async () => {
     try {
-      const categoriesData = await getAllCategories();
+      const categoriesData = await getPublicationCategories();
       setCategories(categoriesData || []); // Eğer boşsa, boş dizi ayarla
     } catch (error) {
       console.error('Error fetching categories:', error);

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Pagination, TextField, MenuItem, Autocomplete } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getPublications, deletePublication, getAllPeriods, getAllCategories } from '../../api';
+import { getPublications, deletePublication, getAllPeriods, getPublicationCategories } from '../../api';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -44,7 +44,7 @@ const PublicationList = ({ onEdit, onNotify, reloadKey = 0 }) => {
       try {
         const periodsData = await getAllPeriods();
         setPeriods(periodsData.periods || []);
-        const categoriesData = await getAllCategories();
+        const categoriesData = await getPublicationCategories();
         setCategories(categoriesData || []);
       } catch (error) {
         console.error('Error fetching periods or categories:', error);

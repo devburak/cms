@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Grid, TextField, Button,Divider,FormControlLabel,Switch,Autocomplete } from '@mui/material';
 import slugify from 'slugify';
 
-const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
+const CategoryForm = ({ selectedCategory, onSave, onCancel, preserveSlug = false, categories=[] }) => {
+  const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState({
     name: '',
     description: '',
@@ -12,9 +13,7 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
   });
 
   useEffect(() => {
-    if (selectedCategory) {
-      setCategory(selectedCategory);
-    }
+    setCategory(selectedCategory || { name: '', description: '', slug: '', isListed: false, parent: null });
   }, [selectedCategory]);
 
   const handleTitleChange = (e) => {
@@ -22,7 +21,7 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
     setCategory((prev) => ({
       ...prev,
       name: newTitle,
-      slug: slugify(newTitle, { lower: true, strict: true }).replace(/\./g, '-'),
+      slug: preserveSlug && selectedCategory ? prev.slug : slugify(newTitle, { lower: true, strict: true }).replace(/\./g, '-'),
     }));
 
     // Slug'un benzersizliğini kontrol etmek için checkSlugExists fonksiyonunu çağırabilirsiniz (opsiyonel)
@@ -53,25 +52,30 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
     setCategory((prev) => ({ ...prev, parent: newValue }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // if (category._id) {
     //   onUpdate(category);
     // } else {
     //   onSave(category);
     // }
-    onSave(category)
-    setCategory({
+    setSaving(true);
+    try {
+      await onSave(category);
+      setCategory({
         name: '',
         description: '',
         slug: '',
         isListed: false,
         parent: null
-      })
+      });
+    } catch { /* Hata bildirimi üst bileşende gösterilir; form korunur. */ }
+    finally { setSaving(false); }
   };
 
   const handleCancel = (e) => {
     e.preventDefault();
+    onCancel?.();
    
     setCategory({
         name: '',
@@ -99,7 +103,6 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
         </Grid>
         <Grid item xs={12}>
           <TextField
-            required
             size='small'
             fullWidth
             name="description"
@@ -125,10 +128,11 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
         </Grid>
         <Grid item xs={6}>
           <Autocomplete
-            options={categories}
+            options={categories.filter(item => item._id !== category._id)}
             getOptionLabel={(option) => option.name}
             value={category.parent}
             onChange={handleParentChange}
+            isOptionEqualToValue={(option, value) => option._id === value?._id}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -146,6 +150,7 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
             fullWidth
             size='small'
             name="slug"
+            disabled={preserveSlug && Boolean(selectedCategory)}
             label="Slug"
             value={category.slug}
             onChange={(e) => setCategory((prev) => ({ ...prev, slug: e.target.value }))}
@@ -154,7 +159,7 @@ const CategoryForm = ({ selectedCategory, onSave, categories=[] }) => {
         <Grid item xs={6}>
           <Button fullWidth  sx={category._id ?{
             width:250
-          }:{}} type="submit" variant="contained" color="primary">
+          }:{}} disabled={saving} type="submit" variant="contained" color="primary">
             {category._id ? 'Güncelle' : 'Oluştur'}
           </Button>
           {category._id ?

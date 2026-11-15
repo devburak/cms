@@ -1748,3 +1748,9 @@ export const getBoardTerms = async (chamber) => {
   const response = await instance.get('/api/boards/terms', { params: { chamber } });
   return response.data;
 };
+
+// Yayın kategorileri içerik kategorilerinden bağımsız yönetilir.
+export const getPublicationCategories = async () => (await instance.get('/api/publication-categories')).data;
+export const createPublicationCategory = async data => (await instance.post('/api/publication-categories', data)).data;
+export const updatePublicationCategory = async (id, data) => (await instance.put(`/api/publication-categories/${id}`, data)).data;
+export const deletePublicationCategory = async id => (await instance.delete(`/api/publication-categories/${id}`)).data;

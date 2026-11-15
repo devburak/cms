@@ -12,11 +12,12 @@ const CategoryList = ({
   rowsPerPage = 0,
   handleChangePage,
   handleChangeRowsPerPage,
-  total = 0
+  total = 0,
+  scope = 'content'
 }) => {
 
   const handleDelete = (category) => {
-    if (!canDelete || !onDelete || Number(category?.contentCount || 0) > 0) return;
+    if (!canDelete || !onDelete || category.canDelete === false || Number(category?.usageCount || category?.contentCount || 0) > 0) return;
     const confirmed = window.confirm(`"${category.name}" kategorisini silmek istediğinize emin misiniz?`);
     if (confirmed) {
       onDelete(category._id);
@@ -29,28 +30,33 @@ const CategoryList = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Slug</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>Başlık</TableCell>
+              <TableCell>Adres</TableCell>
+              <TableCell>Kullanım</TableCell>
+              <TableCell>Açıklama</TableCell>
+              <TableCell>İşlemler</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {categories.map((category) => {
-              const hasLinkedContent = Number(category?.contentCount || 0) > 0;
+            {(rowsPerPage > 0 ? categories.slice(page * rowsPerPage, (page + 1) * rowsPerPage) : categories).map((category) => {
+              const hasLinkedContent = category.canDelete === false || Number(category?.usageCount || category?.contentCount || 0) > 0;
               const deleteDisabled = !canDelete || hasLinkedContent;
               const deleteTooltip = hasLinkedContent
-                ? `Bu kategoriye bagli ${category.contentCount} icerik oldugu icin silinemez`
-                : 'Delete';
+                ? 'Bağlı kayıtlar bulunduğu için kaldırılamaz.'
+                : 'Kaldır';
 
               return (
                 <TableRow key={category._id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.slug}</TableCell>
+                  <TableCell>{scope === 'publication' ? `${category.publicationCount || 0} yayın` : `${category.contentCount || 0} içerik`}
+                    {category.childCount > 0 && ` · ${category.childCount} alt kategori`}
+                    {category.versionCount > 0 && ` · ${category.versionCount} geçmiş sürüm`}
+                  </TableCell>
                   <TableCell>{category.description ? `${category.description.substring(0, 30)}...` : ''}</TableCell>
                   <TableCell>
-                    <Tooltip title="Edit">
-                      <IconButton onClick={() => onEdit(category)}>
+                    <Tooltip title="Düzenle">
+                      <IconButton disabled={!onEdit} aria-label={`${category.name} düzenle`} onClick={() => onEdit?.(category)}>
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
@@ -68,7 +74,7 @@ const CategoryList = ({
           </TableBody>
         </Table>
       </TableContainer>
-     { rowsPerPage === 0 ?  <TablePagination
+     { rowsPerPage > 0 ?  <TablePagination
         component="div"
         count={total}
         page={page}
