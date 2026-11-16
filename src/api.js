@@ -1754,3 +1754,11 @@ export const getPublicationCategories = async () => (await instance.get('/api/pu
 export const createPublicationCategory = async data => (await instance.post('/api/publication-categories', data)).data;
 export const updatePublicationCategory = async (id, data) => (await instance.put(`/api/publication-categories/${id}`, data)).data;
 export const deletePublicationCategory = async id => (await instance.delete(`/api/publication-categories/${id}`)).data;
+
+// Permanent working groups; existing /work-groups IDs identify their period records.
+export const getWorkGroupFamilies = async (params = {}) => (await instance.get('/api/work-group-families', { params })).data;
+export const getWorkGroupFamily = async (id, params = {}) => (await instance.get(`/api/work-group-families/${id}`, { params })).data;
+export const createWorkGroupFamily = async data => (await instance.post('/api/work-group-families', data)).data;
+export const updateWorkGroupFamily = async (id, data) => (await instance.put(`/api/work-group-families/${id}`, data)).data;
+export const deleteWorkGroupFamily = async id => (await instance.delete(`/api/work-group-families/${id}`)).data;
+export const createWorkGroupPeriod = async (id, data) => (await instance.post(`/api/work-group-families/${id}/periods`, data)).data;

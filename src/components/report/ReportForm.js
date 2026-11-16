@@ -1,3 +1,4 @@
+import WorkGroupSelector from '../workGroup/WorkGroupSelector';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Autocomplete,
@@ -231,20 +232,9 @@ export default function ReportForm({ report, onSuccess, onError }) {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Autocomplete
-                  options={workGroups}
-                  getOptionLabel={(option) =>
-                    `${option.name || ''}${option.period?.name ? ` (${option.period.name})` : ''}`
-                  }
-                  isOptionEqualToValue={(option, value) => option._id === value?._id}
-                  value={selectedWorkGroup}
-                  onChange={(event, newValue) =>
-                    setFormData((prev) => ({ ...prev, workGroup: newValue || null }))
-                  }
-                  renderInput={(params) => (
-                    <TextField {...params} label="Çalışma Grubu (Opsiyonel)" size="small" />
-                  )}
-                />
+                <WorkGroupSelector groups={workGroups} value={selectedWorkGroup}
+                  onChange={value => setFormData(prev => ({ ...prev, workGroup: value }))}
+                  label="Çalışma grubu (opsiyonel)" helperText="Dönemi ayrı Dönem alanından seçin." />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField

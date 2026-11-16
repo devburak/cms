@@ -1,3 +1,4 @@
+import WorkGroupSelector from '../workGroup/WorkGroupSelector';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Autocomplete,
@@ -142,17 +143,8 @@ export default function ReportList({ onEdit, onNotify, reloadKey = 0 }) {
           />
         </Grid>
         <Grid item xs={12} md={3}>
-          <Autocomplete
-            options={workGroups}
-            getOptionLabel={(option) =>
-              `${option.name || ''}${option.period?.name ? ` (${option.period.name})` : ''}`
-            }
-            value={selectedWorkGroup}
-            onChange={(event, newValue) => setSelectedWorkGroup(newValue)}
-            renderInput={(params) => (
-              <TextField {...params} label="Çalışma Grubu" variant="outlined" size="small" />
-            )}
-          />
+          <WorkGroupSelector groups={workGroups} value={selectedWorkGroup}
+            onChange={setSelectedWorkGroup} />
         </Grid>
       </Grid>
       <TableContainer>

@@ -147,6 +147,7 @@ export default function WorkGroupForm({
   periods = [],
   chambers = [],
   onSave,
+  family = null,
 }) {
   const [workGroup, setWorkGroup] = useState(initialState);
 
@@ -208,10 +209,11 @@ export default function WorkGroupForm({
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSave({
+    try { await onSave({
       ...workGroup,
+      ...(family ? { name: family.name, slug: family.slug, family: family._id } : {}),
       period: selectedPeriod?._id || null,
       members: workGroup.members
         .filter((member) => member.firstName && member.lastName)
@@ -221,7 +223,7 @@ export default function WorkGroupForm({
           sortOrder: Number(member?.sortOrder ?? memberIndex) || memberIndex,
         })),
     });
-    setWorkGroup(initialState);
+    setWorkGroup(initialState); } catch { /* Parent displays the error; keep unsaved members. */ }
   };
 
   const handleCancel = (event) => {
@@ -235,26 +237,28 @@ export default function WorkGroupForm({
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <TextField
-              required
+              disabled={Boolean(family)}
+              required={!family}
               size="small"
               fullWidth
               label="Çalışma Grubu Adı"
-              value={workGroup.name}
+              value={family?.name || workGroup.name}
               onChange={handleNameChange}
             />
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              required
+              required={!family}
               size="small"
               fullWidth
-              label="Slug"
-              value={workGroup.slug}
+              label="Adres" disabled={Boolean(family)}
+              value={family?.slug || workGroup.slug}
               onChange={(event) => setWorkGroup((prev) => ({ ...prev, slug: event.target.value }))}
             />
           </Grid>
           <Grid item xs={12} md={6}>
             <Autocomplete
+              disabled={Boolean(selectedWorkGroup?._id)}
               options={periods}
               getOptionLabel={(option) => option.name || ''}
               isOptionEqualToValue={(option, value) => option._id === value?._id}
@@ -394,7 +398,7 @@ export default function WorkGroupForm({
 
           <Grid item xs={12} md={6}>
             <Button fullWidth type="submit" variant="contained">
-              {workGroup._id ? 'Çalışma Grubunu Güncelle' : 'Çalışma Grubu Oluştur'}
+              {workGroup._id ? 'Dönem üyelerini ve bilgilerini kaydet' : 'Gruba dönem ekle'}
             </Button>
           </Grid>
           {workGroup._id ? (

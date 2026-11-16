@@ -1,5 +1,6 @@
+import WorkGroupSelector from '../components/workGroup/WorkGroupSelector';
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import {
     Grid,
     TextField,
@@ -76,6 +77,7 @@ function getSeoDescriptionFromJson(jsonString) {
 
 const ContentPage = () => {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
     const { hasPermission } = useAuth();
     const [contentId, setContentId] = useState(id || null);
     const [title, setTitle] = useState('');
@@ -105,6 +107,14 @@ const ContentPage = () => {
     const [error, setError] = useState(null);
     const [editorResetKey, setEditorResetKey] = useState(0);
     const [versionRefreshKey, setVersionRefreshKey] = useState(0);
+
+    useEffect(() => {
+        if (id || contentId) return;
+        const requestedPeriod = searchParams.get('periodId');
+        const requestedGroup = searchParams.get('workGroupId');
+        if (requestedPeriod) setSelectedPeriod(periods.find(p => p._id === requestedPeriod) || null);
+        if (requestedGroup) setSelectedWorkGroups(workGroups.filter(g => g._id === requestedGroup));
+    }, [id, contentId, searchParams, periods, workGroups]);
 
     const canCreateContent = hasPermission('createContent');
     const canUpdateContent = hasPermission('updateContent');
@@ -539,18 +549,9 @@ const ContentPage = () => {
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <Autocomplete
-                                multiple
-                                options={workGroups}
-                                value={selectedWorkGroups}
-                                onChange={(event, value) => setSelectedWorkGroups(value)}
-                                isOptionEqualToValue={(option, value) => String(option._id) === String(value._id)}
-                                getOptionLabel={(group) => {
-                                    const period = typeof group.period === 'object' ? group.period : periods.find(p => String(p._id) === String(group.period));
-                                    return `${group.name}${period?.name ? ` (${period.name.trim()})` : ''}`;
-                                }}
-                                renderInput={(params) => <TextField {...params} label="İlgili çalışma grupları" placeholder="Grup veya dönem adıyla ara" helperText="İçeriğin ilgili olduğu grupları dönemleriyle birlikte seçebilirsiniz." />}
-                            />
+                            <WorkGroupSelector multiple groups={workGroups} value={selectedWorkGroups}
+                                onChange={setSelectedWorkGroups} label="İlgili çalışma grupları"
+                                helperText="Grubu seçin; dönem için aşağıdaki Dönem alanını kullanın." />
                         </Grid>
                         <Grid item xs={12}>
                             <Autocomplete

@@ -1,3 +1,4 @@
+import { uniqueWorkGroups } from '../workGroup/WorkGroupSelector';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -311,7 +312,7 @@ const ContentList = () => {
           const data = filterOptionsResult.value || {};
           setPeriods(Array.isArray(data.periods) ? data.periods : []);
           setAuthors(Array.isArray(data.authors) ? data.authors : []);
-          setWorkGroups(Array.isArray(data.workGroups) ? data.workGroups : []);
+          setWorkGroups(uniqueWorkGroups(Array.isArray(data.workGroups) ? data.workGroups : []));
 
           if (Array.isArray(data.categories) && data.categories.length > 0) {
             setCategories(data.categories);
@@ -585,7 +586,7 @@ const ContentList = () => {
                     value={workGroups.find(group => String(group._id) === filters.workGroupId) || null}
                     onChange={(event, value) => setFilters(prev => ({ ...prev, workGroupId: value?._id || '' }))}
                     isOptionEqualToValue={(option, value) => String(option._id) === String(value._id)}
-                    getOptionLabel={(group) => `${group.name}${group.period?.name ? ` (${group.period.name.trim()})` : ''}`}
+                    getOptionLabel={group => group.name}
                     renderInput={(params) => <TextField {...params} label="İlgili çalışma grubu" size="small" />}
                   />
                 </Grid>
