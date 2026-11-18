@@ -22,7 +22,7 @@ const placementLabel = {
   popup: 'Popup',
   banner: 'Banner',
   footer: 'Footer',
-  left_menu: 'Sol Menü'
+  left_menu: 'Sağ Menü'
 };
 
 const popupFrequencyLabel = {

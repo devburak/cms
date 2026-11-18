@@ -13,8 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 const QuickActions = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { hasPermission, user } = useAuth();
-    const isSuperAdmin = user?.role?.isSuperAdmin === true;
+    const { hasPermission } = useAuth();
 
     const actions = [
         {
@@ -51,7 +50,7 @@ const QuickActions = () => {
             label: t('View Logs'),
             icon: <HistoryIcon />,
             path: '/logs',
-            show: isSuperAdmin
+            show: hasPermission('readLogs')
         }
     ];
 

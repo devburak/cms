@@ -33,7 +33,7 @@ moment.locale('tr');
 
 const LogPage = () => {
     const { t } = useTranslation();
-    const { user } = useAuth();
+    const { hasPermission } = useAuth();
     const [logs, setLogs] = useState([]);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(0);
@@ -47,12 +47,12 @@ const LogPage = () => {
     const [resourceFilter, setResourceFilter] = useState('');
     const [actionFilter, setActionFilter] = useState('');
 
-    // Check if user is super admin
-    const isSuperAdmin = user?.role?.isSuperAdmin === true;
+    const canDeleteLogs = hasPermission('deleteLog');
+    const canReadLogs = Boolean(hasPermission('readLogs'));
 
     useEffect(() => {
-        fetchLogs();
-    }, [page, rowsPerPage, startDate, endDate, resourceFilter, actionFilter]);
+        if (canReadLogs) fetchLogs();
+    }, [canReadLogs, page, rowsPerPage, startDate, endDate, resourceFilter, actionFilter]);
 
     const fetchLogs = async () => {
         setLoading(true);
@@ -145,11 +145,18 @@ const LogPage = () => {
     };
 
 
+    if (!canReadLogs) {
+        return <Container sx={{ my: 4 }}><Typography>İşlem kayıtlarını görmek için readLogs yetkisi gerekir.</Typography></Container>;
+    }
+
     return (
         <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="tr">
             <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
                 <Typography variant="h4" gutterBottom>
                     {t('User Logs')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    İşlem kayıtları 365 gün saklanır. Eski kayıtlardaki eksik IP bilgisi geriye dönük oluşturulmaz.
                 </Typography>
 
                 {/* Filters */}
@@ -244,7 +251,7 @@ const LogPage = () => {
                                         <TableRow key={log._id} hover>
                                             <TableCell>{formatDate(log.createdAt)}</TableCell>
                                             <TableCell>
-                                                {log.user?.username || log.user?.email || t('System')}
+                                                {log.user?.name || log.user?.username || log.user?.email || t('System')}
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
@@ -264,7 +271,7 @@ const LogPage = () => {
                                                 </Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption">{log.ip || '-'}</Typography>
+                                                <Typography variant="caption" title={log.ip ? undefined : 'Bu kayıtta IP bilgisi saklanmamış.'}>{log.ip || 'Kaydedilmemiş'}</Typography>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -290,7 +297,7 @@ const LogPage = () => {
                         {t('Showing')} {logs.length} {t('of')} {total} {t('logs')}
                     </Typography>
 
-                    {isSuperAdmin && (
+                    {canDeleteLogs && (
                         <Button
                             variant="contained"
                             color="error"

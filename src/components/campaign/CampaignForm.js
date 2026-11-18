@@ -24,7 +24,7 @@ const PLACEMENT_OPTIONS = [
   { value: 'banner', label: 'Banner' },
   { value: 'popup', label: 'Popup' },
   { value: 'footer', label: 'Footer' },
-  { value: 'left_menu', label: 'Sol Menü' }
+  { value: 'left_menu', label: 'Sağ Menü' }
 ];
 
 const TARGET_PAGE_OPTIONS = [
@@ -246,7 +246,7 @@ const CampaignForm = () => {
             fullWidth
             inputProps={{ min: 0 }}
             helperText={campaign.placement === 'left_menu' 
-              ? 'Sol menüde sıralama için kullanılır. Düşük sayı üstte görünür.'
+              ? 'Sağ menüde sıralama için kullanılır. Düşük sayı üstte görünür.'
               : 'Banner için yalnızca 1 aktif kampanya olabilir.'}
             disabled={campaign.placement === 'banner'}
           />

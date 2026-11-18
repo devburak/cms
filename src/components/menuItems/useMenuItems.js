@@ -139,7 +139,7 @@ export function useMenuItems() {
             type: 'item',
             url: '/logs',
             target: true,
-            requiredPermission: ["readLogs", "deleteLog"]
+            requiredPermission: "readLogs"
           }
         ]
       }
