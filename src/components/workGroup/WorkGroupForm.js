@@ -23,6 +23,8 @@ const createMember = () => ({
   chamber: null,
 });
 
+const TMMOB_OPTION = { kind: 'tmmob', chamberId: null, _id: '__tmmob__', name: 'TMMOB', short: 'TMMOB' };
+
 const toCleanText = (input) => {
   if (input === null || input === undefined) {
     return '';
@@ -56,6 +58,10 @@ const toCleanText = (input) => {
 const normalizeMemberChamberForForm = (chamber) => {
   if (!chamber) {
     return null;
+  }
+
+  if (chamber.kind === 'tmmob' || (typeof chamber === 'string' && chamber.trim().toUpperCase() === 'TMMOB') || (!chamber.chamberId && !chamber._id && chamber.name === 'TMMOB')) {
+    return TMMOB_OPTION;
   }
 
   if (typeof chamber === 'string') {
@@ -92,6 +98,7 @@ const normalizeMemberChamberForForm = (chamber) => {
   }
 
   return {
+    kind: chamber.kind,
     chamberId: chamberId || null,
     _id: chamberId || chamber._id || null,
     name,
@@ -114,7 +121,12 @@ const mapChamberForPayload = (chamber) => {
     return null;
   }
 
+  if (normalized.kind === 'tmmob') {
+    return { kind: 'tmmob', chamberId: null, name: 'TMMOB', short: 'TMMOB' };
+  }
+
   return {
+    kind: 'chamber',
     chamberId: normalized.chamberId || normalized._id || null,
     name: normalized.name || '',
     short: normalized.short || '',
@@ -122,6 +134,7 @@ const mapChamberForPayload = (chamber) => {
 };
 
 const getChamberOptionLabel = (option) => {
+  if (option?.kind === 'tmmob') return 'TMMOB (Birlik)';
   const short = toCleanText(option?.short) || toCleanText(option?.code);
   const name = toCleanText(option?.name) || toCleanText(option?.label) || toCleanText(option);
 
@@ -150,6 +163,7 @@ export default function WorkGroupForm({
   family = null,
 }) {
   const [workGroup, setWorkGroup] = useState(initialState);
+  const chamberOptions = useMemo(() => [TMMOB_OPTION, ...chambers], [chambers]);
 
   useEffect(() => {
     if (!selectedWorkGroup) {
@@ -320,7 +334,7 @@ export default function WorkGroupForm({
             const memberChamberId =
               member?.chamber?.chamberId || member?.chamber?._id || member?.chamber?.id || null;
             const selectedChamber =
-              chambers.find((item) => item?._id === memberChamberId) ||
+              chamberOptions.find((item) => item?._id === memberChamberId || (item.kind === 'tmmob' && member.chamber?.kind === 'tmmob')) ||
               normalizeMemberChamberForForm(member?.chamber);
 
             return (
@@ -367,7 +381,7 @@ export default function WorkGroupForm({
                     </Grid>
                     <Grid item xs={12} md={3}>
                       <Autocomplete
-                        options={chambers}
+                        options={chamberOptions}
                         getOptionLabel={getChamberOptionLabel}
                         isOptionEqualToValue={(option, value) =>
                           option?._id === (value?._id || value?.chamberId || value?.id)
@@ -376,7 +390,7 @@ export default function WorkGroupForm({
                         onChange={(event, newValue) =>
                           handleMemberChange(index, 'chamber', normalizeMemberChamberForForm(newValue))
                         }
-                        renderInput={(params) => <TextField {...params} size="small" label="Odası" />}
+                        renderInput={(params) => <TextField {...params} size="small" label="Kurum / Oda" />}
                       />
                     </Grid>
                     <Grid item xs={12} md={1}>
