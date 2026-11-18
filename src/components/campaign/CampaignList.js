@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { notifyError, notifySuccess } from '../../services/notificationBus';
+import { parseCampaignVideoUrl } from '../../utils/campaignVideo';
 
 const placementLabel = {
   popup: 'Popup',
@@ -60,6 +61,7 @@ const CampaignList = () => {
   };
 
   const getSmallThumbnail = (media) => {
+    if (media?.mediaType === 'video') return parseCampaignVideoUrl(media.url)?.thumbnailUrl || null;
     if (media?.mediaId?.thumbnails) {
       const smallThumbnail = media.mediaId.thumbnails.find((thumb) => thumb.size === 'small');
       return smallThumbnail?.url || media.mediaId.url;
@@ -142,7 +144,7 @@ const CampaignList = () => {
                       style={{ width: 50, height: 50, objectFit: 'cover' }}
                     />
                   ) : (
-                    '-'
+                    campaign.squareMedia?.mediaType === 'video' || campaign.horizontalMedia?.mediaType === 'video' ? <Chip size="small" label="Video" /> : '-'
                   )}
                 </TableCell>
                 <TableCell>

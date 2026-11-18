@@ -14,7 +14,8 @@ import {
   FormHelperText,
   Typography
 } from '@mui/material';
-import FeaturedImageUpload from '../file/featuredImage';
+import CampaignMediaInput from './CampaignMediaInput';
+import { parseCampaignVideoUrl } from '../../utils/campaignVideo';
 import { getCampaignById, createCampaign, updateCampaign } from '../../api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container } from '@mui/material';
@@ -165,6 +166,13 @@ const CampaignForm = () => {
       return;
     }
 
+    for (const media of [payload.horizontalMedia, payload.squareMedia]) {
+      if (media?.mediaType === 'video' && !media.mediaId && !parseCampaignVideoUrl(media.url)) {
+        notifyError('Video için geçerli bir YouTube veya Vimeo bağlantısı girin.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       if (id) {
@@ -278,17 +286,20 @@ const CampaignForm = () => {
 
         <Grid container spacing={2} alignItems="center" sx={{ marginBottom: 2, padding: 2 }}>
           <Grid item sm={6} xs={12}>
-            <FeaturedImageUpload
-              handleFeaturedImage={(image) => handleMediaChange(image, 'horizontalMedia')}
-              initialFile={campaign.horizontalMedia}
-              sx={{ width: '400px', height: '100px' }}
+            <CampaignMediaInput
+              key={`${id || 'new'}-horizontal`}
+              label="Yatay medya"
+              horizontal
+              onChange={(media) => handleMediaChange(media, 'horizontalMedia')}
+              value={campaign.horizontalMedia}
             />
           </Grid>
           <Grid item sm={6} xs={12}>
-            <FeaturedImageUpload
-              handleFeaturedImage={(image) => handleMediaChange(image, 'squareMedia')}
-              initialFile={campaign.squareMedia}
-              sx={{ width: '120px', height: '120px' }}
+            <CampaignMediaInput
+              key={`${id || 'new'}-square`}
+              label="Kare medya"
+              onChange={(media) => handleMediaChange(media, 'squareMedia')}
+              value={campaign.squareMedia}
             />
           </Grid>
         </Grid>

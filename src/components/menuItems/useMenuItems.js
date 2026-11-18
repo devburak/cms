@@ -178,6 +178,15 @@ export function useMenuItems() {
         ]
       },
       {
+        id: 'videos',
+        title: t('Videolar'),
+        type: 'item',
+        url: '/videos',
+        icon: VideoLibraryIcon,
+        target: true,
+        requiredPermission: ['viewVideos', 'createVideo', 'updateVideo']
+      },
+      {
         id: 'publications',
         title: t('Publications'),
         type: 'item',
@@ -356,14 +365,6 @@ export function useMenuItems() {
             url: '/board-types',
             target: true,
             requiredPermission: ['viewBoardTypes', 'createBoardType', 'updateBoardType']
-          },
-          {
-            id: 'videos',
-            title: t('Videolar'),
-            type: 'item',
-            url: '/videos',
-            target: true,
-            requiredPermission: ['viewVideos', 'createVideo', 'updateVideo']
           },
           {
             id: 'ikk',
